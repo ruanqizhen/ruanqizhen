@@ -7,11 +7,45 @@
     <meta name="description" content="test">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <script>
+        function showHint(str)
+        {
+          var xmlhttp;
+          if (str.length==0)
+          { 
+            document.getElementById("txtHint").innerHTML="";
+            return;
+          }
+          if (window.XMLHttpRequest)
+          {
+            // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+            xmlhttp=new XMLHttpRequest();
+          }
+          else
+          {
+            // IE6, IE5 浏览器执行代码
+            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+          }
+          xmlhttp.onreadystatechange=function()
+          {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200)
+            {
+              document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
+            }
+          }
+          xmlhttp.open("GET","https://www.runoob.com/try/ajax/gethint.php?q="+str,true);
+          xmlhttp.send();
+        }
+    </script>
 
 </head>
 <body>
 <div>
-
+    <h3>在输入框中尝试输入字母 a:</h3>
+    <form action=""> 
+    输入姓名: <input type="text" id="txt1" onkeyup="showHint(this.value)" />
+    </form>
+    <p>提示信息: <span id="txtHint"></span></p> 
 
 </div>
 </body>
