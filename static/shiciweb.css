@@ -1,0 +1,63 @@
+
+
+.body {
+  margin: 2em auto;
+  max-width: 1000px;
+  overflow: visible;
+  margin-bottom: 0em;
+  padding-bottom: 0em;
+  margin-left: 1em;
+  margin-right: 1em;
+  background-color: #daf5cf;
+  text-align: left;
+}
+
+.title {
+  height: auto;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  font-family: 'Liu Jian Mao Cao', sans-serif;
+  font-size: 3em;
+  line-height: 1em;
+  text-align: center;
+}
+
+.label_text {
+  font-family: 'Zhi Mang Xing', sans-serif;
+  font-size: 1.6em;
+  line-height: 1.5em;
+  text-align: left;
+}
+
+.text-block {
+  font-family: 'Long Cang', sans-serif;
+  color: #63148d;
+  font-size: 1.2em;
+  line-height: 1.2em;
+  text-align: left;
+}
+
+.result {
+  color: #9c007d;
+  font-size: 1em;
+}
+
+span.choice {
+  display: inline-block;
+  width: 9em;
+  height: 1.5em;
+  font-family: 'Zhi Mang Xing', sans-serif;
+  font-size: 1.6em;
+  line-height: 1.5em;
+  text-align: left;
+}
+
+.v[data-class="v"] {
+   max-width: 40em;
+   border:1px dashed #a0a0a0;
+   padding: 1em;
+}
+
+.v[data-class="v"] .vwrap {
+    border-top-color: #a0a0a0;
+}
