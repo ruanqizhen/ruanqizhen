@@ -6,19 +6,16 @@
     <meta name="keywords" content="人工智能 生成 对联 古诗 AI Machine Learning Couplet Poem">
     <meta name="description" content="给出上联自动对下联，给出关键字，生成古诗词文，或者自动生成一些诗词和对联">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="sogou_site_verification" content="zylIzBzhTH"/>
-    <meta name="shenma-site-verification" content="56c3777561da0f648b02550f73e4d77b_1640286186"/>
     <link href="./static/shiciweb.css" rel="stylesheet" type="text/css">
     <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='webfont.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='shiciweb.js') }}"></script>
     <script
             type="text/javascript">WebFont.load({ google: { families: ["Liu Jian Mao Cao:regular:chinese-simplified,latin", "Zhi Mang Xing:regular:chinese-simplified,latin", "Long Cang:regular:chinese-simplified,latin"] } });
-
     </script>
 
     <script>
-        function showHint(str)
+        function writePoem(str)
         {
           var xmlhttp;
           if (str.length==0)
