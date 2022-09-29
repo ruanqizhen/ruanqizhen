@@ -24,10 +24,9 @@
                 url: "https://www.qizhen.xyz/test/" ,//url
                 data: $('#input_form').serialize(),
                 success: function (result) {
-                    console.log(result);
                     if (result.resultCode == 200) {
                         var result_div = $('#text-block');
-                        result_div.append(result.responseText);
+                        result_div.append(result);
                     }
                 },
                 error : function() {
