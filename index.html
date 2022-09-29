@@ -24,6 +24,8 @@
                 url: "https://www.qizhen.xyz/test/" ,//url
                 data: $('#input_form').serialize(),
                 success: function (result) {
+                    console.log(result);
+                    console.log(result.resultCode);
                     if (result.resultCode == 200) {
                         console.log(result);
                         var result_div = $('p.result');
@@ -74,7 +76,7 @@
         <br><br>
     </div>
     <div id="result_section">
-        <p class="result"> test </p>
+        <p class="result"> test1 </p>
     </div>
 
     <div>
