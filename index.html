@@ -17,31 +17,25 @@
     <script>
         function writePoem(str)
         {
-          var xmlhttp;
-          if (str.length==0)
-          { 
-            document.getElementById("txtHint").innerHTML="";
-            return;
-          }
-          if (window.XMLHttpRequest)
-          {
-            // IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
-            xmlhttp=new XMLHttpRequest();
-          }
-          else
-          {
-            // IE6, IE5 浏览器执行代码
-            xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-          }
-          xmlhttp.onreadystatechange=function()
-          {
-            if (xmlhttp.readyState==4 && xmlhttp.status==200)
-            {
-              document.getElementById("txtHint").innerHTML=xmlhttp.responseText;
-            }
-          }
-          xmlhttp.open("GET","https://www.qizhen.xyz/test/");
-          xmlhttp.send();
+            
+            $.ajax({
+            //几个参数需要注意一下
+                type: "GET",
+                dataType: "json",
+                url: "https://www.qizhen.xyz/test/" ,//url
+                data: $('#input_form').serialize(),
+                success: function (result) {
+                    console.log(result);//打印服务端返回的数据(调试用)
+                    if (result.resultCode == 200) {
+                        document.getElementById("result").innerHTML=result.responseText;
+                    }
+                    ;
+                },
+                error : function() {
+                    alert("异常！");
+                }
+            });
+            
         }
     </script>
 
@@ -78,9 +72,7 @@
         <br><br>
     </div>
     <div id="result_section">
-        {% for value in result %}
-        <p class="result">{{ value }}</p>
-        {% endfor %}
+        <p class="result"></p>
     </div>
 
     <div>
