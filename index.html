@@ -20,17 +20,17 @@
         {
             
             $.ajax({
-            //几个参数需要注意一下
                 type: "POST",
                 dataType: "json",
                 url: "https://www.qizhen.xyz/test/" ,//url
                 data: $('#input_form').serialize(),
                 success: function (result) {
-                    console.log(result);//打印服务端返回的数据(调试用)
+                    console.log(result);
                     if (result.resultCode == 200) {
-                        document.getElementById("result").innerHTML=result.responseText;
+                        var result_div = $('#text-block');
+                        result_div.append(=result.responseText);
                     }
-                    ;
+
                 },
                 error : function() {
                     alert("异常！");
