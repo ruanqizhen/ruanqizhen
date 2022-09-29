@@ -26,9 +26,11 @@
                 success: function (result) {
                     if (result.resultCode == 200) {
                         var result_div = $('p.result');
-                        console.log(result_div.val());
-                        result_div.text(result);
-                        console.log(result_div.val());
+                        console.log(result_div);
+                        dom = result_div.get(0);
+                        console.log(dom);
+                        dom.text(result);
+                        console.log(dom);
                     }
                 },
                 error : function() {
