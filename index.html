@@ -25,7 +25,7 @@
                 data: $('#input_form').serialize(),
                 success: function (result) {
                     if (result.resultCode == 200) {
-                        var result_div = $('#text-block');
+                        var result_div = $('#result_section');
                         result_div.append(result);
                     }
                 },
