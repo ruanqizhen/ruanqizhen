@@ -26,7 +26,7 @@
                 success: function (result) {
                     if (result.resultCode == 200) {
                         var result_div = $('#result_section');
-                        result_div.append(result);
+                        result_div.text(result);
                     }
                 },
                 error : function() {
