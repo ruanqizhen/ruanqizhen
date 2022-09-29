@@ -25,6 +25,7 @@
                 data: $('#input_form').serialize(),
                 success: function (result) {
                     if (result.resultCode == 200) {
+                        console.log(result);
                         var result_div = $('p.result');
                         console.log(result_div);
                         dom = result_div.get(0);
