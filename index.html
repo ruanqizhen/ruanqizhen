@@ -25,7 +25,7 @@
                 data: $('#input_form').serialize(),
                 success: function (result) {
                     if (result.resultCode == 200) {
-                        var result_div = $('#result_section');
+                        var result_div = $('p.result');
                         console.log(result_div.val());
                         result_div.text(result);
                         console.log(result_div.val());
@@ -71,7 +71,7 @@
         <br><br>
     </div>
     <div id="result_section">
-        <p class="result"></p>
+        <p class="result"> test </p>
     </div>
 
     <div>
