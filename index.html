@@ -15,7 +15,7 @@
     </script>
 
     <script>
-        function writePoem(str)
+        function writePoem()
         {
             
             $.ajax({
@@ -67,7 +67,7 @@
             <label id="tip" for="seed" class="text-block"></label> <br>
             <input type="text" class="w-input" maxlength="20" size=40 name="seed" placeholder="比如：春风吹落樱花雨" id="seed"
                    style="visibility: hidden">
-            <input type="submit" value="开始创作" style="visibility: hidden" id="submit_button" onclick="setWaitingMessage()">
+            <input type="submit" value="开始创作" style="visibility: hidden" id="submit_button" onclick="writePoem()">
         </form>
         <br><br>
     </div>
