@@ -25,16 +25,9 @@
                 data: $('#input_form').serialize(),
                 success: function (result) {
                     console.log(result);
-                    console.log(result.resultCode);
-                    if (result.resultCode == 200) {
-                        console.log(result);
-                        var result_div = $('p.result');
-                        console.log(result_div);
-                        dom = result_div.get(0);
-                        console.log(dom);
-                        dom.text(result);
-                        console.log(dom);
-                    }
+                    var result_div = $('p.result');
+                    console.log(result_div);
+                    result_div.append(result);
                 },
                 error : function() {
                     alert("异常！");
@@ -76,7 +69,7 @@
         <br><br>
     </div>
     <div id="result_section">
-        <p class="result"> test1 </p>
+        <p class="result"> test2 </p>
     </div>
 
     <div>
