@@ -33,7 +33,7 @@ function stopWaiting() {
 function writePoem(){
 	
 	var jqxhr = $.post(
-		"https://www.qizhen.xyz/test/", 
+		"https://service.qizhen.xyz/poem/", 
 		$('#input_form').serialize(),
 	).done(function (data) {
 		stopWaiting();
@@ -47,8 +47,8 @@ function writePoem(){
 		}
 
 	}).fail(function (xhr, status) {
-		stopWaiting();
-		alert('失败: ' + xhr.status + ', 原因: ' + status);
+		document.getElementById("result_section").innerHTML 
+		= "服务器目前无法工作，请明天再试试！";
 	});
 	setWaitingMessage();
 }

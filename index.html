@@ -32,9 +32,9 @@
         <form id="input_form" name="input_form" action="/" method="post">
             <span class="choice">请选择吟诗或作对：</span>
             <span class="choice">
-                <input type="radio" id="poem" name="radio" value="poem" onclick="setInputBoxTip" class="w-radio-input">
+                <input type="radio" id="poem" name="radio" value="poem" onchange="setInputBoxTip()" class="w-radio-input">
                 <label for="poem">吟诗</label>
-                <input type="radio" id="couplet" name="radio" value="couplet" onclick="setInputBoxTip()"
+                <input type="radio" id="couplet" name="radio" value="couplet" onchange="setInputBoxTip()"
                        class="w-radio-input">
                 <label for="couplet">作对</label>
             </span>
@@ -50,7 +50,7 @@
         
     </div>
 
-    <div>
+    <div class="text-block">
         <br />
         <a href="https://tieba.baidu.com/p/7603337529" target="_blank" rel="noopener noreferrer">有问题可以在百度贴吧讨论</a><br />
     </div>
@@ -66,7 +66,6 @@
             avatar: 'mp',
             recordIP: true,
             enableQQ: true,
-            requiredFields: ['nick']
         });
     </script>
     <script type="text/javascript" src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
