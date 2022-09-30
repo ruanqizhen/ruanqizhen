@@ -1,3 +1,5 @@
+
+
 function sayHello() {
    alert("Hello World")
 }
@@ -16,8 +18,38 @@ function setInputBoxTip() {
 }
 
 function setWaitingMessage() {
-    document.getElementById("seed").style.visibility = "hidden";
-    document.getElementById("submit_button").style.visibility = "hidden";
+    document.getElementById("seed").disabled  = true;
+    document.getElementById("submit_button").disabled = true;
     document.getElementById("result_section").innerHTML
     = "程序运行需要几秒钟，请稍等 ……  <br> <progress style=\"width: 20%; height: 30px\"></progress>";
 }
+
+function stopWaiting() {
+    document.getElementById("seed").disabled  = false;
+    document.getElementById("submit_button").disabled = false;
+    document.getElementById("result_section").innerHTML = "";
+}
+
+function writePoem(){
+	
+	var jqxhr = $.post(
+		"https://www.qizhen.xyz/test/", 
+		$('#input_form').serialize(),
+	).done(function (data) {
+		stopWaiting();
+		var result_div = $('#result_section');
+		var ul = document.createElement('ul');
+		result_div.append(ul);
+		for(let i = 0; i < data.length; i++) {
+			var ps = document.createElement('li');
+			ps.innerHTML = '<span>' + data[i] + '</span>';
+			ul.append(ps);
+		}
+
+	}).fail(function (xhr, status) {
+		stopWaiting();
+		alert('失败: ' + xhr.status + ', 原因: ' + status);
+	});
+	setWaitingMessage();
+}
+
