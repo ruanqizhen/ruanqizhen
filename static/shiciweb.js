@@ -48,7 +48,7 @@ function writePoem(){
 
 	}).fail(function (xhr, status) {
 		document.getElementById("result_section").innerHTML 
-		= "服务器目前无法工作，请明天再试试！";
+		= "<b>服务器目前无法工作。服务器是我的测试机器，不太稳定。请明天再试试！</b><br /><br />";
 	});
 	setWaitingMessage();
 }
