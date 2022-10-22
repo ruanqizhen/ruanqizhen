@@ -62,7 +62,7 @@ function generateImage(){
 		document.getElementById("result_section").innerHTML = "";
 		var result_div = $('#result_section');
 
-		result_div.html('<img src="data:image/png;base64,' + data + '" />')
+		result_div.html('<img style="max-width:99%;" src="data:image/png;base64,' + data + '" />')
 
 	}).fail(function (xhr, status) {
 		document.getElementById("result_section").innerHTML 
