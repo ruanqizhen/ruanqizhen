@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>电脑绘图</title>
+    <meta name="keywords" content="图片 生成 AI Machine Learning image">
+    <meta name="description" content="根据关键字生成图片">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="./static/shiciweb.css" rel="stylesheet" type="text/css">
+    <script src="//cdn.jsdelivr.net/npm/jquery@2/dist/jquery.min.js"></script>
+    <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+    <script src="./static/shiciweb.js"></script>
+</head>
+<body class="body">
+<div>
+    <div>
+        <h1 class="title">电脑绘图</h1>
+    </div>
+
+	<div>
+		<b>尽量以风花雪月为题，避免低俗词语和政治内容。</b>
+		<br />
+		<br />
+		当前测试的模型专用于生成卡通类图片，比如故事插图。图片中可能会出现一些低级错误，不要期望太高 :)
+		<br />
+		<br />
+		<br />
+		输入一些关键关键字，计算机会画一幅相关的图片。比如 “一个城堡坐落在开满鲜花的山脚下，城堡下流过一条小河”、“一个穿着华丽女孩”：
+	</div>
+
+
+    <div>
+        <form id="input_form" name="input_form" action="/" method="post">
+            <input type="text" class="w-input" maxlength="20" size=40 name="prompt" placeholder="比如：美丽的鲜花" id="prompt">
+            <input type="button" value="开始创作" id="submit_button" onclick="generateImage()">
+        </form>
+        <br><br>
+    </div>
+    <div id="result_section" class="result">
+        
+    </div>
+
+
+	<br />
+    <div class="text-block"><br /> 留言区: </div>
+    <div id="vcomments"></div>
+    <script>
+        // https://valine.js.org/
+        new Valine({
+            el: '#vcomments',
+            appId: '6kjcxrfdWw1mJ2P4nCMMhgG7-gzGzoHsz',
+            appKey: 'qYPMPY2CyIUU0b3r4LA6Yjzp',
+            placeholder: '请留言……',
+            avatar: 'mp',
+            recordIP: true,
+            enableQQ: true,
+        });
+    </script>
+    <script type="text/javascript" src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
+
+</div>
+</body>
+
+</html>
