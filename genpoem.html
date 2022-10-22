@@ -9,6 +9,7 @@
     <link href="./static/shiciweb.css" rel="stylesheet" type="text/css">
     <script src="//cdn.jsdelivr.net/npm/jquery@2/dist/jquery.min.js"></script>
     <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+	<script src="//cdn.jsdelivr.net/gh/flatblowfish/cave-draw/dist/cave-draw.min.js"></script>
     <script type="text/javascript" src="./static/webfont.js"></script>
     <script src="./static/shiciweb.js"></script>
     <script
@@ -56,6 +57,33 @@
     </div>
     <div class="text-block"><br /> 留言区: </div>
     <div id="vcomments"></div>
+	<script type="text/javascript" src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
+	<style>
+        .brush-detail p {
+            line-height: 1em !important;
+        }
+
+        .v[data-class="v"] .veditor {
+            max-height: 17em;
+        }
+
+        /* 去除查看更多 */
+        .v[data-class="v"] .vcards .vcard .vcontent.expand {
+            max-height: none;
+        }
+
+        .v[data-class="v"] .vcards .vcard .vcontent.expand::before,
+        .v[data-class="v"] .vcards .vcard .vcontent.expand::after {
+            display: none;
+        }
+
+        /* fancybox 图片背景 */
+        .fancybox-image,
+        .fancybox-spaceball {
+            background: whitesmoke;
+        }
+
+    </style>
     <script>
         // https://valine.js.org/
         new Valine({
@@ -63,13 +91,23 @@
             appId: '6kjcxrfdWw1mJ2P4nCMMhgG7-gzGzoHsz',
             appKey: 'qYPMPY2CyIUU0b3r4LA6Yjzp',
             placeholder: '请留言……',
-            avatar: 'mp',
+            avatar: 'monsterid',
             recordIP: true,
             enableQQ: true,
 			path: '/',
         });
+		var cdraw = new CaveDraw({
+			element: "#veditor",
+			readOnlyMode: false, // valine 不提交form，而是过滤评论框数据后发送，所以评论框不能readonly。
+			afterUpdateEditor: ()=>{ // 手动触发valine对评论框数据的过滤
+				document.querySelector('#veditor').focus();
+				document.querySelector('#veditor').blur();
+			},
+			controls: ['brush', 'eraser', 'bucket', 'clear', 'undo', 'redo', 'save']
+		});
+
     </script>
-    <script type="text/javascript" src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
+    
 
 </div>
 </body>
