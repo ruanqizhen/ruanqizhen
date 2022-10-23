@@ -80,17 +80,23 @@ function checkStatus(){
 		var anchor_node = $('#model');
 		switch(data) {
 		  case "1":
-			anchor_node.html("目前正在运行“吟诗作对”模型。");
+			anchor_node.html("目前正在运行<b>“吟诗作对”</b>模型。");
+			$('#genimg_link').addClass("disableHref");
 			break;
 		  case "2":
-			anchor_node.html("目前正在运行“电脑绘图”模型。");
+			anchor_node.html("目前正在运行<b>“电脑绘图”</b>模型。");
+			$('#genpoem_link').addClass("disableHref");
 			break;
 		  default:
 			anchor_node.html("<b>目前服务器无法工作，啥都运行不了！</b>");
+			$('#genimg_link').addClass("disableHref");
+			$('#genpoem_link').addClass("disableHref");
 		}
 
 	}).fail(function (xhr, status) {
 		var anchor_node = $('#model');
 		anchor_node.html("<b>目前服务器无法工作，啥都运行不了！</b>");
+		$('#genimg_link').addClass("disableHref");
+		$('#genpoem_link').addClass("disableHref");
 	});
 }

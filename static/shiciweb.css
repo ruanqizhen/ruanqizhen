@@ -62,3 +62,9 @@ span.choice {
 .v[data-class="v"] .vwrap {
     border-top-color: #a0a0a0;
 }
+
+.disableHref{
+    cursor:default;
+    color:#C0A0E0;
+    text-decoration:none;
+}
