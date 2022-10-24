@@ -38,9 +38,13 @@
         <br><br>
     </div>
     <div id="result_section" class="result">
-        
-    </div>
 
+
+	</div>
+		<br />
+	<div>
+        <button type="button" id="add_comment" style="visibility: hidden" onclick="addComments()">把结果加入留言框 （然后可以点击提交）</button>
+    </div>
 
 	<br />
     <div class="text-block"><br /> 留言区: </div>
@@ -84,16 +88,6 @@
             enableQQ: true,
 			path: '/',
         });
-		var cdraw = new CaveDraw({
-			element: "#veditor",
-			readOnlyMode: false, // valine 不提交form，而是过滤评论框数据后发送，所以评论框不能readonly。
-			afterUpdateEditor: ()=>{ // 手动触发valine对评论框数据的过滤
-				document.querySelector('#veditor').focus();
-				document.querySelector('#veditor').blur();
-			},
-			controls: ['brush', 'eraser', 'bucket', 'clear', 'undo', 'redo', 'save']
-		});
-
     </script>
 
 

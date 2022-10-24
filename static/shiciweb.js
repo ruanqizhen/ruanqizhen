@@ -59,17 +59,13 @@ function generateImage(){
 		"https://service.qizhen.xyz/genimg/", 
 		$('#input_form').serialize(),
 	).done(function (data) {
-		document.getElementById("result_section").innerHTML = "";
-		var result_div = $('#result_section');
-
-		result_div.html('<img style="max-width:99%;" src="data:image/png;base64,' + data + '" />')
-
+		$('#result_section').html('<img id="result_img" style="max-width:99%;" src="data:image/png;base64,' + data + '" />')
+		$('#add_comment').attr("style", "visibility: visible")
 	}).fail(function (xhr, status) {
-		document.getElementById("result_section").innerHTML 
-		= "<b>服务器目前无法工作。服务器是我的测试机器，不太稳定。请明天再试试！</b><br /><br />";
+		$('#result_section').html('<b>服务器目前无法工作。服务器是我的测试机器，不太稳定。请明天再试试！</b><br /><br />');
 	});
-	document.getElementById("result_section").innerHTML
-    = "程序运行需要几十秒钟，请稍等 ……  <br> <progress style=\"width: 20%; height: 30px\"></progress>";
+	$('#add_comment').attr("style", "visibility: hidden")
+	$('#result_section').html('程序运行需要几十秒钟，请稍等 ……  <br> <progress style=\"width: 20%; height: 30px\"></progress>');
 }
 
 function checkStatus(){
@@ -99,4 +95,12 @@ function checkStatus(){
 		$('#genimg_link').addClass("disableHref");
 		$('#genpoem_link').addClass("disableHref");
 	});
+}
+
+function addComments(){
+	
+	var comment_node = $('#veditor');
+	var image_node = $('#result_img');
+	comment_node.text($('#prompt').val() + '\n' + '<img src="' + image_node[0].src + '" />');
+	
 }
