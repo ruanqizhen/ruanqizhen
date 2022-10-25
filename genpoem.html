@@ -33,15 +33,14 @@
         <form id="input_form" name="input_form" action="/" method="post">
             <span class="choice">请选择吟诗或作对：</span>
             <span class="choice">
-                <input type="radio" id="poem" name="radio" value="poem" onchange="setInputBoxTip()" class="w-radio-input">
+                <input type="radio" id="poem" name="radio" value="poem" onchange="setInputBoxTip()">
                 <label for="poem">吟诗</label>
-                <input type="radio" id="couplet" name="radio" value="couplet" onchange="setInputBoxTip()"
-                       class="w-radio-input">
+                <input type="radio" id="couplet" name="radio" value="couplet" onchange="setInputBoxTip()">
                 <label for="couplet">作对</label>
             </span>
             <br> <br>
             <label id="tip" for="seed" class="text-block"></label> <br>
-            <input type="text" class="w-input" maxlength="20" size=40 name="seed" placeholder="比如：春风吹落樱花雨" id="seed"
+            <input type="text" maxlength="20" size=40 name="seed" placeholder="比如：春风吹落樱花雨" id="seed"
                    style="visibility: hidden">
             <input type="button" value="开始创作" style="visibility: hidden" id="submit_button" onclick="writePoem()">
         </form>
