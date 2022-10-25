@@ -41,13 +41,12 @@
 
 
 	</div>
-		<br />
-	<div>
-        <button type="button" id="add_comment" style="visibility: hidden" onclick="addComments()">把结果加入留言框 （然后可以点击提交）</button>
-    </div>
-
 	<br />
-    <div class="text-block"><br /> 留言区: </div>
+	<br />
+    <div > 
+		<span class="text-block"> 留言区: 　　　　</span>
+		<button type="button" id="add_comment" style="visibility: hidden" onclick="addComments()">把绘图结果加入留言框 （然后可以点击提交）</button>
+	</div>
 	<script type="text/javascript" src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
     <div id="vcomments"></div>
 	<style>
@@ -67,12 +66,6 @@
         .v[data-class="v"] .vcards .vcard .vcontent.expand::before,
         .v[data-class="v"] .vcards .vcard .vcontent.expand::after {
             display: none;
-        }
-
-        /* fancybox 图片背景 */
-        .fancybox-image,
-        .fancybox-spaceball {
-            background: whitesmoke;
         }
 
     </style>
