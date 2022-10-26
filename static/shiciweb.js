@@ -104,5 +104,5 @@ function addComments(){
 	comment_node.val($('#prompt').val() + '\n' + '<img src="' + image_node[0].src + '" />');
 	document.querySelector('#veditor').focus();
 	document.querySelector('#vcomments').focus();
-	
+	document.querySelector('#input_form').focus();
 }
