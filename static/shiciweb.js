@@ -54,17 +54,7 @@ function writePoem(){
 }
 
 function generateImage(){
-	
-	var jqxhr = $.post(
-		"https://service.qizhen.xyz/genimg/", 
-		$('#input_form').serialize(),
-	).done(function (data) {
-		$('#result_section').html('<img id="result_img" style="max-width:99%;" src="data:image/png;base64,' + data + '" />')
-		$('#add_comment').attr("style", "visibility: visible")
-	}).fail(function (xhr, status) {
-		$('#result_section').html('<b>服务器目前无法工作。服务器是我的测试机器，不太稳定。请明天再试试！</b><br /><br />');
-	});
-	
+		
 	var jqxhr2 = $.post(
 		"https://service.qizhen.xyz/poem/", 
 		$('#input_form').serialize(),
@@ -83,6 +73,15 @@ function generateImage(){
 		$('#poem_result').html('暂时没有诗词结果<br /><br />');
 	});
 	
+	var jqxhr = $.post(
+		"https://service.qizhen.xyz/genimg/", 
+		$('#input_form').serialize(),
+	).done(function (data) {
+		$('#result_section').html('<img id="result_img" style="max-width:99%;" src="data:image/png;base64,' + data + '" />')
+		$('#add_comment').attr("style", "visibility: visible")
+	}).fail(function (xhr, status) {
+		$('#result_section').html('<b>服务器目前无法工作。服务器是我的测试机器，不太稳定。请明天再试试！</b><br /><br />');
+	});
 	
 	$('#add_comment').attr("style", "visibility: hidden")
 	$('#poem_result').html('程序作诗需要几十秒钟，请稍等 ……');
