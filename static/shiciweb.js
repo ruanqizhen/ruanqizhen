@@ -71,6 +71,7 @@ function generateImage(){
 	).done(function (data) {
 	    var result_div = $('#poem_result');
 		var ul = document.createElement('ul');
+		ul.setAttribute('style','list-style: none;');
 		result_div.append(ul);
 		for(let i = 0; i < data.length; i++) {
 			var ps = document.createElement('li');
