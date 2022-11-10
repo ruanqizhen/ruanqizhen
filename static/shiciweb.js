@@ -69,6 +69,7 @@ function generateImage(){
 		"https://service.qizhen.xyz/poem/", 
 		$('#input_form').serialize(),
 	).done(function (data) {
+		$('#poem_result').html('');
 	    var result_div = $('#poem_result');
 		var ul = document.createElement('ul');
 		ul.setAttribute('style','list-style: none;');
