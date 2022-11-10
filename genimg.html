@@ -14,28 +14,33 @@
 <body class="body">
 <div>
     <div>
-        <h1 class="title">电脑绘图</h1>
+        <h1 class="title">电脑诗图</h1>
     </div>
 
 	<div>
 		<b>尽量以风花雪月为题，避免低俗词语和政治内容。</b>
 		<br />
 		<br />
-		当前测试的模型专用于生成卡通类图片，比如故事插图。图片中可能会出现一些低级错误，不要期望太高 :)
+		当前测试的模型专用于生成古诗和卡通类图片。电脑经常智障，结果可能很乱。
 		<br />
 		<br />
 		<br />
-		输入一些关键字，计算机会画一幅相关的图片。比如输入“穿着漂亮长裙的公主”、“小河从开满鲜花的山下流过”：
+		输入一些关键字，计算机会赋诗几首，绘图一幅。比如输入“美女”、“小河从开满鲜花的山下流过”：
 	</div>
 
 
     <div>
         <form id="input_form" name="input_form" action="/" method="post">
-            <input type="text" style="max-width:99%;" maxlength="40" size=60 name="prompt" placeholder="比如：美丽的鲜花" id="prompt">
+            <input type="text" style="max-width:99%;" maxlength="40" size=60 name="prompt" placeholder="比如：樱花雨" id="prompt">
             <input type="button" value="开始创作" id="submit_button" onclick="generateImage()">
         </form>
         <br><br>
     </div>
+	<div id="poem_result" class="result">
+
+
+	</div>
+	
     <div id="result_section" class="result">
 
 
