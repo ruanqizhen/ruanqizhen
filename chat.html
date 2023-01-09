@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>test</title>
+    <meta name="keywords" content="生成 AI Machine Learning image">
+    <meta name="description" content="根据关键字生成xx">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="./static/shiciweb.css" rel="stylesheet" type="text/css">
+    <script src="//cdn.jsdelivr.net/npm/jquery@2/dist/jquery.min.js"></script>
+    <script src="./static/shiciweb.js"></script>
+</head>
+<body class="body">
+    <div>
+        <h1 class="title">Test Chat</h1>
+    </div>
+	<div>
+		<b>xxxxxxxxxxxxx:</b>
+		<br />
+		<br />
+		<br />
+		xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx：
+	</div>
+
+
+    <div>
+        <form id="input_form" name="input_form" action="/" method="post">
+            <input type="text" style="max-width:99%;" maxlength="80" size=60 name="prompt" placeholder="" id="prompt">
+            <input type="button" value="submit" id="submit_button" onclick="generateChat()">
+        </form>
+        <br><br>
+    </div>
+
+	<div id="chat_result" class="result">
+
+
+	</div>
+	
+    <script>
+	function generateChat(){
+			
+		var jqxhr2 = $.post(
+			"https://service.qizhen.xyz/chat/", 
+			$('#input_form').serialize(),
+		).done(function (data) {
+			$('#chat_result').html(data);
+		}).fail(function (xhr, status) {
+			$('#chat_result').html(status);
+		});
+		
+
+		$('#chat_result').html('Please wait for a while ……');
+
+	}
+    </script>
+</body>
+
+</html>
