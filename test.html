@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Executor</title>
+</head>
+<body>
+    <h1>JavaScript Executor</h1>
+    <textarea id="jsInput" rows="10" cols="50"></textarea>
+    <br>
+    <button onclick="runJS()">Run Code</button>
+
+    <script>
+        function runJS() {
+            const jsCode = document.getElementById('jsInput').value;
+            try {
+                eval(jsCode);
+            } catch (error) {
+                console.error("Error executing JS: ", error);
+                alert("There was an error executing your code.");
+            }
+        }
+    </script>
+</body>
+</html>
