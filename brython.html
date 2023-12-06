@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试 Python 代码</title>
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/brython@3.12.0/brython.min.js">
+    </script>
+    <script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/brython@3.12.0/brython_stdlib.js">
+    </script>
+
+    <style>
+    .codearea {
+        background-color:#000;
+        color:#fff;
+        font-family:'Oxygen Mono', Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace;
+        font-size:14px;
+        overflow:auto;
+        width: 120ch;
+        height: 80ch;
+        margin-left: 2%;
+    }
+
+    </style>
+    <style>
+      .responsive-div {
+        max-width: 800px; /* 设置最大宽度为 800 像素 */
+        width: 100%;      /* 宽度默认为容器的 100% */
+      }
+    </style>
+</head>
+<body>
+</br>
+在下边的模拟交互环境中书写 Python 代码：
+</br> </br>
+
+    <div id="code" class="codearea" contenteditable></div>
+
+    <div id="content"></div>
+
+    <script type="text/python3">
+     from interpreter import Interpreter
+
+     # Start an interactive interpreter in textarea with id "code"
+     Interpreter("code")
+ </script>
+</body>
+</html>
