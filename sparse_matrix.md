@@ -21,7 +21,7 @@
 矩阵示例： 
 
 $$
-\tag{1} A = \begin{bmatrix}
+\begin{bmatrix}
     0 & 0 & 0 & \cdots & 0.2 \\
     0 & 0.5 & 0.8 & \cdots & 0.6 \\
     \vdots & \vdots & \vdots & \ddots & \vdots \\
