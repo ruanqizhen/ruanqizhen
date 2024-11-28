@@ -35,7 +35,7 @@ $$
 #### **2.2 优化目标**  
 目标函数为最大化头皮覆盖率 $C$，定义如下：  
 $$
-C = \frac{\sum_{i=1}^{m}\sum_{j=1}^{n} w_{ij} \cdot a_{ij}}{m \times n}
+C = \frac{ \sum_{i=1}^{m} \sum_{j=1}^{n} w_{ij} \cdot a_{ij}}{m \times n}
 $$  
 其中，$w_{ij}$ 为区域权重（额头和头顶权重较高，侧面和后脑较低）。  
 
