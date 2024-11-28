@@ -21,12 +21,11 @@
 矩阵示例： 
 
 $$
-\tag{1} A = \\\\
-\begin{bmatrix}
-    0 & 0 & 0 & \cdots & 0.2 \\\\
-    0 & 0.5 & 0.8 & \cdots & 0.6 \\\\
-    \vdots & \vdots & \vdots & \ddots & \vdots \\\\
-    0.2 & 0.8 & 1.2 & \cdots & 1.1 \\\\
+\tag{1} A = \begin{bmatrix}
+    0 & 0 & 0 & \cdots & 0.2 \\
+    0 & 0.5 & 0.8 & \cdots & 0.6 \\
+    \vdots & \vdots & \vdots & \ddots & \vdots \\
+    0.2 & 0.8 & 1.2 & \cdots & 1.1 \\
 \end{bmatrix}
 
 $$
