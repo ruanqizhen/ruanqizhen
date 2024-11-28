@@ -27,7 +27,7 @@ A = \begin{bmatrix}
     \vdots & \vdots & \vdots & \ddots & \vdots \\
     0.2 & 0.8 & 1.2 & \cdots & 1.1 \\
  \end{bmatrix}
- tag{1}
+ \tag{1}
 $$
 
 
