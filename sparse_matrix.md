@@ -45,6 +45,7 @@ $$
 
 #### 2.2 优化目标
 多目标函数设计：
+
 $$
 \max \left[ ω_1C - ω_2\sum c_{ij}t_{ij} \right] \\
 \text{s.t. } \begin{cases} 
@@ -53,6 +54,7 @@ $$
 d_{\text{visual}}(A,A') ≤ ε 
 \end{cases}
 $$
+
 其中：
 - ω1=0.67, ω2=0.33（通过AHP层次分析法确定）
 - 视觉相似度约束ε=0.15（SSIM指标）
