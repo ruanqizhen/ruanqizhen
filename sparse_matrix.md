@@ -19,9 +19,7 @@
 
 - 非零元素分布：枕区密度(121±18) follicles/cm²，前额区(32±7) follicles/cm²
 - 动态约束方程：
-  $$
-  \frac{da_{ij}}{dt} = α\sum_{k∈N(i,j)}(a_k - a_{ij}) - βa_{ij} + γh_{ij}
-  $$
+  $\frac{da_{ij}}{dt} = α\sum_{k∈N(i,j)}(a_k - a_{ij}) - βa_{ij} + γh_{ij}$
   其中α=0.15（扩散系数），β=0.08（脱落率），γ=0.23（生长因子） 
 
 矩阵示例： 
