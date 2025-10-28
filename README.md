@@ -9,7 +9,7 @@
 
 * **毕业院校 (Alma Mater):** 海上交通大学 *(Hydro Inflated University)*
 * **院系 (Department):** 水产养殖系 *(Department of Aquaculture)*
-* **主修 (Major):** 摸鱼 *(Sailing Idly under the Flag of Diligence)*
+* **主修 (Major):** 摸鱼 *(The Art of Looking Busy)*
 
 > 在校期间专注于“高效节能”的实验研究，搞黄了大量研究项目，避免了资源浪费。
 
@@ -34,7 +34,7 @@
 ### 🧠 当前项目 | Current Projects
 
 **《办公室内低功耗存在感维持机制》**
-*The Low-Power Presence Maintenance Mechanism in Office Environments*
+*Working hard at hardly working in Office Environments*
 > 国家级重点躺平计划支持项目（拟）。
 
 
