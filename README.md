@@ -34,7 +34,7 @@
 ### 🧠 当前项目 | Current Projects
 
 **《办公室内低功耗存在感维持机制》**
-*Working hard at hardly working in Office Environments*
+*Working Hard at Hardly Working in Office Environments*
 > 国家级重点躺平计划支持项目（拟）。
 
 
