@@ -8,7 +8,7 @@
 ### 🎓 教育背景 (Education)
 
 * **毕业院校 (Alma Mater):** 海上交通大学 *(Hydro Inflated University)*
-* **院系 (Department):** 水产养殖系 *(Department of Aquaculture)*
+* **院系 (Department):** 水产养殖系 *(The School of Fishy Studies)*
 * **主修 (Major):** 摸鱼 *(The Art of Looking Busy)*
 
 > 在校期间专注于“高效节能”的实验研究，搞黄了大量研究项目，避免了资源浪费。
