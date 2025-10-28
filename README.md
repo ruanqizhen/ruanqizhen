@@ -1,7 +1,7 @@
 ## 🐂 牛栓柱 (Stubborn Cornerstone)
 
 *齐齐哈尔宇宙照明协会首席被研究员*
-*Chief Overstudied Researcher, Qiqihar Cosmic Illumination Society*
+*Chief Overstudied Researcher, Qiqihar Cosmic Illumination Institute*
 
 ---
 
