@@ -7,7 +7,7 @@
 
 ### 🎓 教育背景 (Education)
 
-* **毕业院校 (Alma Mater):** 海上交通大学 *(Haishang Jiao Tong University)*
+* **毕业院校 (Alma Mater):** 海上交通大学 *(Hydro Inflated University)*
 * **院系 (Department):** 水产养殖系 *(Department of Aquaculture)*
 * **主修 (Major):** 摸鱼 *(Sailing Idly under the Flag of Diligence)*
 
