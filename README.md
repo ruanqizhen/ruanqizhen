@@ -3,6 +3,8 @@
 *齐齐哈尔宇宙照明协会首席被研究员*
 *Chief Overstudied Researcher, Qiqihar Cosmic Illumination Institute*
 
+个人博客：[[https://blog.qizhen.xyz/]]
+
 ---
 
 ### 🎓 教育背景 (Education)
