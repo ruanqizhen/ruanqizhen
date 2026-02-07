@@ -3,13 +3,13 @@
 *齐齐哈尔宇宙照明协会首席被研究员*
 *Chief Overstudied Researcher, Qiqihar Cosmic Illumination Institute*
 
-个人博客：[https://blog.qizhen.xyz/](https://blog.qizhen.xyz/)
+> 个人博客：[https://blog.qizhen.xyz/](https://blog.qizhen.xyz/)
 
 ---
 
 ### 🎓 教育背景 (Education)
 
-* **毕业院校 (Alma Mater):** 海上交通大学 *(Hydro Inflated University)*
+* **毕业院校 (Alma Mater):** 海上交通大学 *(Salty Jiao Tong University)*
 * **院系 (Department):** 水产养殖系 *(The School of Fishy Studies)*
 * **主修 (Major):** 摸鱼 *(The Art of Looking Busy)*
 
