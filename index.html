@@ -1,12 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>我的个人主页</title>
-    <meta name="keywords" content="Python LabVIEW 编程 教程">
-    <meta name="description" content="我的个人主页">
+    <meta charset="UTF-8">
+    <title>阮奇桢的个人空间</title>
+    <meta name="keywords" content="LabVIEW 教程, Python 编程, 尘世微光, 编程开发, 个人主页">
+    <meta name="description" content="Qizhen 的个人主页，包含《LabVIEW 教程》、《Python 教程》及纪实文学作品集《尘世微光》。">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
     <link href="./static/shiciweb.css" rel="stylesheet" type="text/css">
+    <style>
+        .body { font-family: -apple-system, "Helvetica Neue", "Microsoft YaHei", sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 30px; }
+        .result-list { list-style: none; padding: 0; }
+        .result-item { margin-bottom: 18px; }
+        .result-item b { font-size: 1.1em; }
+        .result-item a { color: #007bff; text-decoration: none; }
+        .result-item a:hover { text-decoration: underline; }
+        .tagline { color: #666; font-size: 0.9em; margin-left: 5px; }
+    </style>
+
     <script src="//cdn.jsdelivr.net/npm/jquery@2/dist/jquery.min.js"></script>
     <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
     <script src="./static/shiciweb.js"></script>
@@ -19,24 +31,33 @@
     </script>
 </head>
 <body class="body">
-<div>
-    <div>
-        <h1>我的个人主页</h1>
+    <div class="header">
+        <h1>阮奇桢的个人空间</h1>
     </div>
-	<br />
-	<div class="result">
-		<b>· <a href="https://lv.qizhen.xyz">《LabVIEW 教程》</a></b> - 一本介绍 LabVIEW 编程语言的书<br />
-		<b>· <a href="https://py.qizhen.xyz">《Python 教程》</a></b> - 一本介绍 Python 编程的书<br />
-		<b>· <a href="https://blog.qizhen.xyz">我的博客</a></b> - 记录生活琐事<br />
-	</div>
 
+    <div class="result">
+        <ul class="result-list">
+            <li class="result-item">
+                <a href="https://lv.qizhen.xyz"><b>《LabVIEW 教程》</b></a> 
+                <span class="tagline">- 从零开始的 LabVIEW 编程开发指南</span>
+            </li>
+            <li class="result-item">
+                <a href="https://py.qizhen.xyz"><b>《Python 教程》</b></a> 
+                <span class="tagline">- 一本通俗易懂的 Python 编程秘籍</span>
+            </li>
+            <li class="result-item">
+                <a href="https://glimmer.qizhen.xyz"><b>《尘世微光》</b></a> 
+                <span class="tagline">- 在数字荒原里，捡拾每一个平凡生命的微光</span>
+            </li>
+            <li class="result-item">
+                <a href="https://blog.qizhen.xyz"><b>我的博客</b></a> 
+                <span class="tagline">- 碎碎念，记录生活琐事与技术思考</span>
+            </li>
+        </ul>
+    </div>
 
-
-	<br />
+    <br />
     <script>checkStatus();</script>
     <script type="text/javascript" src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
-
-</div>
 </body>
-
 </html>
