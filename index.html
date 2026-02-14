@@ -1,248 +1,239 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>阮奇桢 | 个人主页</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="阮奇桢的个人主页：技术教程、文学创作与生活随笔。">
+  <meta charset="UTF-8">
+  <title>阮奇桢 | 个人主页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="阮奇桢的个人主页：技术教程、文学创作与生活随笔。">
 
-    <style>
-        :root {
-            --bg-body: #f1f3f2; 
-            --bg-card: #f7f9f8;
-            
-            --text-primary: #2c3e38; /* 深墨绿，接近黑 */
-            --text-secondary: #566561; /* 次级灰绿 */
-            --text-accent: #3d7070; /* 链接色 */
-            
-            --border-line: #eef2f0;
-            --shadow-subtle: rgba(44, 62, 56, 0.03);
-        }
+  <style>
+    :root {
+      --bg-body: #f1f3f2;
+      --bg-card: rgba(247, 249, 248, 0.9);
+      --bg-vein: rgba(140, 155, 150, 0.08);
+      --text-primary: #2c3e38;
+      --text-secondary: #566561;
+      --text-accent: #3d7070;
+      --border-line: #eef2f0;
+      --shadow-subtle: rgba(44, 62, 56, 0.05);
+    }
 
-        * {
-            box-sizing: border-box;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                         "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-primary);
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text-primary);
+      line-height: 1.6;
+      background: rgba(150, 175, 190, 0.2);
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: radial-gradient(var(--text-secondary) 0.5px, transparent 0.5px);
-            background-size: 24px 24px;
-            opacity: 0.03;
-            z-index: -1;
-            pointer-events: none;
-        }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(135deg, #f2f5f8 0%, #e7edf2 100%);
+      filter: url(#marble);
+      opacity: 0.10;
+    }
 
-        .container {
-            max-width: 760px; 
-            margin: 80px auto;
-            padding: 60px 50px;
-            background: var(--bg-card);
-            
-            box-shadow: 
-                0 1px 2px var(--shadow-subtle),
-                0 8px 24px var(--shadow-subtle);
-            
-            border: 1px solid #fff;
-            
-            animation: fadeIn 2s ease-out;
-        }
+    .container {
+      max-width: 680px;
+      margin: 80px auto;
+      padding: 60px 50px;
+      background: var(--bg-card);
+      box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.03),
+        0 20px 40px rgba(0, 0, 0, 0.05),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+      border-radius: 10px;
+      animation: fadeIn 1s ease-out;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 10px;
-            position: relative;
-        }
+    .header {
+      text-align: center;
+      margin-bottom: 10px;
+      position: relative;
+    }
 
-        .header h1 {
-            margin: 0;
-            font-weight: 700;
-            font-size: 32px;
-            letter-spacing: 4px; /* 增加字间距 */
-            color: var(--text-primary);
-        }
+    .header h1 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 32px;
+      letter-spacing: 4px;
+      color: var(--text-primary);
+    }
 
-        .header p {
-            margin-top: 16px;
-            font-size: 14px;
-            color: var(--text-secondary);
-            font-style: italic; /* 斜体增加西文排版 */
-            letter-spacing: 1px;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif; /* 副标题用无衬线体 */
-            text-transform: uppercase;
-            font-size: 12px;
-            opacity: 0.8;
-        }
+    .header::after {
+      content: "";
+      display: block;
+      width: 40px;
+      height: 2px;
+      background: var(--text-accent);
+      margin: 30px auto 0;
+      opacity: 0.3;
+    }
 
-        /* 装饰性短横线 */
-        .header::after {
-            content: "";
-            display: block;
-            width: 40px;
-            height: 2px;
-            background: var(--text-accent);
-            margin: 30px auto 0;
-            opacity: 0.3;
-        }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
 
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+    .item {
+      display: block;
+      padding: 24px 10px;
+      border-bottom: 1px dashed var(--border-line);
+      transition: all 0.3s ease;
+      position: relative;
+    }
 
-        .item {
-            display: block;
-            padding: 24px 10px;
-            border-bottom: 1px dashed var(--border-line); /* 虚线 */
-            transition: all 0.3s ease;
-            position: relative;
-        }
+    .item:last-child {
+      border-bottom: none;
+    }
 
-        .item:last-child {
-            border-bottom: none;
-        }
+    .item:hover {
+      background: rgba(240, 245, 243, 0.6);
+      padding-left: 20px;
+    }
 
-        .item:hover {
-            background: rgba(245, 247, 246, 0.5);
-            padding-left: 20px; /* 悬停时轻微缩进 */
-        }
+    .item a {
+      text-decoration: none;
+      display: block;
+    }
 
-        .item a {
-            text-decoration: none;
-            display: block;
-        }
+    .title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
 
-        .title-row {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
+    .main-title {
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--text-primary);
+      position: relative;
+    }
 
-        .main-title {
-            font-size: 19px;
-            font-weight: 600;
-            color: var(--text-primary);
-            position: relative;
-        }
+    .book-mark {
+      color: var(--text-secondary);
+      font-weight: normal;
+      margin: 0 2px;
+    }
 
-        /* 书名号微调 */
-        .book-mark {
-            color: var(--text-secondary);
-            font-weight: normal;
-            margin: 0 2px;
-        }
+    .tagline {
+      display: block;
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 400;
+    }
 
-        .tagline {
-            display: block;
-            font-size: 14px;
-            color: var(--text-secondary);
-            font-weight: 400;
-            /* 描述文字 */
-        }
+    .item:hover .main-title {
+      color: var(--text-accent);
+    }
 
-        /* 链接悬停效果 */
-        .item:hover .main-title {
-            color: var(--text-accent);
-        }
+    footer {
+      text-align: center;
+      margin-top: 80px;
+      font-size: 12px;
+      color: #b0b8b5;
+      letter-spacing: 1px;
+      font-family: sans-serif;
+    }
 
-        footer {
-            text-align: center;
-            margin-top: 80px;
-            font-size: 12px;
-            color: #b0b8b5;
-            letter-spacing: 1px;
-            font-family: sans-serif; /* 页脚用无衬线体更清晰 */
-        }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    @media (max-width: 600px) {
+      .container {
+        margin: 20px;
+        padding: 40px 25px;
+        background: rgba(255, 255, 255, 0.96);
+      }
+      body {
+        background-size: 100% 100%, 100% 100%, 150% 150%, 100% 100%, 40px 40px;
+      }
+    }
+  </style>
 
-        @media (max-width: 600px) {
-            .container {
-                margin: 0;
-                padding: 40px 25px;
-                box-shadow: none;
-                border: none;
-                max-width: 100%;
-            }
-            body {
-                background: var(--bg-card); /* 手机端直接纯白背景 */
-            }
-        }
-    </style>
-	<script type="text/javascript">
-      (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-      })(window, document, "clarity", "script", "jxmn1qjx88");
-    </script>
+  <script type="text/javascript">
+    (function(c, l, a, r, i, t, y) {
+      c[a] = c[a] || function() { (c[a].q = c[a].q || []).push(arguments) };
+      t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+    })(window, document, "clarity", "script", "jxmn1qjx88");
+  </script>
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>阮奇桢 个人主页</h1>
-        </div>
+  <svg width="0" height="0">
+    <filter id="marble">
+      <feTurbulence type="fractalNoise" baseFrequency="0.0016 0.016" numOctaves="2" seed="9" result="noise" />
+      <feColorMatrix type="saturate" values="0.1" result="mono" />
+      <feColorMatrix in="mono" type="matrix" values="9 0 0 0 -4 0 9 0 0 -4 0 0 9 0 -4 0 0 0 1 0" result="veins" />
+      <feDisplacementMap in="veins" in2="noise" scale="95" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
 
-        <ul>
-            <li class="item">
-                <a href="https://lv.qizhen.xyz">
-                    <div class="title-row">
-                        <span class="main-title"><span class="book-mark">《</span>LabVIEW 教程<span class="book-mark">》</span></span>
-                    </div>
-                    <span class="tagline">图形编程 · 从入门到精通</span>
-                </a>
-            </li>
-
-            <li class="item">
-                <a href="https://py.qizhen.xyz">
-                    <div class="title-row">
-                        <span class="main-title"><span class="book-mark">《</span>Python 教程<span class="book-mark">》</span></span>
-                    </div>
-                    <span class="tagline">赛博修仙 · 严谨而实用的编程秘籍</span>
-                </a>
-            </li>
-
-            <li class="item">
-                <a href="https://glimmer.qizhen.xyz">
-                    <div class="title-row">
-                        <span class="main-title"><span class="book-mark">《</span>尘世微光<span class="book-mark">》</span></span>
-                    </div>
-                    <span class="tagline">网文收录 · 上个世纪普通人的生命痕迹</span>
-                </a>
-            </li>
-
-            <li class="item">
-                <a href="https://blog.qizhen.xyz">
-                    <div class="title-row">
-                        <span class="main-title">个人博客</span>
-                    </div>
-                    <span class="tagline">凡人琐忆 · 技术思考以及生活中的片刻随笔</span>
-                </a>
-            </li>
-        </ul>
-
-        <footer>
-            qizhen.xyz
-        </footer>
+  <div class="container">
+    <div class="header">
+      <h1>阮奇桢 个人主页</h1>
     </div>
-	<script type="text/javascript" src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
+
+    <ul>
+      <li class="item">
+        <a href="https://lv.qizhen.xyz">
+          <div class="title-row">
+            <span class="main-title"><span class="book-mark">《</span>LabVIEW 教程<span class="book-mark">》</span></span>
+          </div>
+          <span class="tagline">图形编程 · 从入门到精通</span>
+        </a>
+      </li>
+
+      <li class="item">
+        <a href="https://py.qizhen.xyz">
+          <div class="title-row">
+            <span class="main-title"><span class="book-mark">《</span>Python 教程<span class="book-mark">》</span></span>
+          </div>
+          <span class="tagline">赛博修仙 · 严谨而实用的编程秘籍</span>
+        </a>
+      </li>
+
+      <li class="item">
+        <a href="https://glimmer.qizhen.xyz">
+          <div class="title-row">
+            <span class="main-title"><span class="book-mark">《</span>尘世微光<span class="book-mark">》</span></span>
+          </div>
+          <span class="tagline">网文收录 · 上个世纪普通人的生命痕迹</span>
+        </a>
+      </li>
+
+      <li class="item">
+        <a href="https://blog.qizhen.xyz">
+          <div class="title-row">
+            <span class="main-title">个人博客</span>
+          </div>
+          <span class="tagline">凡人琐忆 · 技术思考以及生活中的片刻随笔</span>
+        </a>
+      </li>
+    </ul>
+
+    <footer>
+      qizhen.xyz
+    </footer>
+  </div>
+  
+  <script type="text/javascript" src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
 </body>
 </html>
