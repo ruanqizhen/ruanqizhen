@@ -179,7 +179,7 @@
 <body>
   <svg width="0" height="0">
     <filter id="marble">
-      <feTurbulence type="fractalNoise" baseFrequency="0.0016 0.016" numOctaves="2" seed="9" result="noise" />
+      <feTurbulence id="marble-noise" type="fractalNoise" baseFrequency="0.0016 0.016" numOctaves="2" seed="123" result="noise" />
       <feColorMatrix type="saturate" values="0.1" result="mono" />
       <feColorMatrix in="mono" type="matrix" values="9 0 0 0 -4 0 9 0 0 -4 0 0 9 0 -4 0 0 0 1 0" result="veins" />
       <feDisplacementMap in="veins" in2="noise" scale="95" xChannelSelector="R" yChannelSelector="G" />
@@ -235,5 +235,15 @@
   </div>
   
   <script type="text/javascript" src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
+
+  <script>
+    (function() {
+      var turbulence = document.getElementById('marble-noise');
+      if (turbulence) {
+        var randomSeed = Math.floor(Math.random() * 5000);
+        turbulence.setAttribute('seed', randomSeed);
+      }
+    })();
+  </script>
 </body>
 </html>
