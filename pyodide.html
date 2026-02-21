@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>In-Browser Python Editor</title>
+    <title>运行 Python</title>
     
     <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
     
@@ -58,11 +58,11 @@
 </head>
 <body>
 
-    <h1>Python Code Runner</h1>
-    <p>Write your Python code below and click run. The code executes entirely in your browser.</p>
+    <h1>运行 Python 代码</h1>
+    <p>在下方文本框里编写你的 Python 代码，然后点击“运行”按钮。代码是完全在你的浏览器中运行的。</p>
 
     <textarea id="python-code" spellcheck="false">
-# Write your Python code here
+# 在这里添加 Python 代码
 def greet(name):
     return f"Hello, {name}!"
 
@@ -71,9 +71,9 @@ for i in range(1, 4):
     print(f"Counting: {i}")
 </textarea>
 
-    <button id="run-btn" onclick="executePython()" disabled>Loading Python Environment...</button>
+    <button id="run-btn" onclick="executePython()" disabled>正在装载 Python 编译器...</button>
 
-    <h2>Output:</h2>
+    <h2>输出:</h2>
     <pre id="output">Waiting to run...</pre>
 
     <script>
@@ -92,7 +92,7 @@ for i in range(1, 4):
             // Enable the button once Pyodide is ready
             const runBtn = document.getElementById("run-btn");
             runBtn.disabled = false;
-            runBtn.innerText = "Run Python Code";
+            runBtn.innerText = "运行 Python 代码";
             document.getElementById("output").innerText = "Ready!";
         }
         
@@ -105,7 +105,7 @@ for i in range(1, 4):
             
             // Clear previous output
             outputText = ""; 
-            outputElement.innerText = "Running...\n";
+            outputElement.innerText = "正在运行...\n";
 
             try {
                 // Execute the Python code
