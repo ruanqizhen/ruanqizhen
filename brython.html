@@ -4,55 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>测试 Python 代码</title>
-    <script type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/brython@3.12.0/brython.min.js">
-    </script>
-    <script type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/brython@3.12.0/brython_stdlib.js">
-    </script>
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.12.0/brython.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.12.0/brython_stdlib.js"></script>
 
     <style>
-    .codearea {
-        background-color:#000;
-        color:#fff;
-        font-family:'Oxygen Mono', Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace;
-        font-size:14px;
-        overflow:auto;
-        width: 120ch;
-        height: 80ch;
-        margin-left: 2%;
-    }
+        /* 全局基础样式 */
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center; /* 居中整个容器 */
+        }
 
-    </style>
-    <style>
-      .responsive-div {
-        max-width: 800px; /* 设置最大宽度为 800 像素 */
-        width: 100%;      /* 宽度默认为容器的 100% */
-      }
+        /* 响应式外层容器 */
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* 提示文字样式 */
+        .instruction {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        /* 代码输入/交互区域样式 */
+        .codearea {
+            background-color: #1e1e1e; /* 更柔和的深色背景 */
+            color: #d4d4d4;
+            font-family: 'Oxygen Mono', Consolas, 'Liberation Mono', 'DejaVu Sans Mono', monospace;
+            font-size: 15px;
+            padding: 20px;
+            border-radius: 8px; /* 圆角设计 */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            width: 100%;
+            height: 60vh; /* 使用视口高度，更加灵活 */
+            box-sizing: border-box; /* 确保 padding 不会撑破 100% 宽度 */
+            outline: none; /* 移除点击时的默认边框 */
+        }
+        
+        /* 获焦时的边框提示 */
+        .codearea:focus {
+            box-shadow: 0 0 0 2px #0078D7;
+        }
     </style>
 </head>
-<body>
-</br>
-在下边的模拟交互环境中书写 Python 代码：
-</br> </br>
 
-    <div id="code" class="codearea" contenteditable></div>
+<body onload="brython(1)">
 
-    <div id="content"></div>
+    <div class="container">
+        <p class="instruction">在下边的模拟交互环境中书写 Python 代码：</p>
+        
+        <div id="code" class="codearea" contenteditable="true" spellcheck="false"></div>
+        <div id="content"></div>
+    </div>
 
     <script type="text/python3">
-     from interpreter import Interpreter
+        from interpreter import Interpreter
 
-     # Start an interactive interpreter in textarea with id "code"
-     Interpreter("code")
- </script>
-<script type="text/javascript" src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "jxmn1qjx88");
-</script>
+        # Start an interactive interpreter in textarea with id "code"
+        Interpreter("code")
+    </script>
+
+    <script type="text/javascript" src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
+    
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "jxmn1qjx88");
+    </script>
+
 </body>
 </html>
