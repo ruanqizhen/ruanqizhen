@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In-Browser Python Editor</title>
+    
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        button {
+            background-color: #0078D7;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
+            background-color: #005a9e;
+        }
+        pre {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            min-height: 100px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Python Code Runner</h1>
+    <p>Write your Python code below and click run. The code executes entirely in your browser.</p>
+
+    <textarea id="python-code" spellcheck="false">
+# Write your Python code here
+def greet(name):
+    return f"Hello, {name}!"
+
+print(greet("World"))
+for i in range(1, 4):
+    print(f"Counting: {i}")
+</textarea>
+
+    <button id="run-btn" onclick="executePython()" disabled>Loading Python Environment...</button>
+
+    <h2>Output:</h2>
+    <pre id="output">Waiting to run...</pre>
+
+    <script>
+        let pyodide;
+        let outputText = "";
+
+        // Initialize the Pyodide environment
+        async function main() {
+            pyodide = await loadPyodide({
+                // Capture stdout (print statements)
+                stdout: (text) => { outputText += text + "\n"; },
+                // Capture stderr (errors)
+                stderr: (text) => { outputText += text + "\n"; }
+            });
+            
+            // Enable the button once Pyodide is ready
+            const runBtn = document.getElementById("run-btn");
+            runBtn.disabled = false;
+            runBtn.innerText = "Run Python Code";
+            document.getElementById("output").innerText = "Ready!";
+        }
+        
+        main();
+
+        // Function to run the code when the button is clicked
+        async function executePython() {
+            const code = document.getElementById("python-code").value;
+            const outputElement = document.getElementById("output");
+            
+            // Clear previous output
+            outputText = ""; 
+            outputElement.innerText = "Running...\n";
+
+            try {
+                // Execute the Python code
+                await pyodide.runPythonAsync(code);
+                
+                // Display the captured output
+                outputElement.innerText = outputText || "Code executed successfully with no output.";
+            } catch (err) {
+                // If there's a syntax or runtime error, display it
+                outputElement.innerText = outputText + "\n--- ERROR ---\n" + err;
+            }
+        }
+    </script>
+
+</body>
+</html>
