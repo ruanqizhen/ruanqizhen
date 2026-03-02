@@ -186,10 +186,16 @@
 
         // Assets
         const playerImg = new Image();
-        playerImg.src = './player_spaceship_1772464843778.png';
+        playerImg.src = './player_ship.png';
 
         const enemyImg = new Image();
-        enemyImg.src = './alien_enemy_1_1772465017792.png';
+        enemyImg.src = './enemy_drone.png';
+
+        const interceptorImg = new Image();
+        interceptorImg.src = './enemy_interceptor.png';
+
+        const commanderImg = new Image();
+        commanderImg.src = './enemy_commander.png';
 
         // Audio System
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -302,56 +308,104 @@
                 this.width = 40;
                 this.height = 40;
                 this.speed = 2;
-                this.type = type;
-                this.direction = 1; // 1 for right, -1 for left
-                this.state = 'formation'; // 'formation' or 'diving'
+                this.type = type; // 1: Drone, 2: Interceptor, 3: Commander
+                this.direction = 1;
+                this.state = 'formation';
                 this.diveSpeedX = 0;
                 this.diveSpeedY = 5;
+
+                // Type-specific properties
+                if (type === 2) { // Interceptor
+                    this.health = 1;
+                    this.points = 150;
+                    this.diveSpeedY = 7;
+                    this.zigzagTimer = 0;
+                } else if (type === 3) { // Commander
+                    this.health = 2;
+                    this.points = 400;
+                    this.diveSpeedY = 4;
+                    this.angle = 0;
+                } else { // Drone
+                    this.health = 1;
+                    this.points = 100;
+                }
+                this.maxHealth = this.health;
             }
 
             draw() {
                 ctx.save();
-                // 敌人颜色偏黄 (使用 CSS 滤镜)
-                ctx.filter = 'sepia(0.5) saturate(2) hue-rotate(-10deg) brightness(1.2)';
+                let img = enemyImg;
+                if (this.type === 2) img = interceptorImg;
+                if (this.type === 3) img = commanderImg;
 
-                if (enemyImg.complete) {
-                    ctx.drawImage(enemyImg, this.x, this.y, this.width, this.height);
-                } else {
-                    ctx.fillStyle = '#ffaa00';
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                // Position context at the center of the enemy to rotate
+                ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+                ctx.rotate(Math.PI); // Rotate 180 degrees (head down)
+
+                // Unity style: Add subtle neon glow
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.type === 3 ? '#a020f0' : (this.type === 2 ? '#00d4ff' : '#ffaa00');
+
+                // Apply filter to Drone to make it yellow again (original purple bee sprite)
+                if (this.type === 1) {
+                    ctx.filter = 'sepia(0.5) saturate(2) hue-rotate(-10deg) brightness(1.2)';
                 }
+
+                if (img.complete) {
+                    ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
+                } else {
+                    ctx.fillStyle = ctx.shadowColor;
+                    ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+                }
+
                 ctx.restore();
 
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = 'rgba(255, 170, 0, 0.5)';
+                // Health bar for Commander (drawn above in world space)
+                if (this.type === 3 && this.health < this.maxHealth) {
+                    ctx.save();
+                    ctx.fillStyle = '#ff0000';
+                    ctx.fillRect(this.x, this.y - 10, this.width, 4);
+                    ctx.fillStyle = '#00ff00';
+                    ctx.fillRect(this.x, this.y - 10, this.width * (this.health / this.maxHealth), 4);
+                    ctx.restore();
+                }
             }
 
             update() {
                 if (this.state === 'formation') {
                     this.x += this.speed * this.direction;
-                    this.y += 0.2; // Slow downward crawl
+                    this.y += 0.2;
 
-                    // 随机开始俯冲 (概率随关卡增加)
-                    let diveProb = 0.0001 * level;
+                    let diveProb = (0.0001 + (this.type === 2 ? 0.0002 : 0)) * level;
                     if (Math.random() < diveProb) {
                         this.state = 'diving';
-                        // 向玩家方向俯冲
-                        this.diveSpeedX = (player.x - this.x) / 60;
+                        if (this.type === 1) {
+                            this.diveSpeedX = (player.x - this.x) / 60;
+                        } else if (this.type === 2) {
+                            this.diveSpeedX = (player.x - this.x) / 40;
+                        }
                     }
                 } else if (this.state === 'diving') {
-                    this.x += this.diveSpeedX;
-                    this.y += this.diveSpeedY;
+                    if (this.type === 2) { // Zigzag
+                        this.zigzagTimer += 0.1;
+                        this.x += Math.sin(this.zigzagTimer) * 5 + (player.x - this.x) / 80;
+                        this.y += this.diveSpeedY;
+                    } else if (this.type === 3) { // Spiral/Circle
+                        this.angle += 0.05;
+                        this.x += Math.cos(this.angle) * 3 + (player.x - this.x) / 100;
+                        this.y += this.diveSpeedY;
+                    } else {
+                        this.x += this.diveSpeedX;
+                        this.y += this.diveSpeedY;
+                    }
 
                     if (this.y > CANVAS_HEIGHT) {
-                        // 俯冲出屏幕后从上方回到编队位置
                         this.y = -this.height;
                         this.state = 'formation';
                     }
                 }
 
-                // 随机投放炸弹 (随关卡增加密度)
-                // 第一关概率降低，随关卡逐步提升
-                let bombProb = 0.0005 + (level * 0.0005);
+                let bombProb = 0.0005 + (level * 0.0005) + (this.type === 3 ? 0.001 : 0);
                 if (Math.random() < bombProb) {
                     enemyProjectiles.push(new EnemyProjectile(this.x + this.width / 2, this.y + this.height));
                 }
@@ -425,8 +479,12 @@
             const offsetX = (CANVAS_WIDTH - (cols * spacingX)) / 2;
 
             for (let r = 0; r < rows; r++) {
+                let type = 1;
+                if (r === 0) type = 3; // Back row: Commanders
+                else if (r === 1) type = 2; // Second row: Interceptors
+
                 for (let c = 0; c < cols; c++) {
-                    enemies.push(new Enemy(offsetX + c * spacingX, 100 + r * spacingY));
+                    enemies.push(new Enemy(offsetX + c * spacingX, 70 + r * spacingY, type));
                 }
             }
         }
@@ -440,18 +498,26 @@
                         p.y + p.height > e.y) {
 
                         // Hit!
-                        playSound('explosion');
-                        createExplosion(e.x + e.width / 2, e.y + e.height / 2, '#ff0055');
-                        enemies.splice(eIdx, 1);
-                        projectiles.splice(pIdx, 1);
-                        score += 100;
-                        scoreEl.textContent = score;
+                        e.health--;
+                        if (e.health <= 0) {
+                            playSound('explosion');
+                            createExplosion(e.x + e.width / 2, e.y + e.height / 2, e.type === 3 ? '#a020f0' : (e.type === 2 ? '#00d4ff' : '#ffaa00'));
+                            score += e.points;
+                            enemies.splice(eIdx, 1);
 
-                        if (score > highScore) {
-                            highScore = score;
-                            localStorage.setItem('galaga-high-score', highScore);
-                            highScoreEl.textContent = highScore;
+                            if (score > highScore) {
+                                highScore = score;
+                                localStorage.setItem('galaga-high-score', highScore);
+                                highScoreEl.textContent = highScore;
+                            }
+                        } else {
+                            // Visual feedback for non-lethal hit
+                            ctx.fillStyle = '#fff';
+                            ctx.fillRect(e.x, e.y, e.width, e.height);
                         }
+
+                        projectiles.splice(pIdx, 1);
+                        scoreEl.textContent = score;
                     }
                 });
             });
