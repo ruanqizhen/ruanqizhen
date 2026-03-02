@@ -34,11 +34,19 @@
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
             overflow: hidden;
+            max-width: 100vw;
+            max-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         canvas {
             display: block;
             background: radial-gradient(circle at center, #111 0%, #050505 100%);
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
         #hud {
@@ -138,7 +146,8 @@
             <h1 id="overlay-title">小蜜蜂</h1>
             <button id="start-btn">开始游戏</button>
             <div class="instructions">
-                使用 左右方向键 移动 & 键盘空格 射击<br>
+                使用 左右方向键 或 拖拽 移动<br>
+                键盘空格 或 点击飞船 射击<br>
                 射击间隔 0.5 秒
             </div>
         </div>
@@ -172,6 +181,8 @@
         let lastFireTime = 0;
         const FIRE_COOLDOWN = 500; // ms
         const pressedKeys = {};
+        let touchX = null;
+        let isDragging = false;
 
         // Assets
         const playerImg = new Image();
@@ -583,6 +594,55 @@
             if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
                 pressedKeys[e.key] = false;
             }
+        });
+
+        // Touch Controls
+        canvas.addEventListener('touchstart', e => {
+            if (!gameActive) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const x = (touch.clientX - rect.left) * scaleX;
+            const y = (touch.clientY - rect.top) * scaleY;
+
+            // Check if tapping on player
+            if (x >= player.x && x <= player.x + player.width &&
+                y >= player.y && y <= player.y + player.height) {
+                const now = Date.now();
+                if (now - lastFireTime >= FIRE_COOLDOWN) {
+                    projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
+                    playSound('shoot');
+                    lastFireTime = now;
+                }
+            }
+
+            touchX = x;
+            isDragging = true;
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', e => {
+            if (!gameActive || !isDragging) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const x = (touch.clientX - rect.left) * scaleX;
+
+            const deltaX = x - touchX;
+            player.x += deltaX;
+            
+            // Boundary constraints
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > CANVAS_WIDTH) player.x = CANVAS_WIDTH - player.width;
+
+            touchX = x;
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', () => {
+            isDragging = false;
+            touchX = null;
         });
 
         startBtn.addEventListener('click', startGame);
