@@ -147,7 +147,7 @@
             <button id="start-btn">开始游戏</button>
             <div class="instructions">
                 使用 左右方向键 或 拖拽 移动<br>
-                键盘空格 或 点击飞船 射击<br>
+                键盘空格 或 拖拽飞船时 自动射击<br>
                 射击间隔 0.5 秒
             </div>
         </div>
@@ -632,10 +632,18 @@
 
             const deltaX = x - touchX;
             player.x += deltaX;
-            
+
             // Boundary constraints
             if (player.x < 0) player.x = 0;
             if (player.x + player.width > CANVAS_WIDTH) player.x = CANVAS_WIDTH - player.width;
+
+            // Auto-shoot during drag
+            const now = Date.now();
+            if (now - lastFireTime >= FIRE_COOLDOWN) {
+                projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
+                playSound('shoot');
+                lastFireTime = now;
+            }
 
             touchX = x;
         }, { passive: false });
