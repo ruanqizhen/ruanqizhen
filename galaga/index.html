@@ -123,6 +123,57 @@
             text-align: center;
             line-height: 1.6;
         }
+
+        #active-buffs {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .buff-item {
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .buff-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .buff-tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: black;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        #buff-dual .buff-tag {
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        #buff-rapid .buff-tag {
+            background: #ff00ff;
+            box-shadow: 0 0 10px #ff00ff;
+        }
+
+        #buff-shield .buff-tag {
+            background: #00d4ff;
+            box-shadow: 0 0 10px #00d4ff;
+        }
     </style>
     <script type="text/javascript">
         (function (c, l, a, r, i, t, y) {
@@ -152,6 +203,18 @@
             </div>
         </div>
 
+        <div id="active-buffs">
+            <div id="buff-dual" class="buff-item">
+                <span class="buff-tag">双排</span> 双排火力: <span id="time-dual">0</span>s
+            </div>
+            <div id="buff-rapid" class="buff-item">
+                <span class="buff-tag">极速</span> 极速射击: <span id="time-rapid">0</span>s
+            </div>
+            <div id="buff-shield" class="buff-item">
+                <span class="buff-tag">护盾</span> 物理护盾: <span id="status-shield">已激活</span>
+            </div>
+        </div>
+
         <canvas id="gameCanvas"></canvas>
     </div>
 
@@ -170,6 +233,13 @@
         const scoreEl = document.getElementById('current-score');
         const levelEl = document.getElementById('current-level');
         const highScoreEl = document.getElementById('high-score');
+
+        // Buff UI Elements
+        const buffDualEl = document.getElementById('buff-dual');
+        const timeDualEl = document.getElementById('time-dual');
+        const buffRapidEl = document.getElementById('buff-rapid');
+        const timeRapidEl = document.getElementById('time-rapid');
+        const buffShieldEl = document.getElementById('buff-shield');
 
         let score = 0;
         let level = 1;
@@ -637,6 +707,29 @@
 
         function update() {
             if (!gameActive) return;
+
+            const now = Date.now();
+
+            // Update Buff UI
+            if (player.dualShotTimer > now) {
+                buffDualEl.classList.add('visible');
+                timeDualEl.textContent = Math.ceil((player.dualShotTimer - now) / 1000);
+            } else {
+                buffDualEl.classList.remove('visible');
+            }
+
+            if (player.rapidFireTimer > now) {
+                buffRapidEl.classList.add('visible');
+                timeRapidEl.textContent = Math.ceil((player.rapidFireTimer - now) / 1000);
+            } else {
+                buffRapidEl.classList.remove('visible');
+            }
+
+            if (player.shieldActive) {
+                buffShieldEl.classList.add('visible');
+            } else {
+                buffShieldEl.classList.remove('visible');
+            }
 
             // Handle Input State
             if (pressedKeys['ArrowLeft']) player.dx = -player.speed;
