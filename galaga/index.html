@@ -235,8 +235,13 @@
                 this.height = 50;
                 this.x = CANVAS_WIDTH / 2 - this.width / 2;
                 this.y = CANVAS_HEIGHT - 80;
-                this.speed = 3.5; // 降低至 3.5 (原为 7)
+                this.speed = 3.5;
                 this.dx = 0;
+
+                // Power-up states
+                this.shieldActive = false;
+                this.dualShotTimer = 0;
+                this.rapidFireTimer = 0;
             }
 
             draw() {
@@ -247,7 +252,17 @@
                     ctx.fillRect(this.x, this.y, this.width, this.height);
                 }
 
-                // Subtle glow
+                // Shield Effect
+                if (this.shieldActive) {
+                    ctx.strokeStyle = '#00d4ff';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.8, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#00d4ff';
+                }
+
                 ctx.shadowBlur = 15;
                 ctx.shadowColor = 'rgba(0, 212, 255, 0.5)';
             }
@@ -439,6 +454,41 @@
             }
         }
 
+        class PowerUp {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type; // 'D': Dual, 'S': Shield, 'R': Rapid
+                this.width = 30;
+                this.height = 30;
+                this.speed = 2;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = this.type === 'D' ? '#00ff00' : (this.type === 'S' ? '#00d4ff' : '#ff00ff');
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 20px Inter';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                // Draw circle background
+                ctx.strokeStyle = ctx.shadowColor;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillText(this.type, this.x + this.width / 2, this.y + this.height / 2);
+                ctx.restore();
+            }
+
+            update() {
+                this.y += this.speed;
+            }
+        }
+
         // Starfield Background
         const stars = [];
         for (let i = 0; i < 100; i++) {
@@ -467,6 +517,7 @@
         let enemyProjectiles = [];
         let enemies = [];
         let particles = [];
+        let powerUps = [];
         let enemyDirection = 1;
         let enemyMoveDown = false;
 
@@ -505,6 +556,13 @@
                             score += e.points;
                             enemies.splice(eIdx, 1);
 
+                            // Drop Power-up
+                            if (Math.random() < 0.1) {
+                                const types = ['D', 'S', 'R'];
+                                const type = types[Math.floor(Math.random() * types.length)];
+                                powerUps.push(new PowerUp(e.x, e.y, type));
+                            }
+
                             if (score > highScore) {
                                 highScore = score;
                                 localStorage.setItem('galaga-high-score', highScore);
@@ -526,7 +584,13 @@
                 if (e.y + e.height > player.y &&
                     e.x < player.x + player.width &&
                     e.x + e.width > player.x) {
-                    gameOver();
+                    if (player.shieldActive) {
+                        player.shieldActive = false;
+                        enemies.splice(enemies.indexOf(e), 1);
+                        createExplosion(e.x + e.width / 2, e.y + e.height / 2, '#ffaa00');
+                    } else {
+                        gameOver();
+                    }
                 }
                 if (e.y > CANVAS_HEIGHT) {
                     gameOver();
@@ -538,7 +602,29 @@
                     ep.x + ep.width > player.x &&
                     ep.y < player.y + player.height &&
                     ep.y + ep.height > player.y) {
-                    gameOver();
+                    if (player.shieldActive) {
+                        player.shieldActive = false;
+                        enemyProjectiles.splice(idx, 1);
+                        createExplosion(ep.x, ep.y, '#00d4ff');
+                    } else {
+                        gameOver();
+                    }
+                }
+            });
+
+            // Power-up collection
+            powerUps.forEach((pu, idx) => {
+                if (pu.x < player.x + player.width &&
+                    pu.x + pu.width > player.x &&
+                    pu.y < player.y + player.height &&
+                    pu.y + pu.height > player.y) {
+
+                    if (pu.type === 'D') player.dualShotTimer = Date.now() + 10000;
+                    if (pu.type === 'S') player.shieldActive = true;
+                    if (pu.type === 'R') player.rapidFireTimer = Date.now() + 8000;
+
+                    powerUps.splice(idx, 1);
+                    playSound('shoot'); // Reuse sound for collection
                 }
             });
         }
@@ -559,8 +645,14 @@
 
             if (pressedKeys[' ']) {
                 const now = Date.now();
-                if (now - lastFireTime >= FIRE_COOLDOWN) {
-                    projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
+                const cooldown = player.rapidFireTimer > now ? 100 : FIRE_COOLDOWN;
+                if (now - lastFireTime >= cooldown) {
+                    if (player.dualShotTimer > now) {
+                        projectiles.push(new Projectile(player.x + 5, player.y));
+                        projectiles.push(new Projectile(player.x + player.width - 9, player.y));
+                    } else {
+                        projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
+                    }
                     playSound('shoot');
                     lastFireTime = now;
                 }
@@ -570,6 +662,11 @@
             projectiles.forEach((p, idx) => {
                 p.update();
                 if (p.y < 0) projectiles.splice(idx, 1);
+            });
+
+            powerUps.forEach((pu, idx) => {
+                pu.update();
+                if (pu.y > CANVAS_HEIGHT) powerUps.splice(idx, 1);
             });
 
             enemyProjectiles.forEach((ep, idx) => {
@@ -611,6 +708,7 @@
             player.draw();
             projectiles.forEach(p => p.draw());
             enemyProjectiles.forEach(ep => ep.draw());
+            powerUps.forEach(pu => pu.draw());
             enemies.forEach(e => e.draw());
             particles.forEach(p => p.draw());
         }
@@ -635,6 +733,7 @@
             player = new Player();
             projectiles = [];
             enemyProjectiles = [];
+            powerUps = [];
             particles = [];
             overlay.classList.add('hidden');
             gameLoop();
@@ -677,8 +776,14 @@
             if (x >= player.x && x <= player.x + player.width &&
                 y >= player.y && y <= player.y + player.height) {
                 const now = Date.now();
-                if (now - lastFireTime >= FIRE_COOLDOWN) {
-                    projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
+                const cooldown = player.rapidFireTimer > now ? 100 : FIRE_COOLDOWN;
+                if (now - lastFireTime >= cooldown) {
+                    if (player.dualShotTimer > now) {
+                        projectiles.push(new Projectile(player.x + 5, player.y));
+                        projectiles.push(new Projectile(player.x + player.width - 9, player.y));
+                    } else {
+                        projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
+                    }
                     playSound('shoot');
                     lastFireTime = now;
                 }
@@ -732,8 +837,14 @@
             if (x >= player.x && x <= player.x + player.width &&
                 y >= player.y && y <= player.y + player.height) {
                 const now = Date.now();
-                if (now - lastFireTime >= FIRE_COOLDOWN) {
-                    projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
+                const cooldown = player.rapidFireTimer > now ? 100 : FIRE_COOLDOWN;
+                if (now - lastFireTime >= cooldown) {
+                    if (player.dualShotTimer > now) {
+                        projectiles.push(new Projectile(player.x + 5, player.y));
+                        projectiles.push(new Projectile(player.x + player.width - 9, player.y));
+                    } else {
+                        projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
+                    }
                     playSound('shoot');
                     lastFireTime = now;
                 }
