@@ -313,8 +313,9 @@
                     this.x += this.speed * this.direction;
                     this.y += 0.2; // Slow downward crawl
 
-                    // 随机开始俯冲 (概率极低)
-                    if (Math.random() < 0.0005) {
+                    // 随机开始俯冲 (概率随关卡增加)
+                    let diveProb = 0.0001 * level;
+                    if (Math.random() < diveProb) {
                         this.state = 'diving';
                         // 向玩家方向俯冲
                         this.diveSpeedX = (player.x - this.x) / 60;
@@ -331,7 +332,8 @@
                 }
 
                 // 随机投放炸弹 (随关卡增加密度)
-                let bombProb = 0.001 + (level * 0.001);
+                // 第一关概率降低，随关卡逐步提升
+                let bombProb = 0.0005 + (level * 0.0005);
                 if (Math.random() < bombProb) {
                     enemyProjectiles.push(new EnemyProjectile(this.x + this.width / 2, this.y + this.height));
                 }
@@ -530,6 +532,7 @@
         }
 
         function gameLoop() {
+            if (!gameActive) return;
             update();
             draw();
             animationId = requestAnimationFrame(gameLoop);
