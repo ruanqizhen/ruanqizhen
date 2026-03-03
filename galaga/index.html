@@ -249,6 +249,7 @@
         let gameActive = false;
         let animationId;
         let lastFireTime = 0;
+        let lastTime = 0; // For delta time
         const FIRE_COOLDOWN = 500; // ms
         const pressedKeys = {};
         let touchX = null;
@@ -337,8 +338,23 @@
                 ctx.shadowColor = 'rgba(0, 212, 255, 0.5)';
             }
 
-            update() {
-                this.x += this.dx;
+            fire(now) {
+                const cooldown = this.rapidFireTimer > now ? 100 : FIRE_COOLDOWN;
+                if (now - lastFireTime >= cooldown) {
+                    if (this.dualShotTimer > now) {
+                        projectiles.push(new Projectile(this.x + 5, this.y));
+                        projectiles.push(new Projectile(this.x + this.width - 9, this.y));
+                    } else {
+                        projectiles.push(new Projectile(this.x + this.width / 2 - 2, this.y));
+                    }
+                    playSound('shoot');
+                    lastFireTime = now;
+                }
+            }
+
+            update(dt) {
+                this.x += this.dx * dt;
+                // Boundary constraints
                 if (this.x < 0) this.x = 0;
                 if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
             }
@@ -360,8 +376,8 @@
                 ctx.fillRect(this.x, this.y, this.width, this.height);
             }
 
-            update() {
-                this.y -= this.speed;
+            update(dt) {
+                this.y -= this.speed * dt;
             }
         }
 
@@ -381,8 +397,8 @@
                 ctx.fillRect(this.x, this.y, this.width, this.height);
             }
 
-            update() {
-                this.y += this.speed;
+            update(dt) {
+                this.y += this.speed * dt;
             }
         }
 
@@ -415,6 +431,15 @@
                     this.points = 100;
                 }
                 this.maxHealth = this.health;
+
+                // New properties for updated enemy behavior
+                this.isDiving = false;
+                this.startX = x;
+                this.startY = y;
+                this.zigzagOffset = 0;
+                this.radius = 0;
+                this.diveProb = (0.0001 + (this.type === 2 ? 0.0002 : 0)) * level;
+                this.bombProb = 0.0005 + (level * 0.0005) + (this.type === 3 ? 0.001 : 0);
             }
 
             draw() {
@@ -456,43 +481,34 @@
                 }
             }
 
-            update() {
-                if (this.state === 'formation') {
-                    this.x += this.speed * this.direction;
-                    this.y += 0.2;
-
-                    let diveProb = (0.0001 + (this.type === 2 ? 0.0002 : 0)) * level;
-                    if (Math.random() < diveProb) {
-                        this.state = 'diving';
-                        if (this.type === 1) {
-                            this.diveSpeedX = (player.x - this.x) / 60;
-                        } else if (this.type === 2) {
-                            this.diveSpeedX = (player.x - this.x) / 40;
-                        }
-                    }
-                } else if (this.state === 'diving') {
-                    if (this.type === 2) { // Zigzag
-                        this.zigzagTimer += 0.1;
-                        this.x += Math.sin(this.zigzagTimer) * 5 + (player.x - this.x) / 80;
-                        this.y += this.diveSpeedY;
-                    } else if (this.type === 3) { // Spiral/Circle
-                        this.angle += 0.05;
-                        this.x += Math.cos(this.angle) * 3 + (player.x - this.x) / 100;
-                        this.y += this.diveSpeedY;
+            update(dt) {
+                if (this.isDiving) {
+                    if (this.type === 2) { // ZZ dive
+                        this.zigzagOffset += 0.1 * dt;
+                        this.x += Math.sin(this.zigzagOffset) * 4 * dt;
+                        this.y += this.speed * dt;
+                    } else if (this.type === 3) { // Spiral dive
+                        this.angle += 0.05 * dt;
+                        this.radius += 0.5 * dt;
+                        this.x += Math.cos(this.angle) * 3 * dt;
+                        this.y += (this.speed / 2) * dt;
                     } else {
-                        this.x += this.diveSpeedX;
-                        this.y += this.diveSpeedY;
+                        this.y += (this.speed * 1.5) * dt;
                     }
 
                     if (this.y > CANVAS_HEIGHT) {
-                        this.y = -this.height;
-                        this.state = 'formation';
+                        this.isDiving = false;
+                        this.y = -50;
+                        this.x = this.startX;
                     }
-                }
+                } else {
+                    this.x += this.direction * this.speed * dt;
+                    this.y = this.startY + Math.sin(Date.now() / 1000 + this.x / 100) * 10;
 
-                let bombProb = 0.0005 + (level * 0.0005) + (this.type === 3 ? 0.001 : 0);
-                if (Math.random() < bombProb) {
-                    enemyProjectiles.push(new EnemyProjectile(this.x + this.width / 2, this.y + this.height));
+                    if (Math.random() < this.diveProb) this.isDiving = true;
+                    if (Math.random() < this.bombProb) {
+                        enemyProjectiles.push(new EnemyProjectile(this.x + this.width / 2, this.y + this.height));
+                    }
                 }
             }
         }
@@ -508,10 +524,10 @@
                 this.life = 1.0;
             }
 
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.life -= 0.02;
+            update(dt) {
+                this.x += this.speedX * dt;
+                this.y += this.speedY * dt;
+                this.life -= 0.02 * dt; // Adjust life decay based on dt
             }
 
             draw() {
@@ -554,8 +570,8 @@
                 ctx.restore();
             }
 
-            update() {
-                this.y += this.speed;
+            update(dt) {
+                this.y += this.speed * dt;
             }
         }
 
@@ -570,14 +586,19 @@
             });
         }
 
+        function updateStars(dt) {
+            stars.forEach(star => {
+                star.y += star.speed * dt;
+                if (star.y > CANVAS_HEIGHT) star.y = 0;
+            });
+        }
+
         function drawStars() {
             ctx.fillStyle = '#fff';
             stars.forEach(star => {
                 ctx.beginPath();
                 ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
                 ctx.fill();
-                star.y += star.speed;
-                if (star.y > CANVAS_HEIGHT) star.y = 0;
             });
         }
 
@@ -705,31 +726,24 @@
             }
         }
 
-        function update() {
+        function update(dt) {
             if (!gameActive) return;
 
             const now = Date.now();
 
-            // Update Buff UI
+            // ... (buff updates) ...
             if (player.dualShotTimer > now) {
                 buffDualEl.classList.add('visible');
                 timeDualEl.textContent = Math.ceil((player.dualShotTimer - now) / 1000);
-            } else {
-                buffDualEl.classList.remove('visible');
-            }
+            } else { buffDualEl.classList.remove('visible'); }
 
             if (player.rapidFireTimer > now) {
                 buffRapidEl.classList.add('visible');
                 timeRapidEl.textContent = Math.ceil((player.rapidFireTimer - now) / 1000);
-            } else {
-                buffRapidEl.classList.remove('visible');
-            }
+            } else { buffRapidEl.classList.remove('visible'); }
 
-            if (player.shieldActive) {
-                buffShieldEl.classList.add('visible');
-            } else {
-                buffShieldEl.classList.remove('visible');
-            }
+            if (player.shieldActive) { buffShieldEl.classList.add('visible'); }
+            else { buffShieldEl.classList.remove('visible'); }
 
             // Handle Input State
             if (pressedKeys['ArrowLeft']) player.dx = -player.speed;
@@ -737,39 +751,28 @@
             else player.dx = 0;
 
             if (pressedKeys[' ']) {
-                const now = Date.now();
-                const cooldown = player.rapidFireTimer > now ? 100 : FIRE_COOLDOWN;
-                if (now - lastFireTime >= cooldown) {
-                    if (player.dualShotTimer > now) {
-                        projectiles.push(new Projectile(player.x + 5, player.y));
-                        projectiles.push(new Projectile(player.x + player.width - 9, player.y));
-                    } else {
-                        projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
-                    }
-                    playSound('shoot');
-                    lastFireTime = now;
-                }
+                player.fire(now);
             }
 
-            player.update();
+            player.update(dt);
             projectiles.forEach((p, idx) => {
-                p.update();
+                p.update(dt);
                 if (p.y < 0) projectiles.splice(idx, 1);
             });
 
             powerUps.forEach((pu, idx) => {
-                pu.update();
+                pu.update(dt);
                 if (pu.y > CANVAS_HEIGHT) powerUps.splice(idx, 1);
             });
 
             enemyProjectiles.forEach((ep, idx) => {
-                ep.update();
+                ep.update(dt);
                 if (ep.y > CANVAS_HEIGHT) enemyProjectiles.splice(idx, 1);
             });
 
             let hitWall = false;
             enemies.forEach(e => {
-                e.update();
+                e.update(dt);
                 if (e.x + e.width > CANVAS_WIDTH || e.x < 0) hitWall = true;
             });
 
@@ -781,10 +784,11 @@
             }
 
             particles.forEach((p, idx) => {
-                p.update();
+                p.update(dt);
                 if (p.life <= 0) particles.splice(idx, 1);
             });
 
+            updateStars(dt);
             handleCollisions();
 
             if (enemies.length === 0) {
@@ -808,7 +812,12 @@
 
         function gameLoop() {
             if (!gameActive) return;
-            update();
+            const now = performance.now();
+            let dt = (now - lastTime) / (1000 / 60);
+            if (dt > 2) dt = 2; // Cap dt to prevent huge jumps
+            lastTime = now;
+
+            update(dt);
             draw();
             animationId = requestAnimationFrame(gameLoop);
         }
@@ -829,6 +838,7 @@
             powerUps = [];
             particles = [];
             overlay.classList.add('hidden');
+            lastTime = performance.now(); // Initialize lastTime
             gameLoop();
         }
 
@@ -869,17 +879,7 @@
             if (x >= player.x && x <= player.x + player.width &&
                 y >= player.y && y <= player.y + player.height) {
                 const now = Date.now();
-                const cooldown = player.rapidFireTimer > now ? 100 : FIRE_COOLDOWN;
-                if (now - lastFireTime >= cooldown) {
-                    if (player.dualShotTimer > now) {
-                        projectiles.push(new Projectile(player.x + 5, player.y));
-                        projectiles.push(new Projectile(player.x + player.width - 9, player.y));
-                    } else {
-                        projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
-                    }
-                    playSound('shoot');
-                    lastFireTime = now;
-                }
+                player.fire(now);
             }
 
             touchX = x;
@@ -903,11 +903,7 @@
 
             // Auto-shoot during drag
             const now = Date.now();
-            if (now - lastFireTime >= FIRE_COOLDOWN) {
-                projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
-                playSound('shoot');
-                lastFireTime = now;
-            }
+            player.fire(now);
 
             touchX = x;
         }, { passive: false });
@@ -930,17 +926,7 @@
             if (x >= player.x && x <= player.x + player.width &&
                 y >= player.y && y <= player.y + player.height) {
                 const now = Date.now();
-                const cooldown = player.rapidFireTimer > now ? 100 : FIRE_COOLDOWN;
-                if (now - lastFireTime >= cooldown) {
-                    if (player.dualShotTimer > now) {
-                        projectiles.push(new Projectile(player.x + 5, player.y));
-                        projectiles.push(new Projectile(player.x + player.width - 9, player.y));
-                    } else {
-                        projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
-                    }
-                    playSound('shoot');
-                    lastFireTime = now;
-                }
+                player.fire(now);
             }
 
             touchX = x;
@@ -961,11 +947,7 @@
 
             // Auto-shoot during drag
             const now = Date.now();
-            if (now - lastFireTime >= FIRE_COOLDOWN) {
-                projectiles.push(new Projectile(player.x + player.width / 2 - 2, player.y));
-                playSound('shoot');
-                lastFireTime = now;
-            }
+            player.fire(now);
 
             touchX = x;
         });
