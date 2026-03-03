@@ -254,6 +254,10 @@
         const pressedKeys = {};
         let touchX = null;
         let isDragging = false;
+        let shakeDuration = 0;
+        let shakeMagnitude = 0;
+        let trails = [];
+        let levelColorOffset = 0; // For dynamic background
 
         // Assets
         const playerImg = new Image();
@@ -357,6 +361,11 @@
                 // Boundary constraints
                 if (this.x < 0) this.x = 0;
                 if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
+
+                // Create trail
+                if (Math.random() < 0.5 * dt) {
+                    trails.push(new Trail(this.x + this.width / 2, this.y + this.height - 10, '#00d4ff', 3));
+                }
             }
         }
 
@@ -386,19 +395,21 @@
                 this.x = x;
                 this.y = y;
                 this.width = 4;
-                this.height = 12;
+                this.height = 15;
                 this.speed = 4;
+                this.speedX = 0;
             }
 
             draw() {
-                ctx.fillStyle = '#ff0055';
+                ctx.fillStyle = '#ff0000';
                 ctx.shadowBlur = 10;
-                ctx.shadowColor = '#ff0055';
+                ctx.shadowColor = '#ff0000';
                 ctx.fillRect(this.x, this.y, this.width, this.height);
             }
 
             update(dt) {
                 this.y += this.speed * dt;
+                this.x += this.speedX * dt;
             }
         }
 
@@ -440,6 +451,13 @@
                 this.radius = 0;
                 this.diveProb = (0.0001 + (this.type === 2 ? 0.0002 : 0)) * level;
                 this.bombProb = 0.0005 + (level * 0.0005) + (this.type === 3 ? 0.001 : 0);
+
+                // Entry path properties
+                this.entryTimer = 0;
+                this.spawnX = 0;
+                this.spawnY = 0;
+                this.entryDelay = 0;
+                this.markedForDeletion = false;
             }
 
             draw() {
@@ -482,45 +500,251 @@
             }
 
             update(dt) {
-                if (this.isDiving) {
-                    if (this.type === 2) { // ZZ dive
-                        this.zigzagOffset += 0.1 * dt;
-                        this.x += Math.sin(this.zigzagOffset) * 4 * dt;
-                        this.y += this.speed * dt;
-                    } else if (this.type === 3) { // Spiral dive
-                        this.angle += 0.05 * dt;
-                        this.radius += 0.5 * dt;
-                        this.x += Math.cos(this.angle) * 3 * dt;
-                        this.y += (this.speed / 2) * dt;
-                    } else {
-                        this.y += (this.speed * 1.5) * dt;
-                    }
+                if (this.entryDelay > 0) {
+                    this.entryDelay -= dt * 16.67;
+                    return; // Wait offscreen
+                }
 
-                    if (this.y > CANVAS_HEIGHT) {
-                        this.isDiving = false;
-                        this.y = -50;
+                if (this.state === 'entering') {
+                    this.entryTimer += 0.015 * dt;
+                    const t = Math.min(this.entryTimer, 1);
+
+                    const sx = this.spawnX, sy = this.spawnY;
+                    const dir = sx < CANVAS_WIDTH / 2 ? 1 : -1;
+                    const cx1 = sx + dir * 100, cy1 = sy - 100;
+                    const cx2 = this.startX - dir * 50, cy2 = this.startY + 150;
+                    const tx = this.startX, ty = this.startY;
+
+                    const mt = 1 - t;
+                    this.x = mt * mt * mt * sx + 3 * mt * mt * t * cx1 + 3 * mt * t * t * cx2 + t * t * t * tx;
+                    this.y = mt * mt * mt * sy + 3 * mt * mt * t * cy1 + 3 * mt * t * t * cy2 + t * t * t * ty;
+
+                    if (t >= 1) {
+                        this.state = 'formation';
                         this.x = this.startX;
+                        this.y = this.startY;
                     }
-                } else {
-                    this.x += this.direction * this.speed * dt;
-                    this.y = this.startY + Math.sin(Date.now() / 1000 + this.x / 100) * 10;
+                } else if (this.state === 'challenge_flyby') {
+                    this.entryTimer += 0.012 * dt;
+                    const t = this.entryTimer;
 
-                    if (Math.random() < this.diveProb) this.isDiving = true;
-                    if (Math.random() < this.bombProb) {
-                        enemyProjectiles.push(new EnemyProjectile(this.x + this.width / 2, this.y + this.height));
+                    const sx = this.spawnX, sy = this.spawnY;
+                    const dir = sx < CANVAS_WIDTH / 2 ? 1 : -1;
+
+                    const cx1 = CANVAS_WIDTH / 2 + dir * 150, cy1 = CANVAS_HEIGHT / 2 - 100;
+                    const cx2 = CANVAS_WIDTH / 2 - dir * 150, cy2 = CANVAS_HEIGHT / 2 + 300;
+                    const tx = sx < CANVAS_WIDTH / 2 ? CANVAS_WIDTH + 100 : -100;
+                    const ty = -100;
+
+                    const clampedT = Math.min(t, 1);
+                    const mct = 1 - clampedT;
+
+                    this.x = mct * mct * mct * sx + 3 * mct * mct * clampedT * cx1 + 3 * mct * clampedT * clampedT * cx2 + clampedT * clampedT * clampedT * tx;
+                    this.y = mct * mct * mct * sy + 3 * mct * mct * clampedT * cy1 + 3 * mct * clampedT * clampedT * cy2 + clampedT * clampedT * clampedT * ty;
+
+                    if (t >= 1.2 || this.y < -50 || this.y > CANVAS_HEIGHT + 50 || this.x < -100 || this.x > CANVAS_WIDTH + 100) {
+                        this.markedForDeletion = true;
+                    }
+                } else if (this.state === 'formation') {
+                    if (this.isDiving) {
+                        if (this.type === 2) { // ZZ dive
+                            this.zigzagOffset += 0.1 * dt;
+                            this.x += Math.sin(this.zigzagOffset) * 4 * dt;
+                            this.y += this.speed * dt;
+                        } else if (this.type === 3) { // Spiral dive
+                            this.angle += 0.05 * dt;
+                            this.radius += 0.5 * dt;
+                            this.x += Math.cos(this.angle) * 3 * dt;
+                            this.y += (this.speed / 2) * dt;
+                        } else {
+                            this.y += (this.speed * 1.5) * dt;
+                        }
+
+                        if (this.y > CANVAS_HEIGHT) {
+                            this.isDiving = false;
+                            this.y = -50;
+                            this.x = this.startX;
+                        }
+                    } else {
+                        this.x += this.direction * this.speed * dt;
+                        this.y = this.startY + Math.sin(Date.now() / 1000 + this.x / 100) * 10;
+
+                        if (Math.random() < this.diveProb) this.isDiving = true;
+                        if (Math.random() < this.bombProb) {
+                            enemyProjectiles.push(new EnemyProjectile(this.x + this.width / 2, this.y + this.height));
+                        }
+                    }
+                }
+
+                // Trail for diving or entering enemies
+                if ((this.state === 'entering' || this.state === 'challenge_flyby' || this.isDiving) && Math.random() < 0.3 * dt) {
+                    trails.push(new Trail(this.x + this.width / 2, this.y + 10, this.type === 2 ? '#00d4ff' : '#ff0055', 4));
+                }
+            }
+        }
+
+        class Boss {
+            constructor() {
+                this.x = CANVAS_WIDTH / 2;
+                this.y = 150;
+                this.width = 180;
+                this.height = 80;
+                this.state = 'entering';
+                this.yOffset = -300;
+
+                this.attackTimer = 100;
+                this.attackState = 0; // 0: spread, 1: double aimed, 2: semi-circle
+
+                this.parts = [
+                    { id: 'left_wing', offsetX: -60, offsetY: -10, width: 50, height: 40, health: 40 + level * 5, maxHealth: 40 + level * 5, active: true },
+                    { id: 'right_wing', offsetX: 60, offsetY: -10, width: 50, height: 40, health: 40 + level * 5, maxHealth: 40 + level * 5, active: true },
+                    { id: 'core', offsetX: 0, offsetY: 0, width: 60, height: 60, health: 80 + level * 10, maxHealth: 80 + level * 10, active: true }
+                ];
+
+                this.moveTimer = 0;
+                this.targetX = this.x;
+                this.deathTimer = 0;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y + this.yOffset);
+
+                // Draw Base structure (shadowy back)
+                ctx.fillStyle = '#222';
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = '#ff0000';
+                ctx.fillRect(-this.width / 2 + 10, -this.height / 2, this.width - 20, this.height);
+
+                // Draw Parts
+                this.parts.forEach(p => {
+                    if (!p.active) return;
+                    ctx.save();
+                    ctx.translate(p.offsetX, p.offsetY);
+
+                    if (p.id === 'core') {
+                        // Glowing Core
+                        ctx.fillStyle = '#ff0055';
+                        ctx.shadowBlur = 20;
+                        ctx.shadowColor = '#ff0055';
+                        ctx.beginPath();
+                        ctx.arc(0, 0, p.width / 2, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Core Health Bar
+                        ctx.fillStyle = '#ff0000';
+                        ctx.fillRect(-p.width / 2, Math.max(p.height / 2, 35), p.width, 6);
+                        ctx.fillStyle = '#00ff00';
+                        ctx.fillRect(-p.width / 2, Math.max(p.height / 2, 35), p.width * (p.health / p.maxHealth), 6);
+                    } else {
+                        // Wings
+                        ctx.fillStyle = '#a020f0';
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = '#a020f0';
+                        ctx.beginPath();
+                        // Draw a wing-like triangle shape
+                        const dir = p.id === 'left_wing' ? 1 : -1;
+                        ctx.moveTo(-dir * p.width / 2, -p.height / 2);
+                        ctx.lineTo(dir * p.width / 2, p.height / 2);
+                        ctx.lineTo(-dir * p.width / 2, p.height / 2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                });
+                ctx.restore();
+            }
+
+            update(dt) {
+                if (this.state === 'entering') {
+                    this.yOffset += 1.5 * dt;
+                    if (this.yOffset >= 0) {
+                        this.yOffset = 0;
+                        this.state = 'active';
+                    }
+                    return;
+                }
+
+                if (this.state === 'dying') {
+                    this.deathTimer -= dt;
+                    if (Math.random() < 0.2 * dt) {
+                        const ex = this.x + (Math.random() - 0.5) * this.width;
+                        const ey = this.y + (Math.random() - 0.5) * this.height;
+                        createExplosion(ex, ey, '#ffaa00', 2);
+                        playSound('explosion');
+                    }
+                    if (this.deathTimer <= 0) {
+                        this.state = 'dead';
+                    }
+                    return;
+                }
+
+                // Movement
+                this.moveTimer -= dt;
+                if (this.moveTimer <= 0) {
+                    this.targetX = Math.random() * (CANVAS_WIDTH - this.width) + this.width / 2;
+                    this.moveTimer = 80 + Math.random() * 80;
+                }
+                this.x += (this.targetX - this.x) * 0.015 * dt;
+
+                // Attack
+                this.attackTimer -= dt;
+                if (this.attackTimer <= 0) {
+                    this.firePattern();
+                }
+            }
+
+            firePattern() {
+                this.attackState = (this.attackState + 1) % 3;
+                this.attackTimer = 120 - Math.min(level * 2, 60);
+
+                const core = this.parts.find(p => p.id === 'core');
+                const lw = this.parts.find(p => p.id === 'left_wing');
+                const rw = this.parts.find(p => p.id === 'right_wing');
+
+                if (this.attackState === 0 && core.active) {
+                    // Spread
+                    for (let i = -2; i <= 2; i++) {
+                        let ep = new EnemyProjectile(this.x, this.y + 20);
+                        ep.speedX = i * (1.5 + level * 0.1);
+                        ep.speed = 4;
+                        enemyProjectiles.push(ep);
+                    }
+                } else if (this.attackState === 1) {
+                    // Aimed from wings
+                    [lw, rw].forEach(w => {
+                        if (w && w.active) {
+                            let ep = new EnemyProjectile(this.x + w.offsetX, this.y + w.offsetY);
+                            const dx = (player.x + player.width / 2) - ep.x;
+                            const dy = player.y - ep.y;
+                            const dist = Math.sqrt(dx * dx + dy * dy);
+                            ep.speedX = (dx / dist) * 5;
+                            ep.speed = (dy / dist) * 5;
+                            enemyProjectiles.push(ep);
+                        }
+                    });
+                } else if (this.attackState === 2 && core.active) {
+                    // Semi-circle wave
+                    const bullets = 7;
+                    for (let i = 0; i < bullets; i++) {
+                        let ep = new EnemyProjectile(this.x, this.y + 20);
+                        // Angle from 0 to PI
+                        const angle = (Math.PI / (bullets - 1)) * i;
+                        ep.speedX = Math.cos(angle) * 4;
+                        ep.speed = Math.sin(angle) * 4;
+                        if (ep.speed > 0.5) enemyProjectiles.push(ep);
                     }
                 }
             }
         }
 
         class Particle {
-            constructor(x, y, color) {
+            constructor(x, y, color, scale = 1) {
                 this.x = x;
                 this.y = y;
                 this.color = color;
-                this.size = Math.random() * 3 + 1;
-                this.speedX = (Math.random() - 0.5) * 6;
-                this.speedY = (Math.random() - 0.5) * 6;
+                this.size = (Math.random() * 3 + 1) * scale;
+                this.speedX = (Math.random() - 0.5) * 6 * scale;
+                this.speedY = (Math.random() - 0.5) * 6 * scale;
                 this.life = 1.0;
             }
 
@@ -537,6 +761,32 @@
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.globalAlpha = 1;
+            }
+        }
+
+        class Trail {
+            constructor(x, y, color, size) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.size = size;
+                this.alpha = 0.5;
+            }
+
+            update(dt) {
+                this.size *= (1 - 0.05 * dt);
+                this.alpha -= 0.05 * dt;
+            }
+
+            draw() {
+                if (this.alpha <= 0) return;
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
             }
         }
 
@@ -594,8 +844,11 @@
         }
 
         function drawStars() {
-            ctx.fillStyle = '#fff';
+            // Dynamic background color shift based on level
+            levelColorOffset = (level - 1) * 20;
+
             stars.forEach(star => {
+                ctx.fillStyle = `hsl(${180 + levelColorOffset}, 50%, 80%)`;
                 ctx.beginPath();
                 ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -611,28 +864,71 @@
         let powerUps = [];
         let enemyDirection = 1;
         let enemyMoveDown = false;
+        let boss = null;
+
+        let isChallengeStage = false;
+        let challengeEnemiesDefeated = 0;
+        let challengeEnemiesTotal = 0;
+        let challengePerfectTime = 0;
 
         function initEnemies() {
             enemies = [];
+            boss = null;
+
+            if (level % 5 === 0) {
+                // Boss Level
+                boss = new Boss();
+                isChallengeStage = false;
+                return;
+            }
+
+            isChallengeStage = (level % 5 === 3); // Levels: 3, 8, 13, 18, etc.
+            challengeEnemiesDefeated = 0;
+
             const rows = 4;
             const cols = 8;
             const spacingX = 60;
             const spacingY = 50;
-            const offsetX = (CANVAS_WIDTH - (cols * spacingX)) / 2;
+            const offsetX = (CANVAS_WIDTH - ((cols - 1) * spacingX)) / 2;
+
+            challengeEnemiesTotal = rows * cols;
 
             for (let r = 0; r < rows; r++) {
                 let type = 1;
-                if (r === 0) type = 3; // Back row: Commanders
-                else if (r === 1) type = 2; // Second row: Interceptors
+                if (r === 0) type = 3; // Commander
+                else if (r === 1) type = 2; // Interceptor
 
                 for (let c = 0; c < cols; c++) {
-                    enemies.push(new Enemy(offsetX + c * spacingX, 70 + r * spacingY, type));
+                    const targetX = offsetX + c * spacingX;
+                    const targetY = 70 + r * spacingY;
+                    let e = new Enemy(targetX, targetY, type);
+
+                    e.state = isChallengeStage ? 'challenge_flyby' : 'entering';
+                    e.entryTimer = 0;
+
+                    const spawnSide = c < cols / 2 ? -1 : 1;
+                    e.spawnX = spawnSide === -1 ? -50 : CANVAS_WIDTH + 50;
+                    e.spawnY = 50 + (Math.random() * 50);
+
+                    e.x = e.spawnX;
+                    e.y = e.spawnY;
+
+                    const pairIndex = spawnSide === -1 ? (cols / 2 - 1 - c) : (c - cols / 2);
+                    e.entryDelay = (pairIndex * 15 + r * 5) * 16.67;
+
+                    if (isChallengeStage) {
+                        e.bombProb = 0;
+                        e.diveProb = 0;
+                    }
+
+                    enemies.push(e);
                 }
             }
         }
 
         function handleCollisions() {
             projectiles.forEach((p, pIdx) => {
+                // Collision with regular enemies
                 enemies.forEach((e, eIdx) => {
                     if (p.x < e.x + e.width &&
                         p.x + p.width > e.x &&
@@ -643,8 +939,14 @@
                         e.health--;
                         if (e.health <= 0) {
                             playSound('explosion');
-                            createExplosion(e.x + e.width / 2, e.y + e.height / 2, e.type === 3 ? '#a020f0' : (e.type === 2 ? '#00d4ff' : '#ffaa00'));
+                            const explosionScale = e.type === 3 ? 2 : (e.type === 2 ? 1.5 : 1);
+                            createExplosion(e.x + e.width / 2, e.y + e.height / 2, e.type === 3 ? '#a020f0' : (e.type === 2 ? '#00d4ff' : '#ffaa00'), explosionScale);
                             score += e.points;
+
+                            if (isChallengeStage) {
+                                challengeEnemiesDefeated++;
+                            }
+
                             enemies.splice(eIdx, 1);
 
                             // Drop Power-up
@@ -669,7 +971,60 @@
                         scoreEl.textContent = score;
                     }
                 });
+
+                // Collision with boss parts
+                if (boss && boss.state === 'active') {
+                    boss.parts.forEach(part => {
+                        if (part.active &&
+                            p.x < boss.x + part.offsetX + part.width / 2 &&
+                            p.x + p.width > boss.x + part.offsetX - part.width / 2 &&
+                            p.y < boss.y + boss.yOffset + part.offsetY + part.height / 2 &&
+                            p.y + p.height > boss.y + boss.yOffset + part.offsetY - part.height / 2) {
+
+                            part.health--;
+                            projectiles.splice(pIdx, 1); // Remove projectile
+                            playSound('shoot'); // Small hit sound
+
+                            if (part.health <= 0) {
+                                part.active = false;
+                                createExplosion(boss.x + part.offsetX, boss.y + boss.yOffset + part.offsetY, '#ffaa00', 1.5);
+                                playSound('explosion');
+                                score += 500; // Points for destroying a part
+                                scoreEl.textContent = score;
+
+                                // Check if all parts are destroyed
+                                if (boss.parts.every(p => !p.active)) {
+                                    boss.state = 'dying';
+                                    boss.deathTimer = 100; // Explosion duration
+                                } else {
+                                    // Drop powerup when wing destroyed
+                                    const types = ['D', 'S', 'R'];
+                                    const type = types[Math.floor(Math.random() * types.length)];
+                                    powerUps.push(new PowerUp(boss.x + part.offsetX, boss.y + boss.yOffset + part.offsetY, type));
+                                }
+                            }
+                        }
+                    });
+                }
             });
+
+            // Collision with Boss body
+            if (boss && boss.state === 'active') {
+                if (boss.y + boss.yOffset + boss.height / 2 > player.y &&
+                    boss.x - boss.width / 2 < player.x + player.width &&
+                    boss.x + boss.width / 2 > player.x) {
+
+                    if (player.shieldActive) {
+                        player.shieldActive = false;
+                        boss.yOffset -= 50; // Push boss back
+                        createExplosion(player.x + player.width / 2, player.y, '#00d4ff', 1.5);
+                        shakeDuration = 10;
+                        shakeMagnitude = 5;
+                    } else {
+                        gameOver();
+                    }
+                }
+            }
 
             enemies.forEach(e => {
                 if (e.y + e.height > player.y &&
@@ -678,7 +1033,9 @@
                     if (player.shieldActive) {
                         player.shieldActive = false;
                         enemies.splice(enemies.indexOf(e), 1);
-                        createExplosion(e.x + e.width / 2, e.y + e.height / 2, '#ffaa00');
+                        createExplosion(e.x + e.width / 2, e.y + e.height / 2, '#ffaa00', 1.5);
+                        shakeDuration = 10;
+                        shakeMagnitude = 5;
                     } else {
                         gameOver();
                     }
@@ -696,7 +1053,9 @@
                     if (player.shieldActive) {
                         player.shieldActive = false;
                         enemyProjectiles.splice(idx, 1);
-                        createExplosion(ep.x, ep.y, '#00d4ff');
+                        createExplosion(ep.x, ep.y, '#00d4ff', 1);
+                        shakeDuration = 10;
+                        shakeMagnitude = 5;
                     } else {
                         gameOver();
                     }
@@ -720,9 +1079,10 @@
             });
         }
 
-        function createExplosion(x, y, color) {
-            for (let i = 0; i < 15; i++) {
-                particles.push(new Particle(x, y, color));
+        function createExplosion(x, y, color, scale = 1) {
+            const count = Math.floor(15 * scale);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y, color, scale));
             }
         }
 
@@ -771,15 +1131,22 @@
             });
 
             let hitWall = false;
-            enemies.forEach(e => {
+            for (let idx = enemies.length - 1; idx >= 0; idx--) {
+                let e = enemies[idx];
                 e.update(dt);
-                if (e.x + e.width > CANVAS_WIDTH || e.x < 0) hitWall = true;
-            });
+                if (e.markedForDeletion) {
+                    enemies.splice(idx, 1);
+                } else if (e.state === 'formation' && (e.x + e.width > CANVAS_WIDTH || e.x < 0)) {
+                    hitWall = true;
+                }
+            }
 
             if (hitWall) {
                 enemies.forEach(e => {
-                    e.direction *= -1;
-                    e.y += 10;
+                    if (e.state === 'formation') {
+                        e.direction *= -1;
+                        e.y += 10;
+                    }
                 });
             }
 
@@ -788,10 +1155,43 @@
                 if (p.life <= 0) particles.splice(idx, 1);
             });
 
+            trails.forEach((t, idx) => {
+                t.update(dt);
+                if (t.alpha <= 0) trails.splice(idx, 1);
+            });
+
+            if (shakeDuration > 0) {
+                shakeDuration -= dt;
+            }
+
             updateStars(dt);
             handleCollisions();
 
-            if (enemies.length === 0) {
+            // Update Boss
+            if (boss) {
+                boss.update(dt);
+                if (boss.state === 'dead') {
+                    score += 5000;
+                    scoreEl.textContent = score;
+                    if (score > highScore) {
+                        highScore = score;
+                        localStorage.setItem('galaga-high-score', highScore);
+                        highScoreEl.textContent = highScore;
+                    }
+                    boss = null;
+                    level++;
+                    levelEl.textContent = level;
+                    initEnemies();
+                }
+            }
+
+            if (!boss && enemies.length === 0) {
+                if (isChallengeStage && challengeEnemiesDefeated === challengeEnemiesTotal && challengeEnemiesTotal > 0) {
+                    // PERFECT!
+                    score += 10000;
+                    scoreEl.textContent = score;
+                    challengePerfectTime = Date.now() + 3000;
+                }
                 level++;
                 levelEl.textContent = level;
                 initEnemies(); // Next wave
@@ -799,15 +1199,62 @@
         }
 
         function draw() {
+            // Reset transform before clearing
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            ctx.save();
+            if (shakeDuration > 0) {
+                const dx = (Math.random() - 0.5) * shakeMagnitude;
+                const dy = (Math.random() - 0.5) * shakeMagnitude;
+                ctx.translate(dx, dy);
+            }
+
             drawStars();
+            trails.forEach(t => t.draw());
 
             player.draw();
             projectiles.forEach(p => p.draw());
             enemyProjectiles.forEach(ep => ep.draw());
             powerUps.forEach(pu => pu.draw());
             enemies.forEach(e => e.draw());
+            if (boss) boss.draw();
             particles.forEach(p => p.draw());
+
+            ctx.restore();
+
+            // Draw Boss Warning
+            if (boss && boss.state === 'entering') {
+                ctx.save();
+                ctx.fillStyle = '#ff0000';
+                ctx.font = 'bold 50px Inter';
+                ctx.textAlign = 'center';
+                ctx.globalAlpha = 0.5 + Math.sin(Date.now() / 150) * 0.5; // fast pulse
+                ctx.fillText('警告', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+                ctx.font = '30px Inter';
+                ctx.fillText('探测到巨型能量源', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
+                ctx.restore();
+            }
+
+            // Draw Challenge Stage HUD overlays
+            if (challengePerfectTime > Date.now()) {
+                ctx.save();
+                ctx.fillStyle = '#00ff00';
+                ctx.font = 'bold 40px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('PERFECT!', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+                ctx.font = '20px Inter';
+                ctx.fillText('+10000', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 40);
+                ctx.restore();
+            } else if (isChallengeStage && enemies.length > 0) {
+                ctx.save();
+                ctx.fillStyle = '#00d4ff';
+                ctx.font = 'bold 30px Inter';
+                ctx.textAlign = 'center';
+                ctx.globalAlpha = 0.5 + Math.sin(Date.now() / 200) * 0.2; // pulsing effect
+                ctx.fillText('奖励关卡', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 100);
+                ctx.restore();
+            }
         }
 
         function gameLoop() {
@@ -828,7 +1275,7 @@
             }
             gameActive = true;
             score = 0;
-            level = 1;
+            level = 5;
             scoreEl.textContent = score;
             levelEl.textContent = level;
             initEnemies();
