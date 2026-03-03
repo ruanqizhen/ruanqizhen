@@ -9,6 +9,132 @@ const CANVAS_HEIGHT = 800;
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 
+// ====== Game Balance Constants ======
+const FIRE_COOLDOWN = 500;           // ms - player normal fire rate
+const RAPID_FIRE_COOLDOWN = 100;     // ms - rapid fire power-up rate
+const PLAYER_SPEED = 3.5;
+const PROJECTILE_SPEED = 10;
+const ENEMY_PROJECTILE_SPEED = 4;
+const POWERUP_SPEED = 2;
+
+// Scoring
+const SCORE_DRONE = 100;
+const SCORE_INTERCEPTOR = 150;
+const SCORE_COMMANDER = 400;
+const SCORE_BOSS_PART = 500;
+const SCORE_BOSS_KILL = 5000;
+const SCORE_CHALLENGE_PERFECT = 10000;
+
+// Power-up durations (ms)
+const DUAL_SHOT_DURATION = 10000;
+const RAPID_FIRE_DURATION = 8000;
+
+// Enemy behavior base probabilities
+const BASE_DIVE_PROB = 0.0001;
+const INTERCEPTOR_DIVE_BONUS = 0.0002;
+const BASE_BOMB_PROB = 0.0005;
+const BOMB_PROB_PER_LEVEL = 0.0005;
+const COMMANDER_BOMB_BONUS = 0.001;
+
+// Power-up drop chance
+const POWERUP_DROP_CHANCE = 0.1;
+
+// Formation layout
+const FORMATION_ROWS = 4;
+const FORMATION_COLS = 8;
+const FORMATION_SPACING_X = 60;
+const FORMATION_SPACING_Y = 50;
+
+// Player shooting offsets
+const DUAL_SHOT_OFFSET_X_LEFT = 5;
+const DUAL_SHOT_OFFSET_X_RIGHT = 9;
+const SINGLE_SHOT_OFFSET_X = 2;
+const SINGLE_SHOT_OFFSET_Y = 0;
+const PLAYER_TRAIL_CHANCE = 0.5;
+
+// Projectile dimensions
+const PROJECTILE_WIDTH = 4;
+const PROJECTILE_HEIGHT = 15;
+const ENEMY_PROJECTILE_WIDTH = 4;
+const ENEMY_PROJECTILE_HEIGHT = 15;
+
+// PowerUp dimensions
+const POWERUP_WIDTH = 30;
+const POWERUP_HEIGHT = 30;
+
+// Enemy dimensions and health
+const ENEMY_WIDTH = 40;
+const ENEMY_HEIGHT = 40;
+const ENEMY_DRONE_HEALTH = 1;
+const ENEMY_DRONE_DIVE_SPEED_Y = 5;
+const ENEMY_INTERCEPTOR_HEALTH = 1;
+const ENEMY_INTERCEPTOR_DIVE_SPEED_Y = 7;
+const ENEMY_COMMANDER_HEALTH = 2;
+const ENEMY_COMMANDER_DIVE_SPEED_Y = 4;
+const ENEMY_ENTRY_SPEED_FACTOR = 0.015;
+const CHALLENGE_FLYBY_SPEED_FACTOR = 0.012;
+const ENEMY_FORMATION_WAVE_FREQUENCY = 1000;
+const ENEMY_FORMATION_WAVE_AMPLITUDE = 10;
+const ENEMY_FORMATION_ROWS = FORMATION_ROWS;
+const ENEMY_FORMATION_COLS = FORMATION_COLS;
+const ENEMY_FORMATION_SPACING_X = FORMATION_SPACING_X;
+const ENEMY_FORMATION_SPACING_Y = FORMATION_SPACING_Y;
+const ENEMY_FORMATION_OFFSET_Y_START = 70;
+const ENEMY_ENTRY_SPAWN_OFFSET_Y = 50;
+const ENEMY_ENTRY_DELAY_BASE = 0;
+const ENEMY_ENTRY_DELAY_PAIR_BONUS = 15;
+const ENEMY_ENTRY_DELAY_ROW_BONUS = 5;
+
+// Boss configuration
+const BOSS_WIDTH = 180;
+const BOSS_HEIGHT = 80;
+const BOSS_Y_OFFSET_START = -300;
+const BOSS_ATTACK_COOLDOWN_BASE = 110;
+const BOSS_ATTACK_COOLDOWN_LEVEL_REDUCTION = 2;
+const BOSS_PART_WING_OFFSET_X = 60;
+const BOSS_PART_WING_OFFSET_Y = -10;
+const BOSS_PART_WING_WIDTH = 50;
+const BOSS_PART_WING_HEIGHT = 40;
+const BOSS_PART_WING_HEALTH_BASE = 40;
+const BOSS_PART_CORE_OFFSET_X = 0;
+const BOSS_PART_CORE_OFFSET_Y = 0;
+const BOSS_PART_CORE_WIDTH = 60;
+const BOSS_PART_CORE_HEIGHT = 60;
+const BOSS_PART_CORE_HEALTH_BASE = 80;
+const BOSS_MOVE_TIMER_MIN = 80;
+const BOSS_MOVE_TIMER_MAX = 160;
+const BOSS_MOVE_SPEED_FACTOR = 0.015;
+const BOSS_MID_HEALTH_POWERUP_THRESHOLD = 0.5;
+
+// Boss attack patterns
+const BOSS_ATTACK_SPREAD_BULLETS = 7;
+const BOSS_ATTACK_SPREAD_WAVE_DELAY = 10;
+const BOSS_ATTACK_SPREAD_MAX_SPREAD = 3;
+const BOSS_ATTACK_SPREAD_BULLET_SPEED_BASE = 4;
+const BOSS_ATTACK_SPREAD_BULLET_SPEED_WAVE_BONUS = 1;
+const BOSS_ATTACK_AIMED_BULLETS_PER_WING = 5;
+const BOSS_ATTACK_AIMED_BULLET_DELAY = 150;
+const BOSS_ATTACK_AIMED_INACCURACY = 1.5;
+const BOSS_ATTACK_AIMED_BULLET_SPEED = 6;
+const BOSS_ATTACK_CIRCLE_BULLETS = 16;
+const BOSS_ATTACK_CIRCLE_BULLET_SPEED = 3.5;
+const BOSS_ATTACK_MINION_COUNT_MIN = 2;
+const BOSS_ATTACK_MINION_COUNT_MAX = 3;
+const BOSS_ATTACK_MINION_DELAY = 300;
+
+// Particle and Trail
+const PARTICLE_BASE_SPEED = 6;
+const PARTICLE_BASE_LIFE_DECAY = 0.02;
+const TRAIL_BASE_SIZE_DECAY = 0.05;
+const TRAIL_BASE_ALPHA_DECAY = 0.05;
+
+// Starfield
+const STAR_COUNT = 100;
+const STAR_SIZE_MAX = 2;
+const STAR_SPEED_MAX = 2;
+const LEVEL_COLOR_OFFSET_PER_LEVEL = 20;
+// ====================================
+
 const scoreEl = document.getElementById('current-score');
 const levelEl = document.getElementById('current-level');
 const highScoreEl = document.getElementById('high-score');
@@ -29,7 +155,6 @@ let gameActive = false;
 let animationId;
 let lastFireTime = 0;
 let lastTime = 0; // For delta time
-const FIRE_COOLDOWN = 500; // ms
 const pressedKeys = {};
 let touchX = null;
 let isDragging = false;
@@ -89,7 +214,7 @@ class Player {
         this.height = 50;
         this.x = CANVAS_WIDTH / 2 - this.width / 2;
         this.y = CANVAS_HEIGHT - 80;
-        this.speed = 3.5;
+        this.speed = PLAYER_SPEED;
         this.dx = 0;
 
         // Power-up states
@@ -125,13 +250,13 @@ class Player {
     }
 
     fire(now) {
-        const cooldown = this.rapidFireTimer > now ? 100 : FIRE_COOLDOWN;
+        const cooldown = this.rapidFireTimer > now ? RAPID_FIRE_COOLDOWN : FIRE_COOLDOWN;
         if (now - lastFireTime >= cooldown) {
             if (this.dualShotTimer > now) {
-                projectiles.push(new Projectile(this.x + 5, this.y));
-                projectiles.push(new Projectile(this.x + this.width - 9, this.y));
+                projectiles.push(new Projectile(this.x + DUAL_SHOT_OFFSET_X_LEFT, this.y));
+                projectiles.push(new Projectile(this.x + this.width - DUAL_SHOT_OFFSET_X_RIGHT, this.y));
             } else {
-                projectiles.push(new Projectile(this.x + this.width / 2 - 2, this.y));
+                projectiles.push(new Projectile(this.x + this.width / 2 - SINGLE_SHOT_OFFSET_X, this.y + SINGLE_SHOT_OFFSET_Y));
             }
             playSound('shoot');
             lastFireTime = now;
@@ -145,8 +270,8 @@ class Player {
         if (this.x + this.width > CANVAS_WIDTH) this.x = CANVAS_WIDTH - this.width;
 
         // Create trail
-        if (Math.random() < 0.5 * dt) {
-            trails.push(new Trail(this.x + this.width / 2, this.y + this.height - 10, '#00d4ff', 3));
+        if (Math.random() < PLAYER_TRAIL_CHANCE * dt) {
+            trails.push(getTrail(this.x + this.width / 2, this.y + this.height - 10, '#00d4ff', 3));
         }
     }
 }
@@ -155,9 +280,9 @@ class Projectile {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.width = 4;
-        this.height = 15;
-        this.speed = 10;
+        this.width = PROJECTILE_WIDTH;
+        this.height = PROJECTILE_HEIGHT;
+        this.speed = PROJECTILE_SPEED;
     }
 
     draw() {
@@ -176,9 +301,9 @@ class EnemyProjectile {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.width = 4;
-        this.height = 15;
-        this.speed = 4;
+        this.width = ENEMY_PROJECTILE_WIDTH;
+        this.height = ENEMY_PROJECTILE_HEIGHT;
+        this.speed = ENEMY_PROJECTILE_SPEED;
         this.speedX = 0;
     }
 
@@ -199,8 +324,8 @@ class Enemy {
     constructor(x, y, type = 1) {
         this.x = x;
         this.y = y;
-        this.width = 40;
-        this.height = 40;
+        this.width = ENEMY_WIDTH;
+        this.height = ENEMY_HEIGHT;
         this.speed = 2;
         this.type = type; // 1: Drone, 2: Interceptor, 3: Commander
         this.direction = 1;
@@ -210,18 +335,19 @@ class Enemy {
 
         // Type-specific properties
         if (type === 2) { // Interceptor
-            this.health = 1;
-            this.points = 150;
-            this.diveSpeedY = 7;
+            this.health = ENEMY_INTERCEPTOR_HEALTH;
+            this.points = SCORE_INTERCEPTOR;
+            this.diveSpeedY = ENEMY_INTERCEPTOR_DIVE_SPEED_Y;
             this.zigzagTimer = 0;
         } else if (type === 3) { // Commander
-            this.health = 2;
-            this.points = 400;
-            this.diveSpeedY = 4;
+            this.health = ENEMY_COMMANDER_HEALTH;
+            this.points = SCORE_COMMANDER;
+            this.diveSpeedY = ENEMY_COMMANDER_DIVE_SPEED_Y;
             this.angle = 0;
         } else { // Drone
-            this.health = 1;
-            this.points = 100;
+            this.health = ENEMY_DRONE_HEALTH;
+            this.points = SCORE_DRONE;
+            this.diveSpeedY = ENEMY_DRONE_DIVE_SPEED_Y;
         }
         this.maxHealth = this.health;
 
@@ -231,8 +357,8 @@ class Enemy {
         this.startY = y;
         this.zigzagOffset = 0;
         this.radius = 0;
-        this.diveProb = (0.0001 + (this.type === 2 ? 0.0002 : 0)) * level;
-        this.bombProb = 0.0005 + (level * 0.0005) + (this.type === 3 ? 0.001 : 0);
+        this.diveProb = (BASE_DIVE_PROB + (this.type === 2 ? INTERCEPTOR_DIVE_BONUS : 0)) * level;
+        this.bombProb = BASE_BOMB_PROB + (level * BOMB_PROB_PER_LEVEL) + (this.type === 3 ? COMMANDER_BOMB_BONUS : 0);
 
         // Entry path properties
         this.entryTimer = 0;
@@ -240,6 +366,7 @@ class Enemy {
         this.spawnY = 0;
         this.entryDelay = 0;
         this.markedForDeletion = false;
+        this.hitFlashTimer = 0;
     }
 
     draw() {
@@ -256,12 +383,19 @@ class Enemy {
         ctx.shadowBlur = 15;
         ctx.shadowColor = this.type === 3 ? '#a020f0' : (this.type === 2 ? '#00d4ff' : '#ffaa00');
 
-
         if (img.complete) {
             ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
         } else {
             ctx.fillStyle = ctx.shadowColor;
             ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        }
+
+        // Hit flash overlay
+        if (this.hitFlashTimer > 0) {
+            ctx.globalAlpha = this.hitFlashTimer / 100;
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+            ctx.globalAlpha = 1;
         }
 
         ctx.restore();
@@ -278,13 +412,14 @@ class Enemy {
     }
 
     update(dt) {
+        if (this.hitFlashTimer > 0) this.hitFlashTimer -= dt * 16.67;
         if (this.entryDelay > 0) {
             this.entryDelay -= dt * 16.67;
             return; // Wait offscreen
         }
 
         if (this.state === 'entering') {
-            this.entryTimer += 0.015 * dt;
+            this.entryTimer += ENEMY_ENTRY_SPEED_FACTOR * dt;
             const t = Math.min(this.entryTimer, 1);
 
             const sx = this.spawnX, sy = this.spawnY;
@@ -303,7 +438,7 @@ class Enemy {
                 this.y = ty;
             }
         } else if (this.state === 'challenge_flyby') {
-            this.entryTimer += 0.012 * dt;
+            this.entryTimer += CHALLENGE_FLYBY_SPEED_FACTOR * dt;
             const t = this.entryTimer;
 
             const sx = this.spawnX, sy = this.spawnY;
@@ -328,14 +463,14 @@ class Enemy {
                 if (this.type === 2) { // ZZ dive
                     this.zigzagOffset += 0.1 * dt;
                     this.x += Math.sin(this.zigzagOffset) * 4 * dt;
-                    this.y += this.speed * dt;
+                    this.y += this.diveSpeedY * dt;
                 } else if (this.type === 3) { // Spiral dive
                     this.angle += 0.05 * dt;
                     this.radius += 0.5 * dt;
                     this.x += Math.cos(this.angle) * 3 * dt;
-                    this.y += (this.speed / 2) * dt;
+                    this.y += this.diveSpeedY * dt;
                 } else {
-                    this.y += (this.speed * 1.5) * dt;
+                    this.y += (this.diveSpeedY) * dt;
                 }
 
                 if (this.y > CANVAS_HEIGHT) {
@@ -345,7 +480,7 @@ class Enemy {
                 }
             } else {
                 this.x = this.startX + formationOffsetX;
-                this.y = this.startY + Math.sin(Date.now() / 1000 + this.startX / 100) * 10;
+                this.y = this.startY + Math.sin(Date.now() / ENEMY_FORMATION_WAVE_FREQUENCY + this.startX / 100) * ENEMY_FORMATION_WAVE_AMPLITUDE;
 
                 if (Math.random() < this.diveProb) this.isDiving = true;
                 if (Math.random() < this.bombProb) {
@@ -356,7 +491,7 @@ class Enemy {
 
         // Trail for diving or entering enemies
         if ((this.state === 'entering' || this.state === 'challenge_flyby' || this.isDiving) && Math.random() < 0.3 * dt) {
-            trails.push(new Trail(this.x + this.width / 2, this.y + 10, this.type === 2 ? '#00d4ff' : '#ff0055', 4));
+            trails.push(getTrail(this.x + this.width / 2, this.y + 10, this.type === 2 ? '#00d4ff' : '#ff0055', 4));
         }
     }
 }
@@ -368,24 +503,25 @@ class Boss {
     constructor() {
         this.x = CANVAS_WIDTH / 2;
         this.y = 150;
-        this.width = 180;
-        this.height = 80;
+        this.width = BOSS_WIDTH;
+        this.height = BOSS_HEIGHT;
         this.state = 'entering';
-        this.yOffset = -300;
+        this.yOffset = BOSS_Y_OFFSET_START;
 
-        this.attackTimer = 100;
+        this.attackTimer = BOSS_ATTACK_COOLDOWN_BASE;
         this.attackState = 0; // 0: spread, 1: double aimed, 2: semi-circle
 
         this.parts = [
-            { id: 'left_wing', offsetX: -60, offsetY: -10, width: 50, height: 40, health: 40 + level * 5, maxHealth: 40 + level * 5, active: true },
-            { id: 'right_wing', offsetX: 60, offsetY: -10, width: 50, height: 40, health: 40 + level * 5, maxHealth: 40 + level * 5, active: true },
-            { id: 'core', offsetX: 0, offsetY: 0, width: 60, height: 60, health: 80 + level * 10, maxHealth: 80 + level * 10, active: true }
+            { id: 'left_wing', offsetX: -BOSS_PART_WING_OFFSET_X, offsetY: BOSS_PART_WING_OFFSET_Y, width: BOSS_PART_WING_WIDTH, height: BOSS_PART_WING_HEIGHT, health: BOSS_PART_WING_HEALTH_BASE + level * 5, maxHealth: BOSS_PART_WING_HEALTH_BASE + level * 5, active: true },
+            { id: 'right_wing', offsetX: BOSS_PART_WING_OFFSET_X, offsetY: BOSS_PART_WING_OFFSET_Y, width: BOSS_PART_WING_WIDTH, height: BOSS_PART_WING_HEIGHT, health: BOSS_PART_WING_HEALTH_BASE + level * 5, maxHealth: BOSS_PART_WING_HEALTH_BASE + level * 5, active: true },
+            { id: 'core', offsetX: BOSS_PART_CORE_OFFSET_X, offsetY: BOSS_PART_CORE_OFFSET_Y, width: BOSS_PART_CORE_WIDTH, height: BOSS_PART_CORE_HEIGHT, health: BOSS_PART_CORE_HEALTH_BASE + level * 10, maxHealth: BOSS_PART_CORE_HEALTH_BASE + level * 10, active: true }
         ];
 
         this.hasDroppedPowerup = false;
         this.moveTimer = 0;
         this.targetX = this.x;
         this.deathTimer = 0;
+        this.pendingActions = []; // Frame-based action queue replaces setTimeout
     }
 
     draw() {
@@ -457,13 +593,13 @@ class Boss {
         this.moveTimer -= dt;
         if (this.moveTimer <= 0) {
             this.targetX = Math.random() * (CANVAS_WIDTH - this.width) + this.width / 2;
-            this.moveTimer = 80 + Math.random() * 80;
+            this.moveTimer = BOSS_MOVE_TIMER_MIN + Math.random() * (BOSS_MOVE_TIMER_MAX - BOSS_MOVE_TIMER_MIN);
         }
-        this.x += (this.targetX - this.x) * 0.015 * dt;
+        this.x += (this.targetX - this.x) * BOSS_MOVE_SPEED_FACTOR * dt;
 
         // Mid-fight Powerup Drop
         const core = this.parts.find(p => p.id === 'core');
-        if (core && !this.hasDroppedPowerup && core.health <= core.maxHealth / 2) {
+        if (core && !this.hasDroppedPowerup && core.health <= core.maxHealth * BOSS_MID_HEALTH_POWERUP_THRESHOLD) {
             this.hasDroppedPowerup = true;
             const types = ['D', 'S', 'R'];
             const type = types[Math.floor(Math.random() * types.length)];
@@ -476,11 +612,22 @@ class Boss {
         if (this.attackTimer <= 0) {
             this.firePattern();
         }
+
+        // Process pending actions queue (replaces setTimeout)
+        for (let i = this.pendingActions.length - 1; i >= 0; i--) {
+            this.pendingActions[i].delay -= dt * 16.67;
+            if (this.pendingActions[i].delay <= 0) {
+                if (this.state === 'active') {
+                    this.pendingActions[i].action();
+                }
+                this.pendingActions.splice(i, 1);
+            }
+        }
     }
 
     firePattern() {
         this.attackState = (this.attackState + 1) % 3;
-        this.attackTimer = 110 - Math.min(level * 2, 60);
+        this.attackTimer = BOSS_ATTACK_COOLDOWN_BASE - Math.min(level * BOSS_ATTACK_COOLDOWN_LEVEL_REDUCTION, 60);
 
         const core = this.parts.find(p => p.id === 'core');
         const lw = this.parts.find(p => p.id === 'left_wing');
@@ -488,72 +635,73 @@ class Boss {
 
         if (this.attackState === 0 && core.active) {
             // Spread (Dense Double Wave)
-            const numBullets = 7;
+            const numBullets = BOSS_ATTACK_SPREAD_BULLETS;
             for (let w = 0; w < 2; w++) { // Two waves
                 for (let i = 0; i < numBullets; i++) {
-                    const delay = w * 10;
-                    setTimeout(() => {
-                        if (this.state !== 'active') return;
-                        let ep = new EnemyProjectile(this.x, this.y + 20);
-                        const maxSpread = 3 + level * 0.1;
-                        ep.speedX = -maxSpread + (i * (maxSpread * 2 / (numBullets - 1)));
-                        ep.speed = 4 + w; // Second wave is slightly faster
-                        enemyProjectiles.push(ep);
-                    }, delay * 16.67);
+                    const delay = w * BOSS_ATTACK_SPREAD_WAVE_DELAY * 16.67;
+                    const waveIdx = w;
+                    const bulletIdx = i;
+                    this.pendingActions.push({
+                        delay, action: () => {
+                            let ep = new EnemyProjectile(this.x, this.y + 20);
+                            const maxSpread = BOSS_ATTACK_SPREAD_MAX_SPREAD + level * 0.1;
+                            ep.speedX = -maxSpread + (bulletIdx * (maxSpread * 2 / (numBullets - 1)));
+                            ep.speed = BOSS_ATTACK_SPREAD_BULLET_SPEED_BASE + waveIdx * BOSS_ATTACK_SPREAD_BULLET_SPEED_WAVE_BONUS; // Second wave is slightly faster
+                            enemyProjectiles.push(ep);
+                        }
+                    });
                 }
             }
         } else if (this.attackState === 1) {
             // Aimed from wings (5-shot Burst)
             [lw, rw].forEach(w => {
                 if (w && w.active) {
-                    for (let i = 0; i < 5; i++) { // 5 shots
-                        setTimeout(() => {
-                            if (this.state !== 'active') return;
-                            let ep = new EnemyProjectile(this.x + w.offsetX, this.y + w.offsetY);
-                            // Predict player movement slightly for aimed shots
-                            const predX = player.x + player.width / 2 + (player.dx * 10);
-                            const dx = predX - ep.x;
-                            const dy = player.y - ep.y;
-                            const dist = Math.sqrt(dx * dx + dy * dy);
-
-                            // Slight inaccuracy for the burst to create a cone
-                            const inaccuracy = (Math.random() - 0.5) * 1.5;
-                            ep.speedX = (dx / dist) * 6 + inaccuracy;
-                            ep.speed = (dy / dist) * 6;
-
-                            enemyProjectiles.push(ep);
-                        }, i * 150); // 150ms between shots in the burst
+                    for (let i = 0; i < BOSS_ATTACK_AIMED_BULLETS_PER_WING; i++) { // 5 shots
+                        const delay = i * BOSS_ATTACK_AIMED_BULLET_DELAY;
+                        const wingRef = w;
+                        this.pendingActions.push({
+                            delay, action: () => {
+                                let ep = new EnemyProjectile(this.x + wingRef.offsetX, this.y + wingRef.offsetY);
+                                const predX = player.x + player.width / 2 + (player.dx * 10);
+                                const dx = predX - ep.x;
+                                const dy = player.y - ep.y;
+                                const dist = Math.sqrt(dx * dx + dy * dy);
+                                const inaccuracy = (Math.random() - 0.5) * BOSS_ATTACK_AIMED_INACCURACY;
+                                ep.speedX = (dx / dist) * BOSS_ATTACK_AIMED_BULLET_SPEED + inaccuracy;
+                                ep.speed = (dy / dist) * BOSS_ATTACK_AIMED_BULLET_SPEED;
+                                enemyProjectiles.push(ep);
+                            }
+                        });
                     }
                 }
             });
         } else if (this.attackState === 2 && core.active) {
             // Circle Wave (Dense 360) and Spawn Minions
-            const bullets = 16;
+            const bullets = BOSS_ATTACK_CIRCLE_BULLETS;
             for (let i = 0; i < bullets; i++) {
                 let ep = new EnemyProjectile(this.x, this.y + 20);
-                const angle = (Math.PI * 2 / bullets) * i + (Math.random() * 0.2); // Full circle with slight random offset
-                ep.speedX = Math.cos(angle) * 3.5;
-                ep.speed = Math.sin(angle) * 3.5;
+                const angle = (Math.PI * 2 / bullets) * i + (Math.random() * 0.2);
+                ep.speedX = Math.cos(angle) * BOSS_ATTACK_CIRCLE_BULLET_SPEED;
+                ep.speed = Math.sin(angle) * BOSS_ATTACK_CIRCLE_BULLET_SPEED;
                 enemyProjectiles.push(ep);
             }
 
             // Spawn 2-3 small enemies
-            const numMinions = Math.floor(Math.random() * 2) + 2;
+            const numMinions = Math.floor(Math.random() * (BOSS_ATTACK_MINION_COUNT_MAX - BOSS_ATTACK_MINION_COUNT_MIN + 1)) + BOSS_ATTACK_MINION_COUNT_MIN;
             for (let i = 0; i < numMinions; i++) {
-                setTimeout(() => {
-                    if (this.state !== 'active') return;
-                    // Spawn near the boss
-                    // 60% drone (type 1), 30% interceptor (type 2), 10% commander (type 3)
-                    const rand = Math.random();
-                    let minionType = 1;
-                    if (rand > 0.9) minionType = 3;
-                    else if (rand > 0.6) minionType = 2;
-
-                    let minion = new Enemy(this.x + (Math.random() - 0.5) * this.width, this.y + this.height, minionType);
-                    minion.state = 'formation';
-                    minion.isDiving = true; // Immediately dive towards the player
-                    enemies.push(minion);
-                }, i * 300); // 300ms between minion spawns
+                const delay = i * BOSS_ATTACK_MINION_DELAY;
+                this.pendingActions.push({
+                    delay, action: () => {
+                        const rand = Math.random();
+                        let minionType = 1;
+                        if (rand > 0.9) minionType = 3;
+                        else if (rand > 0.6) minionType = 2;
+                        let minion = new Enemy(this.x + (Math.random() - 0.5) * this.width, this.y + this.height, minionType);
+                        minion.state = 'formation';
+                        minion.isDiving = true;
+                        enemies.push(minion);
+                    }
+                });
             }
         }
     }
@@ -561,19 +709,23 @@ class Boss {
 
 class Particle {
     constructor(x, y, color, scale = 1) {
+        this.reset(x, y, color, scale);
+    }
+
+    reset(x, y, color, scale = 1) {
         this.x = x;
         this.y = y;
         this.color = color;
         this.size = (Math.random() * 3 + 1) * scale;
-        this.speedX = (Math.random() - 0.5) * 6 * scale;
-        this.speedY = (Math.random() - 0.5) * 6 * scale;
+        this.speedX = (Math.random() - 0.5) * PARTICLE_BASE_SPEED * scale;
+        this.speedY = (Math.random() - 0.5) * PARTICLE_BASE_SPEED * scale;
         this.life = 1.0;
     }
 
     update(dt) {
         this.x += this.speedX * dt;
         this.y += this.speedY * dt;
-        this.life -= 0.02 * dt; // Adjust life decay based on dt
+        this.life -= PARTICLE_BASE_LIFE_DECAY * dt;
     }
 
     draw() {
@@ -588,6 +740,10 @@ class Particle {
 
 class Trail {
     constructor(x, y, color, size) {
+        this.reset(x, y, color, size);
+    }
+
+    reset(x, y, color, size) {
         this.x = x;
         this.y = y;
         this.color = color;
@@ -596,8 +752,8 @@ class Trail {
     }
 
     update(dt) {
-        this.size *= (1 - 0.05 * dt);
-        this.alpha -= 0.05 * dt;
+        this.size *= (1 - TRAIL_BASE_SIZE_DECAY * dt);
+        this.alpha -= TRAIL_BASE_ALPHA_DECAY * dt;
     }
 
     draw() {
@@ -612,14 +768,38 @@ class Trail {
     }
 }
 
+// Object Pools - reduce garbage collection pressure
+const particlePool = [];
+const trailPool = [];
+
+function getParticle(x, y, color, scale) {
+    let p = particlePool.pop();
+    if (p) { p.reset(x, y, color, scale); return p; }
+    return new Particle(x, y, color, scale);
+}
+
+function recycleParticle(p) {
+    particlePool.push(p);
+}
+
+function getTrail(x, y, color, size) {
+    let t = trailPool.pop();
+    if (t) { t.reset(x, y, color, size); return t; }
+    return new Trail(x, y, color, size);
+}
+
+function recycleTrail(t) {
+    trailPool.push(t);
+}
+
 class PowerUp {
     constructor(x, y, type) {
         this.x = x;
         this.y = y;
         this.type = type; // 'D': Dual, 'S': Shield, 'R': Rapid
-        this.width = 30;
-        this.height = 30;
-        this.speed = 2;
+        this.width = POWERUP_WIDTH;
+        this.height = POWERUP_HEIGHT;
+        this.speed = POWERUP_SPEED;
     }
 
     draw() {
@@ -649,12 +829,12 @@ class PowerUp {
 
 // Starfield Background
 const stars = [];
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < STAR_COUNT; i++) {
     stars.push({
         x: Math.random() * CANVAS_WIDTH,
         y: Math.random() * CANVAS_HEIGHT,
-        size: Math.random() * 2,
-        speed: Math.random() * 2 + 1
+        size: Math.random() * STAR_SIZE_MAX,
+        speed: Math.random() * STAR_SPEED_MAX + 1
     });
 }
 
@@ -666,11 +846,9 @@ function updateStars(dt) {
 }
 
 function drawStars() {
-    // Dynamic background color shift based on level
-    levelColorOffset = (level - 1) * 20;
-
+    const starColor = `hsl(${180 + levelColorOffset}, 50%, 80%)`;
     stars.forEach(star => {
-        ctx.fillStyle = `hsl(${180 + levelColorOffset}, 50%, 80%)`;
+        ctx.fillStyle = starColor;
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
         ctx.fill();
@@ -705,6 +883,9 @@ function initEnemies() {
     // Trigger level title animation
     levelTitleTimer = LEVEL_TITLE_DURATION;
 
+    // Update star color for this level (optimization: computed once per level)
+    levelColorOffset = (level - 1) * LEVEL_COLOR_OFFSET_PER_LEVEL;
+
     if (level % 5 === 0) {
         // Boss Level
         boss = new Boss();
@@ -718,11 +899,10 @@ function initEnemies() {
     formationOffsetX = 0;
     formationDirection = 1;
 
-    const rows = 4;
-    const cols = 8;
-    const maxSpacingX = 60;
-    const spacingX = Math.min(maxSpacingX, (CANVAS_WIDTH - 60) / cols); // Scaled for mobile
-    const spacingY = 50;
+    const rows = ENEMY_FORMATION_ROWS;
+    const cols = ENEMY_FORMATION_COLS;
+    const spacingX = Math.min(ENEMY_FORMATION_SPACING_X, (CANVAS_WIDTH - 60) / cols);
+    const spacingY = ENEMY_FORMATION_SPACING_Y;
     const offsetX = (CANVAS_WIDTH - ((cols - 1) * spacingX)) / 2;
 
     challengeEnemiesTotal = rows * cols;
@@ -734,7 +914,7 @@ function initEnemies() {
 
         for (let c = 0; c < cols; c++) {
             const targetX = offsetX + c * spacingX;
-            const targetY = 70 + r * spacingY;
+            const targetY = ENEMY_FORMATION_OFFSET_Y_START + r * spacingY;
             let e = new Enemy(targetX, targetY, type);
 
             e.state = isChallengeStage ? 'challenge_flyby' : 'entering';
@@ -742,13 +922,13 @@ function initEnemies() {
 
             const spawnSide = c < cols / 2 ? -1 : 1;
             e.spawnX = spawnSide === -1 ? -50 : CANVAS_WIDTH + 50;
-            e.spawnY = 50 + (Math.random() * 50);
+            e.spawnY = ENEMY_ENTRY_SPAWN_OFFSET_Y + (Math.random() * 50);
 
             e.x = e.spawnX;
             e.y = e.spawnY;
 
             const pairIndex = spawnSide === -1 ? (cols / 2 - 1 - c) : (c - cols / 2);
-            e.entryDelay = (pairIndex * 15 + r * 5) * 16.67;
+            e.entryDelay = (ENEMY_ENTRY_DELAY_BASE + pairIndex * ENEMY_ENTRY_DELAY_PAIR_BONUS + r * ENEMY_ENTRY_DELAY_ROW_BONUS) * 16.67;
 
             if (isChallengeStage) {
                 e.bombProb = 0;
@@ -790,7 +970,7 @@ function handleCollisions() {
                     e._remove = true; // Mark for removal
 
                     // Drop Power-up
-                    if (Math.random() < 0.1) {
+                    if (Math.random() < POWERUP_DROP_CHANCE) {
                         const types = ['D', 'S', 'R'];
                         const type = types[Math.floor(Math.random() * types.length)];
                         powerUps.push(new PowerUp(e.x, e.y, type));
@@ -802,9 +982,8 @@ function handleCollisions() {
                         highScoreEl.textContent = highScore;
                     }
                 } else {
-                    // Visual feedback for non-lethal hit
-                    ctx.fillStyle = '#fff';
-                    ctx.fillRect(e.x, e.y, e.width, e.height);
+                    // Visual feedback for non-lethal hit (rendered in Enemy.draw)
+                    e.hitFlashTimer = 100;
                 }
 
                 p._remove = true; // Mark projectile for removal
@@ -831,7 +1010,7 @@ function handleCollisions() {
                         part.active = false;
                         createExplosion(boss.x + part.offsetX, boss.y + boss.yOffset + part.offsetY, '#ffaa00', 1.5);
                         playSound('explosion');
-                        score += 500; // Points for destroying a part
+                        score += SCORE_BOSS_PART; // Points for destroying a part
                         scoreEl.textContent = score;
 
                         // Check if all parts are destroyed
@@ -920,9 +1099,9 @@ function handleCollisions() {
             pu.y < player.y + player.height &&
             pu.y + pu.height > player.y) {
 
-            if (pu.type === 'D') player.dualShotTimer = Date.now() + 10000;
+            if (pu.type === 'D') player.dualShotTimer = Date.now() + DUAL_SHOT_DURATION;
             if (pu.type === 'S') player.shieldActive = true;
-            if (pu.type === 'R') player.rapidFireTimer = Date.now() + 8000;
+            if (pu.type === 'R') player.rapidFireTimer = Date.now() + RAPID_FIRE_DURATION;
 
             powerUps.splice(i, 1);
             playSound('shoot'); // Reuse sound for collection
@@ -933,7 +1112,7 @@ function handleCollisions() {
 function createExplosion(x, y, color, scale = 1) {
     const count = Math.floor(15 * scale);
     for (let i = 0; i < count; i++) {
-        particles.push(new Particle(x, y, color, scale));
+        particles.push(getParticle(x, y, color, scale));
     }
 }
 
@@ -1006,12 +1185,18 @@ function update(dt) {
     // [BUG FIX 2] Use reverse loops instead of forEach+splice
     for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].update(dt);
-        if (particles[i].life <= 0) particles.splice(i, 1);
+        if (particles[i].life <= 0) {
+            recycleParticle(particles[i]);
+            particles.splice(i, 1);
+        }
     }
 
     for (let i = trails.length - 1; i >= 0; i--) {
         trails[i].update(dt);
-        if (trails[i].alpha <= 0) trails.splice(i, 1);
+        if (trails[i].alpha <= 0) {
+            recycleTrail(trails[i]);
+            trails.splice(i, 1);
+        }
     }
 
     if (shakeDuration > 0) {
@@ -1028,7 +1213,7 @@ function update(dt) {
     if (boss) {
         boss.update(dt);
         if (boss.state === 'dead') {
-            score += 5000;
+            score += SCORE_BOSS_KILL;
             scoreEl.textContent = score;
             if (score > highScore) {
                 highScore = score;
@@ -1045,7 +1230,7 @@ function update(dt) {
     if (!boss && enemies.length === 0) {
         if (isChallengeStage && challengeEnemiesDefeated === challengeEnemiesTotal && challengeEnemiesTotal > 0) {
             // PERFECT!
-            score += 10000;
+            score += SCORE_CHALLENGE_PERFECT;
             scoreEl.textContent = score;
             challengePerfectTime = Date.now() + 3000;
         }
