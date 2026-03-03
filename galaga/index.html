@@ -583,6 +583,9 @@
             }
         }
 
+        const enemyDroneImg = new Image();
+        enemyDroneImg.src = 'enemy_drone.png';
+
         class Boss {
             constructor() {
                 this.x = CANVAS_WIDTH / 2;
@@ -601,6 +604,7 @@
                     { id: 'core', offsetX: 0, offsetY: 0, width: 60, height: 60, health: 80 + level * 10, maxHealth: 80 + level * 10, active: true }
                 ];
 
+                this.hasDroppedPowerup = false;
                 this.moveTimer = 0;
                 this.targetX = this.x;
                 this.deathTimer = 0;
@@ -610,47 +614,40 @@
                 ctx.save();
                 ctx.translate(this.x, this.y + this.yOffset);
 
-                // Draw Base structure (shadowy back)
-                ctx.fillStyle = '#222';
-                ctx.shadowBlur = 30;
-                ctx.shadowColor = '#ff0000';
-                ctx.fillRect(-this.width / 2 + 10, -this.height / 2, this.width - 20, this.height);
+                // Draw giant Drone Image
+                if (enemyDroneImg.complete) {
+                    // Slight pulsing glow for the boss
+                    ctx.shadowBlur = 30;
+                    ctx.shadowColor = `rgba(255, 0, 0, ${0.5 + Math.sin(Date.now() / 200) * 0.5})`;
+                    ctx.drawImage(enemyDroneImg, -this.width / 2, -this.height / 2, this.width, this.height);
+                    ctx.shadowColor = 'transparent';
+                }
 
-                // Draw Parts
+                // Draw Health Bars over Parts
                 this.parts.forEach(p => {
-                    if (!p.active) return;
                     ctx.save();
                     ctx.translate(p.offsetX, p.offsetY);
 
-                    if (p.id === 'core') {
-                        // Glowing Core
-                        ctx.fillStyle = '#ff0055';
-                        ctx.shadowBlur = 20;
-                        ctx.shadowColor = '#ff0055';
+                    if (!p.active) {
+                        // Draw damage indication if part is destroyed (simulated smoke/fire)
+                        ctx.fillStyle = `rgba(50, 50, 50, ${Math.random() * 0.5 + 0.5})`;
                         ctx.beginPath();
-                        ctx.arc(0, 0, p.width / 2, 0, Math.PI * 2);
+                        ctx.arc(0, 0, 20, 0, Math.PI * 2);
                         ctx.fill();
-
-                        // Core Health Bar
-                        ctx.fillStyle = '#ff0000';
-                        ctx.fillRect(-p.width / 2, Math.max(p.height / 2, 35), p.width, 6);
-                        ctx.fillStyle = '#00ff00';
-                        ctx.fillRect(-p.width / 2, Math.max(p.height / 2, 35), p.width * (p.health / p.maxHealth), 6);
                     } else {
-                        // Wings
-                        ctx.fillStyle = '#a020f0';
-                        ctx.shadowBlur = 15;
-                        ctx.shadowColor = '#a020f0';
-                        ctx.beginPath();
-                        // Draw a wing-like triangle shape
-                        const dir = p.id === 'left_wing' ? 1 : -1;
-                        ctx.moveTo(-dir * p.width / 2, -p.height / 2);
-                        ctx.lineTo(dir * p.width / 2, p.height / 2);
-                        ctx.lineTo(-dir * p.width / 2, p.height / 2);
-                        ctx.fill();
+                        // Health Bar
+                        const barWidth = p.id === 'core' ? p.width : p.width * 0.8;
+                        const yPos = p.id === 'core' ? this.height / 2 + 10 : p.height / 2 + 5;
+
+                        ctx.fillStyle = '#ff0000';
+                        ctx.fillRect(-barWidth / 2, yPos, barWidth, 6);
+
+                        ctx.fillStyle = '#00ff00';
+                        ctx.fillRect(-barWidth / 2, yPos, barWidth * (p.health / p.maxHealth), 6);
                     }
                     ctx.restore();
                 });
+
                 ctx.restore();
             }
 
@@ -686,6 +683,16 @@
                 }
                 this.x += (this.targetX - this.x) * 0.015 * dt;
 
+                // Mid-fight Powerup Drop
+                const core = this.parts.find(p => p.id === 'core');
+                if (core && !this.hasDroppedPowerup && core.health <= core.maxHealth / 2) {
+                    this.hasDroppedPowerup = true;
+                    const types = ['D', 'S', 'R'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    powerUps.push(new PowerUp(this.x, this.y, type));
+                    playSound('shoot'); // Ping sound to alert player
+                }
+
                 // Attack
                 this.attackTimer -= dt;
                 if (this.attackTimer <= 0) {
@@ -695,43 +702,61 @@
 
             firePattern() {
                 this.attackState = (this.attackState + 1) % 3;
-                this.attackTimer = 120 - Math.min(level * 2, 60);
+                this.attackTimer = 110 - Math.min(level * 2, 60);
 
                 const core = this.parts.find(p => p.id === 'core');
                 const lw = this.parts.find(p => p.id === 'left_wing');
                 const rw = this.parts.find(p => p.id === 'right_wing');
 
                 if (this.attackState === 0 && core.active) {
-                    // Spread
-                    for (let i = -2; i <= 2; i++) {
-                        let ep = new EnemyProjectile(this.x, this.y + 20);
-                        ep.speedX = i * (1.5 + level * 0.1);
-                        ep.speed = 4;
-                        enemyProjectiles.push(ep);
+                    // Spread (Dense Double Wave)
+                    const numBullets = 7;
+                    for (let w = 0; w < 2; w++) { // Two waves
+                        for (let i = 0; i < numBullets; i++) {
+                            const delay = w * 10;
+                            setTimeout(() => {
+                                if (this.state !== 'active') return;
+                                let ep = new EnemyProjectile(this.x, this.y + 20);
+                                const maxSpread = 3 + level * 0.1;
+                                ep.speedX = -maxSpread + (i * (maxSpread * 2 / (numBullets - 1)));
+                                ep.speed = 4 + w; // Second wave is slightly faster
+                                enemyProjectiles.push(ep);
+                            }, delay * 16.67);
+                        }
                     }
                 } else if (this.attackState === 1) {
-                    // Aimed from wings
+                    // Aimed from wings (5-shot Burst)
                     [lw, rw].forEach(w => {
                         if (w && w.active) {
-                            let ep = new EnemyProjectile(this.x + w.offsetX, this.y + w.offsetY);
-                            const dx = (player.x + player.width / 2) - ep.x;
-                            const dy = player.y - ep.y;
-                            const dist = Math.sqrt(dx * dx + dy * dy);
-                            ep.speedX = (dx / dist) * 5;
-                            ep.speed = (dy / dist) * 5;
-                            enemyProjectiles.push(ep);
+                            for (let i = 0; i < 5; i++) { // 5 shots
+                                setTimeout(() => {
+                                    if (this.state !== 'active') return;
+                                    let ep = new EnemyProjectile(this.x + w.offsetX, this.y + w.offsetY);
+                                    // Predict player movement slightly for aimed shots
+                                    const predX = player.x + player.width / 2 + (player.dx * 10);
+                                    const dx = predX - ep.x;
+                                    const dy = player.y - ep.y;
+                                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                                    // Slight inaccuracy for the burst to create a cone
+                                    const inaccuracy = (Math.random() - 0.5) * 1.5;
+                                    ep.speedX = (dx / dist) * 6 + inaccuracy;
+                                    ep.speed = (dy / dist) * 6;
+
+                                    enemyProjectiles.push(ep);
+                                }, i * 150); // 150ms between shots in the burst
+                            }
                         }
                     });
                 } else if (this.attackState === 2 && core.active) {
-                    // Semi-circle wave
-                    const bullets = 7;
+                    // Circle Wave (Dense 360)
+                    const bullets = 16;
                     for (let i = 0; i < bullets; i++) {
                         let ep = new EnemyProjectile(this.x, this.y + 20);
-                        // Angle from 0 to PI
-                        const angle = (Math.PI / (bullets - 1)) * i;
-                        ep.speedX = Math.cos(angle) * 4;
-                        ep.speed = Math.sin(angle) * 4;
-                        if (ep.speed > 0.5) enemyProjectiles.push(ep);
+                        const angle = (Math.PI * 2 / bullets) * i + (Math.random() * 0.2); // Full circle with slight random offset
+                        ep.speedX = Math.cos(angle) * 3.5;
+                        ep.speed = Math.sin(angle) * 3.5;
+                        enemyProjectiles.push(ep);
                     }
                 }
             }
