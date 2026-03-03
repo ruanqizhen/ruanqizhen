@@ -64,7 +64,7 @@ const canvas = document.getElementById('gameCanvas');
             const now = audioCtx.currentTime;
 
             if (type === 'shoot') {
-                osc.className = 'square';
+                osc.type = 'square';
                 osc.frequency.setValueAtTime(800, now);
                 osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
                 gain.gain.setValueAtTime(0.1, now);
@@ -99,6 +99,10 @@ const canvas = document.getElementById('gameCanvas');
             }
 
             draw() {
+                ctx.save();
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = 'rgba(0, 212, 255, 0.5)';
+
                 if (playerImg.complete) {
                     ctx.drawImage(playerImg, this.x, this.y, this.width, this.height);
                 } else {
@@ -110,15 +114,14 @@ const canvas = document.getElementById('gameCanvas');
                 if (this.shieldActive) {
                     ctx.strokeStyle = '#00d4ff';
                     ctx.lineWidth = 3;
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = '#00d4ff';
                     ctx.beginPath();
                     ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.8, 0, Math.PI * 2);
                     ctx.stroke();
-                    ctx.shadowBlur = 20;
-                    ctx.shadowColor = '#00d4ff';
                 }
 
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = 'rgba(0, 212, 255, 0.5)';
+                ctx.restore();
             }
 
             fire(now) {
@@ -736,9 +739,15 @@ const canvas = document.getElementById('gameCanvas');
         }
 
         function handleCollisions() {
-            projectiles.forEach((p, pIdx) => {
+            // [BUG FIX 3] Use mark-and-sweep instead of forEach+splice to avoid index corruption
+            projectiles.forEach(p => {
+                if (p._remove) return;
+
                 // Collision with regular enemies
-                enemies.forEach((e, eIdx) => {
+                for (let i = 0; i < enemies.length; i++) {
+                    const e = enemies[i];
+                    if (e._remove || p._remove) continue;
+
                     if (p.x < e.x + e.width &&
                         p.x + p.width > e.x &&
                         p.y < e.y + e.height &&
@@ -756,7 +765,7 @@ const canvas = document.getElementById('gameCanvas');
                                 challengeEnemiesDefeated++;
                             }
 
-                            enemies.splice(eIdx, 1);
+                            e._remove = true; // Mark for removal
 
                             // Drop Power-up
                             if (Math.random() < 0.1) {
@@ -776,14 +785,16 @@ const canvas = document.getElementById('gameCanvas');
                             ctx.fillRect(e.x, e.y, e.width, e.height);
                         }
 
-                        projectiles.splice(pIdx, 1);
+                        p._remove = true; // Mark projectile for removal
                         scoreEl.textContent = score;
+                        break; // This projectile is consumed, stop checking enemies
                     }
-                });
+                }
 
                 // Collision with boss parts
-                if (boss && boss.state === 'active') {
+                if (!p._remove && boss && boss.state === 'active') {
                     boss.parts.forEach(part => {
+                        if (p._remove) return;
                         if (part.active &&
                             p.x < boss.x + part.offsetX + part.width / 2 &&
                             p.x + p.width > boss.x + part.offsetX - part.width / 2 &&
@@ -791,7 +802,7 @@ const canvas = document.getElementById('gameCanvas');
                             p.y + p.height > boss.y + boss.yOffset + part.offsetY - part.height / 2) {
 
                             part.health--;
-                            projectiles.splice(pIdx, 1); // Remove projectile
+                            p._remove = true; // Mark projectile for removal
                             playSound('shoot'); // Small hit sound
 
                             if (part.health <= 0) {
@@ -802,7 +813,7 @@ const canvas = document.getElementById('gameCanvas');
                                 scoreEl.textContent = score;
 
                                 // Check if all parts are destroyed
-                                if (boss.parts.every(p => !p.active)) {
+                                if (boss.parts.every(bp => !bp.active)) {
                                     boss.state = 'dying';
                                     boss.deathTimer = 100; // Explosion duration
                                 } else {
@@ -816,6 +827,10 @@ const canvas = document.getElementById('gameCanvas');
                     });
                 }
             });
+
+            // Sweep: remove marked projectiles and enemies
+            projectiles = projectiles.filter(p => !p._remove);
+            enemies = enemies.filter(e => !e._remove);
 
             // Collision with Boss body
             if (boss && boss.state === 'active') {
@@ -835,13 +850,15 @@ const canvas = document.getElementById('gameCanvas');
                 }
             }
 
-            enemies.forEach(e => {
+            // [BUG FIX 5] Enemy-player collision: only trigger gameOver for formation enemies, not entering/flyby
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const e = enemies[i];
                 if (e.y + e.height > player.y &&
                     e.x < player.x + player.width &&
                     e.x + e.width > player.x) {
                     if (player.shieldActive) {
                         player.shieldActive = false;
-                        enemies.splice(enemies.indexOf(e), 1);
+                        enemies.splice(i, 1);
                         createExplosion(e.x + e.width / 2, e.y + e.height / 2, '#ffaa00', 1.5);
                         shakeDuration = 10;
                         shakeMagnitude = 5;
@@ -849,19 +866,21 @@ const canvas = document.getElementById('gameCanvas');
                         gameOver();
                     }
                 }
-                if (e.y > CANVAS_HEIGHT) {
+                if (e.y > CANVAS_HEIGHT && e.state === 'formation' && !e.isDiving) {
                     gameOver();
                 }
-            });
+            }
 
-            enemyProjectiles.forEach((ep, idx) => {
+            // [BUG FIX 2] Enemy projectile collision: use reverse loop instead of forEach+splice
+            for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
+                const ep = enemyProjectiles[i];
                 if (ep.x < player.x + player.width &&
                     ep.x + ep.width > player.x &&
                     ep.y < player.y + player.height &&
                     ep.y + ep.height > player.y) {
                     if (player.shieldActive) {
                         player.shieldActive = false;
-                        enemyProjectiles.splice(idx, 1);
+                        enemyProjectiles.splice(i, 1);
                         createExplosion(ep.x, ep.y, '#00d4ff', 1);
                         shakeDuration = 10;
                         shakeMagnitude = 5;
@@ -869,10 +888,11 @@ const canvas = document.getElementById('gameCanvas');
                         gameOver();
                     }
                 }
-            });
+            }
 
-            // Power-up collection
-            powerUps.forEach((pu, idx) => {
+            // [BUG FIX 2] Power-up collection: use reverse loop instead of forEach+splice
+            for (let i = powerUps.length - 1; i >= 0; i--) {
+                const pu = powerUps[i];
                 if (pu.x < player.x + player.width &&
                     pu.x + pu.width > player.x &&
                     pu.y < player.y + player.height &&
@@ -882,10 +902,10 @@ const canvas = document.getElementById('gameCanvas');
                     if (pu.type === 'S') player.shieldActive = true;
                     if (pu.type === 'R') player.rapidFireTimer = Date.now() + 8000;
 
-                    powerUps.splice(idx, 1);
+                    powerUps.splice(i, 1);
                     playSound('shoot'); // Reuse sound for collection
                 }
-            });
+            }
         }
 
         function createExplosion(x, y, color, scale = 1) {
@@ -924,20 +944,21 @@ const canvas = document.getElementById('gameCanvas');
             }
 
             player.update(dt);
-            projectiles.forEach((p, idx) => {
-                p.update(dt);
-                if (p.y < 0) projectiles.splice(idx, 1);
-            });
+            // [BUG FIX 2] Use reverse loops instead of forEach+splice
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                projectiles[i].update(dt);
+                if (projectiles[i].y < 0) projectiles.splice(i, 1);
+            }
 
-            powerUps.forEach((pu, idx) => {
-                pu.update(dt);
-                if (pu.y > CANVAS_HEIGHT) powerUps.splice(idx, 1);
-            });
+            for (let i = powerUps.length - 1; i >= 0; i--) {
+                powerUps[i].update(dt);
+                if (powerUps[i].y > CANVAS_HEIGHT) powerUps.splice(i, 1);
+            }
 
-            enemyProjectiles.forEach((ep, idx) => {
-                ep.update(dt);
-                if (ep.y > CANVAS_HEIGHT) enemyProjectiles.splice(idx, 1);
-            });
+            for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
+                enemyProjectiles[i].update(dt);
+                if (enemyProjectiles[i].y > CANVAS_HEIGHT) enemyProjectiles.splice(i, 1);
+            }
 
             let hitWall = false;
             for (let idx = enemies.length - 1; idx >= 0; idx--) {
@@ -960,15 +981,16 @@ const canvas = document.getElementById('gameCanvas');
 
             formationOffsetX += formationDirection * 30 * dt / 16.67; // Move at a constant pixel rate independently of framerate
 
-            particles.forEach((p, idx) => {
-                p.update(dt);
-                if (p.life <= 0) particles.splice(idx, 1);
-            });
+            // [BUG FIX 2] Use reverse loops instead of forEach+splice
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update(dt);
+                if (particles[i].life <= 0) particles.splice(i, 1);
+            }
 
-            trails.forEach((t, idx) => {
-                t.update(dt);
-                if (t.alpha <= 0) trails.splice(idx, 1);
-            });
+            for (let i = trails.length - 1; i >= 0; i--) {
+                trails[i].update(dt);
+                if (trails[i].alpha <= 0) trails.splice(i, 1);
+            }
 
             if (shakeDuration > 0) {
                 shakeDuration -= dt;
