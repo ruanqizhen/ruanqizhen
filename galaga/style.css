@@ -114,6 +114,24 @@
             color: #888;
             text-align: center;
             line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .personal-link {
+            color: var(--primary-glow);
+            text-decoration: none;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid transparent;
+        }
+
+        .personal-link:hover {
+            opacity: 1;
+            text-shadow: 0 0 10px var(--primary-glow);
+            border-bottom: 1px solid var(--primary-glow);
         }
 
         #active-buffs {
