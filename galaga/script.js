@@ -139,6 +139,13 @@ const scoreEl = document.getElementById('current-score');
 const levelEl = document.getElementById('current-level');
 const highScoreEl = document.getElementById('high-score');
 
+// UI Cache to prevent DOM thrashing
+const uiCache = {
+    score: -1,
+    timeDual: -1,
+    timeRapid: -1
+};
+
 // Buff UI Elements
 const buffDualEl = document.getElementById('buff-dual');
 const timeDualEl = document.getElementById('time-dual');
@@ -758,13 +765,13 @@ class Trail {
 
     draw() {
         if (this.alpha <= 0) return;
-        ctx.save();
+        const prevAlpha = ctx.globalAlpha;
         ctx.globalAlpha = this.alpha;
         ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
-        ctx.restore();
+        ctx.globalAlpha = prevAlpha;
     }
 }
 
@@ -987,7 +994,10 @@ function handleCollisions() {
                 }
 
                 p._remove = true; // Mark projectile for removal
-                scoreEl.textContent = score;
+                if (uiCache.score !== score) {
+                    uiCache.score = score;
+                    scoreEl.textContent = score;
+                }
                 break; // This projectile is consumed, stop checking enemies
             }
         }
@@ -1011,7 +1021,10 @@ function handleCollisions() {
                         createExplosion(boss.x + part.offsetX, boss.y + boss.yOffset + part.offsetY, '#ffaa00', 1.5);
                         playSound('explosion');
                         score += SCORE_BOSS_PART; // Points for destroying a part
-                        scoreEl.textContent = score;
+                        if (uiCache.score !== score) {
+                            uiCache.score = score;
+                            scoreEl.textContent = score;
+                        }
 
                         // Check if all parts are destroyed
                         if (boss.parts.every(bp => !bp.active)) {
@@ -1029,9 +1042,13 @@ function handleCollisions() {
         }
     });
 
-    // Sweep: remove marked projectiles and enemies
-    projectiles = projectiles.filter(p => !p._remove);
-    enemies = enemies.filter(e => !e._remove);
+    // Sweep: remove marked projectiles and enemies in-place to avoid GC
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        if (projectiles[i]._remove) projectiles.splice(i, 1);
+    }
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        if (enemies[i]._remove) enemies.splice(i, 1);
+    }
 
     // Collision with Boss body
     if (boss && boss.state === 'active') {
@@ -1054,17 +1071,23 @@ function handleCollisions() {
     // [BUG FIX 5] Enemy-player collision: only trigger gameOver for formation enemies, not entering/flyby
     for (let i = enemies.length - 1; i >= 0; i--) {
         const e = enemies[i];
-        if (e.y + e.height > player.y &&
-            e.x < player.x + player.width &&
-            e.x + e.width > player.x) {
-            if (player.shieldActive) {
-                player.shieldActive = false;
-                enemies.splice(i, 1);
-                createExplosion(e.x + e.width / 2, e.y + e.height / 2, '#ffaa00', 1.5);
-                shakeDuration = 10;
-                shakeMagnitude = 5;
-            } else {
-                gameOver();
+
+        // Only trigger collision if they are in the play area and not entering
+        if (e.state !== 'entering' && e.state !== 'challenge_flyby') {
+            if (e.y < player.y + player.height &&
+                e.y + e.height > player.y &&
+                e.x < player.x + player.width &&
+                e.x + e.width > player.x) {
+
+                if (player.shieldActive) {
+                    player.shieldActive = false;
+                    enemies.splice(i, 1);
+                    createExplosion(e.x + e.width / 2, e.y + e.height / 2, '#ffaa00', 1.5);
+                    shakeDuration = 10;
+                    shakeMagnitude = 5;
+                } else {
+                    gameOver();
+                }
             }
         }
         if (e.y > CANVAS_HEIGHT && e.state === 'formation' && !e.isDiving) {
@@ -1124,12 +1147,20 @@ function update(dt) {
     // ... (buff updates) ...
     if (player.dualShotTimer > now) {
         buffDualEl.classList.add('visible');
-        timeDualEl.textContent = Math.ceil((player.dualShotTimer - now) / 1000);
+        const remaining = Math.ceil((player.dualShotTimer - now) / 1000);
+        if (uiCache.timeDual !== remaining) {
+            uiCache.timeDual = remaining;
+            timeDualEl.textContent = remaining;
+        }
     } else { buffDualEl.classList.remove('visible'); }
 
     if (player.rapidFireTimer > now) {
         buffRapidEl.classList.add('visible');
-        timeRapidEl.textContent = Math.ceil((player.rapidFireTimer - now) / 1000);
+        const remaining = Math.ceil((player.rapidFireTimer - now) / 1000);
+        if (uiCache.timeRapid !== remaining) {
+            uiCache.timeRapid = remaining;
+            timeRapidEl.textContent = remaining;
+        }
     } else { buffRapidEl.classList.remove('visible'); }
 
     if (player.shieldActive) { buffShieldEl.classList.add('visible'); }
@@ -1370,14 +1401,14 @@ function gameOver() {
 
 // Controls
 window.addEventListener('keydown', e => {
-    if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
         pressedKeys[e.key] = true;
         if (e.key === ' ') e.preventDefault();
     }
 });
 
 window.addEventListener('keyup', e => {
-    if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ') {
         pressedKeys[e.key] = false;
     }
 });
