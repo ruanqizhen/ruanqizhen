@@ -82,16 +82,38 @@ function initEnemies() {
     const spacingY = ENEMY_FORMATION_SPACING_Y;
     const offsetX = (CANVAS_WIDTH - (cols - 1) * spacingX) / 2;
 
+    const totalEnemies = rows * cols;
+    let numElites = 0;
+
+    // Calculate how many elites to spawn
+    if (level > 5) {
+        // Starts with 2 elites at level 6, adds 2 per level, capped at totalEnemies
+        numElites = Math.min((level - 5) * 2, totalEnemies);
+    }
+
+    // Build flat array of base types
+    let typeArray = new Array(totalEnemies).fill(1); // Default to Drone (1)
+    for (let i = 0; i < cols; i++) {
+        typeArray[i] = 3; // First row: Commander (3)
+        typeArray[cols + i] = 2; // Second row: Interceptor (2)
+    }
+
+    // Replace random spots with Elites (4)
+    // We shuffle a list of indices, take the first 'numElites', and overwrite their type
+    let indices = Array.from({ length: totalEnemies }, (_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+
+    for (let i = 0; i < numElites; i++) {
+        typeArray[indices[i]] = 4; // Overwrite randomly chosen spot with Elite
+    }
+
+    let i = 0;
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-            let type = 1; // Drone
-
-            if (r === 0) {
-                // For the top row, Commander (3). After level 3, each has a 50% chance to be Elite (4)
-                type = (level > 5 && Math.random() < 0.5) ? 4 : 3;
-            } else if (r === 1) {
-                type = 2; // Interceptor
-            }
+            let type = typeArray[i++];
 
             const targetX = offsetX + c * spacingX;
             const targetY = ENEMY_FORMATION_OFFSET_Y_START + r * spacingY;
