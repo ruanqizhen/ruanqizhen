@@ -186,9 +186,9 @@ function handleCollisions() {
             pu.y < player.y + player.height &&
             pu.y + pu.height > player.y) {
 
-            if (pu.type === 'D') player.dualShotTimer = Date.now() + DUAL_SHOT_DURATION;
+            if (pu.type === 'D') player.dualShotTimer = gameTime + DUAL_SHOT_DURATION;
             if (pu.type === 'S') player.shieldActive = true;
-            if (pu.type === 'R') player.rapidFireTimer = Date.now() + RAPID_FIRE_DURATION;
+            if (pu.type === 'R') player.rapidFireTimer = gameTime + RAPID_FIRE_DURATION;
 
             powerUps.splice(i, 1);
             playSound('shoot');

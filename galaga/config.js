@@ -72,11 +72,19 @@ const POWERUP_HEIGHT = 30;
 const ENEMY_WIDTH = 40;
 const ENEMY_HEIGHT = 40;
 
-// Config mapping for enemy types
+// Enemy images (loaded before ENEMY_CONFIG so they can be referenced)
+const enemyImg = new Image();
+enemyImg.src = './enemy_drone.png';
+const interceptorImg = new Image();
+interceptorImg.src = './enemy_interceptor.png';
+const commanderImg = new Image();
+commanderImg.src = './enemy_commander.png';
+
+// Config mapping for enemy types (data-driven: add new enemy types here)
 const ENEMY_CONFIG = {
-    1: { health: 1, points: SCORE_DRONE, diveSpeedY: 5, color: '#ffaa00', scale: 1 },         // Drone
-    2: { health: 1, points: SCORE_INTERCEPTOR, diveSpeedY: 7, color: '#00d4ff', scale: 1.5 }, // Interceptor
-    3: { health: 2, points: SCORE_COMMANDER, diveSpeedY: 4, color: '#a020f0', scale: 2 }    // Commander
+    1: { health: 1, points: SCORE_DRONE, diveSpeedY: 5, color: '#ffaa00', scale: 1, img: enemyImg },         // Drone
+    2: { health: 1, points: SCORE_INTERCEPTOR, diveSpeedY: 7, color: '#00d4ff', scale: 1.5, img: interceptorImg }, // Interceptor
+    3: { health: 2, points: SCORE_COMMANDER, diveSpeedY: 4, color: '#a020f0', scale: 2, img: commanderImg }    // Commander
 };
 
 const ENEMY_ENTRY_SPEED_FACTOR = 0.015;
@@ -165,6 +173,7 @@ const buffShieldEl = document.getElementById('buff-shield');
 // Mutable Game State
 let score = 0;
 let level = 1;
+let gameTime = 0; // Unified game time in ms, driven by dt
 let highScore = localStorage.getItem('galaga-high-score') || 0;
 highScoreEl.textContent = highScore;
 
@@ -184,14 +193,7 @@ let levelColorOffset = 0; // For dynamic background
 const playerImg = new Image();
 playerImg.src = './player_ship.png';
 
-const enemyImg = new Image();
-enemyImg.src = './enemy_drone.png';
-
-const interceptorImg = new Image();
-interceptorImg.src = './enemy_interceptor.png';
-
-const commanderImg = new Image();
-commanderImg.src = './enemy_commander.png';
+// (Enemy images are now loaded above with ENEMY_CONFIG)
 
 const enemyBossImg = new Image();
 enemyBossImg.src = 'enemy_boss.png';

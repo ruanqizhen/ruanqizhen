@@ -156,9 +156,8 @@ class Enemy {
 
     draw() {
         ctx.save();
-        let img = enemyImg;
-        if (this.type === 2) img = interceptorImg;
-        if (this.type === 3) img = commanderImg;
+        const config = ENEMY_CONFIG[this.type] || ENEMY_CONFIG[1];
+        const img = config.img;
 
         // Position context at the center of the enemy to rotate
         ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
@@ -167,7 +166,7 @@ class Enemy {
         if (img.complete) {
             ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
         } else {
-            ctx.fillStyle = ENEMY_CONFIG[this.type] ? ENEMY_CONFIG[this.type].color : '#fff';
+            ctx.fillStyle = config.color;
             ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
         }
 
@@ -261,7 +260,7 @@ class Enemy {
                 }
             } else {
                 this.x = this.startX + formationOffsetX;
-                this.y = this.startY + Math.sin(Date.now() / ENEMY_FORMATION_WAVE_FREQUENCY + this.startX / 100) * ENEMY_FORMATION_WAVE_AMPLITUDE;
+                this.y = this.startY + Math.sin(gameTime / ENEMY_FORMATION_WAVE_FREQUENCY + this.startX / 100) * ENEMY_FORMATION_WAVE_AMPLITUDE;
 
                 if (Math.random() < this.diveProb) this.isDiving = true;
                 if (Math.random() < this.bombProb) {
@@ -310,7 +309,7 @@ class Boss {
         if (enemyBossImg.complete) {
             // Slight pulsing glow for the boss
             ctx.shadowBlur = 30;
-            ctx.shadowColor = `rgba(255, 0, 0, ${0.5 + Math.sin(Date.now() / 200) * 0.5})`;
+            ctx.shadowColor = `rgba(255, 0, 0, ${0.5 + Math.sin(gameTime / 200) * 0.5})`;
             ctx.drawImage(enemyBossImg, -this.width / 2, -this.height / 2, this.width, this.height);
             ctx.shadowColor = 'transparent';
         }

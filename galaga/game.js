@@ -122,21 +122,19 @@ function initEnemies() {
 function update(dt) {
     if (!gameActive) return;
 
-    const now = Date.now();
-
     // Buff updates
-    if (player.dualShotTimer > now) {
+    if (player.dualShotTimer > gameTime) {
         buffDualEl.classList.add('visible');
-        const remaining = Math.ceil((player.dualShotTimer - now) / 1000);
+        const remaining = Math.ceil((player.dualShotTimer - gameTime) / 1000);
         if (uiCache.timeDual !== remaining) {
             uiCache.timeDual = remaining;
             timeDualEl.textContent = remaining;
         }
     } else { buffDualEl.classList.remove('visible'); }
 
-    if (player.rapidFireTimer > now) {
+    if (player.rapidFireTimer > gameTime) {
         buffRapidEl.classList.add('visible');
-        const remaining = Math.ceil((player.rapidFireTimer - now) / 1000);
+        const remaining = Math.ceil((player.rapidFireTimer - gameTime) / 1000);
         if (uiCache.timeRapid !== remaining) {
             uiCache.timeRapid = remaining;
             timeRapidEl.textContent = remaining;
@@ -152,7 +150,7 @@ function update(dt) {
     else player.dx = 0;
 
     if (pressedKeys[' ']) {
-        player.fire(now);
+        player.fire(gameTime);
     }
 
     player.update(dt);
@@ -247,7 +245,7 @@ function update(dt) {
         if (isChallengeStage && challengeEnemiesDefeated === challengeEnemiesTotal && challengeEnemiesTotal > 0) {
             score += SCORE_CHALLENGE_PERFECT;
             scoreEl.textContent = score;
-            challengePerfectTime = Date.now() + 3000;
+            challengePerfectTime = gameTime + 3000;
         }
         level++;
         levelEl.textContent = level;
@@ -286,7 +284,7 @@ function draw() {
         ctx.fillStyle = '#ff0000';
         ctx.font = 'bold 50px Inter';
         ctx.textAlign = 'center';
-        ctx.globalAlpha = 0.5 + Math.sin(Date.now() / 150) * 0.5; // fast pulse
+        ctx.globalAlpha = 0.5 + Math.sin(gameTime / 150) * 0.5; // fast pulse
         ctx.fillText('警告', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
         ctx.font = '30px Inter';
         ctx.fillText('探测到巨型能量源', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
@@ -294,7 +292,7 @@ function draw() {
     }
 
     // Draw Challenge Stage HUD overlays
-    if (challengePerfectTime > Date.now()) {
+    if (challengePerfectTime > gameTime) {
         ctx.save();
         ctx.fillStyle = '#00ff00';
         ctx.font = 'bold 40px Inter';
@@ -308,7 +306,7 @@ function draw() {
         ctx.fillStyle = '#00d4ff';
         ctx.font = 'bold 30px Inter';
         ctx.textAlign = 'center';
-        ctx.globalAlpha = 0.5 + Math.sin(Date.now() / 200) * 0.2;
+        ctx.globalAlpha = 0.5 + Math.sin(gameTime / 200) * 0.2;
         ctx.fillText('奖励关卡', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 100);
         ctx.restore();
     }
@@ -348,6 +346,8 @@ function gameLoop() {
     if (dt > 2) dt = 2;
     lastTime = now;
 
+    gameTime += dt * (1000 / 60); // Update unified game time
+
     try {
         update(dt);
         draw();
@@ -385,6 +385,7 @@ function startGame() {
         particles = [];
         overlay.classList.add('hidden');
         lastTime = performance.now();
+        gameTime = 0; // Reset game time
         gameLoop();
     } catch (e) {
         console.error("Game Start Logic Error:", e);
@@ -430,8 +431,7 @@ canvas.addEventListener('touchstart', e => {
 
     if (x >= player.x && x <= player.x + player.width &&
         y >= player.y && y <= player.y + player.height) {
-        const now = Date.now();
-        player.fire(now);
+        player.fire(gameTime);
     }
 
     touchX = x;
@@ -452,8 +452,7 @@ canvas.addEventListener('touchmove', e => {
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > CANVAS_WIDTH) player.x = CANVAS_WIDTH - player.width;
 
-    const now = Date.now();
-    player.fire(now);
+    player.fire(gameTime);
 
     touchX = x;
 }, { passive: false });
@@ -474,8 +473,7 @@ canvas.addEventListener('mousedown', e => {
 
     if (x >= player.x && x <= player.x + player.width &&
         y >= player.y && y <= player.y + player.height) {
-        const now = Date.now();
-        player.fire(now);
+        player.fire(gameTime);
     }
 
     touchX = x;
@@ -494,8 +492,7 @@ window.addEventListener('mousemove', e => {
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > CANVAS_WIDTH) player.x = CANVAS_WIDTH - player.width;
 
-    const now = Date.now();
-    player.fire(now);
+    player.fire(gameTime);
 
     touchX = x;
 });
