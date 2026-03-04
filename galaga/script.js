@@ -65,12 +65,13 @@ const POWERUP_HEIGHT = 30;
 // Enemy dimensions and health
 const ENEMY_WIDTH = 40;
 const ENEMY_HEIGHT = 40;
-const ENEMY_DRONE_HEALTH = 1;
-const ENEMY_DRONE_DIVE_SPEED_Y = 5;
-const ENEMY_INTERCEPTOR_HEALTH = 1;
-const ENEMY_INTERCEPTOR_DIVE_SPEED_Y = 7;
-const ENEMY_COMMANDER_HEALTH = 2;
-const ENEMY_COMMANDER_DIVE_SPEED_Y = 4;
+// Config mapping for enemy types
+const ENEMY_CONFIG = {
+    1: { health: 1, points: SCORE_DRONE, diveSpeedY: 5, color: '#ffaa00', scale: 1 },         // Drone
+    2: { health: 1, points: SCORE_INTERCEPTOR, diveSpeedY: 7, color: '#00d4ff', scale: 1.5 }, // Interceptor
+    3: { health: 2, points: SCORE_COMMANDER, diveSpeedY: 4, color: '#a020f0', scale: 2 }    // Commander
+};
+
 const ENEMY_ENTRY_SPEED_FACTOR = 0.015;
 const CHALLENGE_FLYBY_SPEED_FACTOR = 0.012;
 const ENEMY_FORMATION_WAVE_FREQUENCY = 1000;
@@ -184,7 +185,7 @@ const commanderImg = new Image();
 commanderImg.src = './enemy_commander.png';
 
 // Audio System
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let audioCtx = null;
 
 function playSound(type) {
     if (!audioCtx) return;
@@ -232,8 +233,6 @@ class Player {
 
     draw() {
         ctx.save();
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = 'rgba(0, 212, 255, 0.5)';
 
         if (playerImg.complete) {
             ctx.drawImage(playerImg, this.x, this.y, this.width, this.height);
@@ -246,8 +245,6 @@ class Player {
         if (this.shieldActive) {
             ctx.strokeStyle = '#00d4ff';
             ctx.lineWidth = 3;
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#00d4ff';
             ctx.beginPath();
             ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.8, 0, Math.PI * 2);
             ctx.stroke();
@@ -260,10 +257,10 @@ class Player {
         const cooldown = this.rapidFireTimer > now ? RAPID_FIRE_COOLDOWN : FIRE_COOLDOWN;
         if (now - lastFireTime >= cooldown) {
             if (this.dualShotTimer > now) {
-                projectiles.push(new Projectile(this.x + DUAL_SHOT_OFFSET_X_LEFT, this.y));
-                projectiles.push(new Projectile(this.x + this.width - DUAL_SHOT_OFFSET_X_RIGHT, this.y));
+                projectiles.push(getProjectile(this.x + DUAL_SHOT_OFFSET_X_LEFT, this.y));
+                projectiles.push(getProjectile(this.x + this.width - DUAL_SHOT_OFFSET_X_RIGHT, this.y));
             } else {
-                projectiles.push(new Projectile(this.x + this.width / 2 - SINGLE_SHOT_OFFSET_X, this.y + SINGLE_SHOT_OFFSET_Y));
+                projectiles.push(getProjectile(this.x + this.width / 2 - SINGLE_SHOT_OFFSET_X, this.y + SINGLE_SHOT_OFFSET_Y));
             }
             playSound('shoot');
             lastFireTime = now;
@@ -285,6 +282,10 @@ class Player {
 
 class Projectile {
     constructor(x, y) {
+        this.reset(x, y);
+    }
+
+    reset(x, y) {
         this.x = x;
         this.y = y;
         this.width = PROJECTILE_WIDTH;
@@ -294,8 +295,6 @@ class Projectile {
 
     draw() {
         ctx.fillStyle = '#fff';
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#00d4ff';
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
@@ -306,6 +305,10 @@ class Projectile {
 
 class EnemyProjectile {
     constructor(x, y) {
+        this.reset(x, y);
+    }
+
+    reset(x, y) {
         this.x = x;
         this.y = y;
         this.width = ENEMY_PROJECTILE_WIDTH;
@@ -316,8 +319,6 @@ class EnemyProjectile {
 
     draw() {
         ctx.fillStyle = '#ff0000';
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#ff0000';
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
@@ -340,23 +341,14 @@ class Enemy {
         this.diveSpeedX = 0;
         this.diveSpeedY = 5;
 
-        // Type-specific properties
-        if (type === 2) { // Interceptor
-            this.health = ENEMY_INTERCEPTOR_HEALTH;
-            this.points = SCORE_INTERCEPTOR;
-            this.diveSpeedY = ENEMY_INTERCEPTOR_DIVE_SPEED_Y;
-            this.zigzagTimer = 0;
-        } else if (type === 3) { // Commander
-            this.health = ENEMY_COMMANDER_HEALTH;
-            this.points = SCORE_COMMANDER;
-            this.diveSpeedY = ENEMY_COMMANDER_DIVE_SPEED_Y;
-            this.angle = 0;
-        } else { // Drone
-            this.health = ENEMY_DRONE_HEALTH;
-            this.points = SCORE_DRONE;
-            this.diveSpeedY = ENEMY_DRONE_DIVE_SPEED_Y;
-        }
+        const config = ENEMY_CONFIG[this.type] || ENEMY_CONFIG[1];
+        this.health = config.health;
+        this.points = config.points;
+        this.diveSpeedY = config.diveSpeedY;
         this.maxHealth = this.health;
+
+        if (type === 2) this.zigzagTimer = 0;
+        if (type === 3) this.angle = 0;
 
         // New properties for updated enemy behavior
         this.isDiving = false;
@@ -386,14 +378,10 @@ class Enemy {
         ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
         ctx.rotate(Math.PI); // Rotate 180 degrees (head down)
 
-        // Unity style: Add subtle neon glow
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = this.type === 3 ? '#a020f0' : (this.type === 2 ? '#00d4ff' : '#ffaa00');
-
         if (img.complete) {
             ctx.drawImage(img, -this.width / 2, -this.height / 2, this.width, this.height);
         } else {
-            ctx.fillStyle = ctx.shadowColor;
+            ctx.fillStyle = ENEMY_CONFIG[this.type] ? ENEMY_CONFIG[this.type].color : '#fff';
             ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
         }
 
@@ -491,7 +479,7 @@ class Enemy {
 
                 if (Math.random() < this.diveProb) this.isDiving = true;
                 if (Math.random() < this.bombProb) {
-                    enemyProjectiles.push(new EnemyProjectile(this.x + this.width / 2, this.y + this.height));
+                    enemyProjectiles.push(getEnemyProjectile(this.x + this.width / 2, this.y + this.height));
                 }
             }
         }
@@ -650,7 +638,7 @@ class Boss {
                     const bulletIdx = i;
                     this.pendingActions.push({
                         delay, action: () => {
-                            let ep = new EnemyProjectile(this.x, this.y + 20);
+                            let ep = getEnemyProjectile(this.x, this.y + 20);
                             const maxSpread = BOSS_ATTACK_SPREAD_MAX_SPREAD + level * 0.1;
                             ep.speedX = -maxSpread + (bulletIdx * (maxSpread * 2 / (numBullets - 1)));
                             ep.speed = BOSS_ATTACK_SPREAD_BULLET_SPEED_BASE + waveIdx * BOSS_ATTACK_SPREAD_BULLET_SPEED_WAVE_BONUS; // Second wave is slightly faster
@@ -668,7 +656,7 @@ class Boss {
                         const wingRef = w;
                         this.pendingActions.push({
                             delay, action: () => {
-                                let ep = new EnemyProjectile(this.x + wingRef.offsetX, this.y + wingRef.offsetY);
+                                let ep = getEnemyProjectile(this.x + wingRef.offsetX, this.y + wingRef.offsetY);
                                 const predX = player.x + player.width / 2 + (player.dx * 10);
                                 const dx = predX - ep.x;
                                 const dy = player.y - ep.y;
@@ -686,7 +674,7 @@ class Boss {
             // Circle Wave (Dense 360) and Spawn Minions
             const bullets = BOSS_ATTACK_CIRCLE_BULLETS;
             for (let i = 0; i < bullets; i++) {
-                let ep = new EnemyProjectile(this.x, this.y + 20);
+                let ep = getEnemyProjectile(this.x, this.y + 20);
                 const angle = (Math.PI * 2 / bullets) * i + (Math.random() * 0.2);
                 ep.speedX = Math.cos(angle) * BOSS_ATTACK_CIRCLE_BULLET_SPEED;
                 ep.speed = Math.sin(angle) * BOSS_ATTACK_CIRCLE_BULLET_SPEED;
@@ -799,6 +787,30 @@ function recycleTrail(t) {
     trailPool.push(t);
 }
 
+const projectilePool = [];
+const enemyProjectilePool = [];
+
+function getProjectile(x, y) {
+    let p = projectilePool.pop();
+    if (p) { p.reset(x, y); return p; }
+    return new Projectile(x, y);
+}
+
+function recycleProjectile(p) {
+    p._remove = false; // clear flag just in case
+    projectilePool.push(p);
+}
+
+function getEnemyProjectile(x, y) {
+    let ep = enemyProjectilePool.pop();
+    if (ep) { ep.reset(x, y); return ep; }
+    return new EnemyProjectile(x, y);
+}
+
+function recycleEnemyProjectile(ep) {
+    enemyProjectilePool.push(ep);
+}
+
 class PowerUp {
     constructor(x, y, type) {
         this.x = x;
@@ -854,11 +866,9 @@ function updateStars(dt) {
 
 function drawStars() {
     const starColor = `hsl(${180 + levelColorOffset}, 50%, 80%)`;
+    ctx.fillStyle = starColor;
     stars.forEach(star => {
-        ctx.fillStyle = starColor;
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillRect(star.x, star.y, star.size, star.size);
     });
 }
 
@@ -966,8 +976,8 @@ function handleCollisions() {
                 e.health--;
                 if (e.health <= 0) {
                     playSound('explosion');
-                    const explosionScale = e.type === 3 ? 2 : (e.type === 2 ? 1.5 : 1);
-                    createExplosion(e.x + e.width / 2, e.y + e.height / 2, e.type === 3 ? '#a020f0' : (e.type === 2 ? '#00d4ff' : '#ffaa00'), explosionScale);
+                    const config = ENEMY_CONFIG[e.type] || ENEMY_CONFIG[1];
+                    createExplosion(e.x + e.width / 2, e.y + e.height / 2, config.color, config.scale);
                     score += e.points;
 
                     if (isChallengeStage) {
@@ -1044,7 +1054,10 @@ function handleCollisions() {
 
     // Sweep: remove marked projectiles and enemies in-place to avoid GC
     for (let i = projectiles.length - 1; i >= 0; i--) {
-        if (projectiles[i]._remove) projectiles.splice(i, 1);
+        if (projectiles[i]._remove) {
+            recycleProjectile(projectiles[i]);
+            projectiles.splice(i, 1);
+        }
     }
     for (let i = enemies.length - 1; i >= 0; i--) {
         if (enemies[i]._remove) enemies.splice(i, 1);
@@ -1082,7 +1095,8 @@ function handleCollisions() {
                 if (player.shieldActive) {
                     player.shieldActive = false;
                     enemies.splice(i, 1);
-                    createExplosion(e.x + e.width / 2, e.y + e.height / 2, '#ffaa00', 1.5);
+                    const config = ENEMY_CONFIG[e.type] || ENEMY_CONFIG[1];
+                    createExplosion(e.x + e.width / 2, e.y + e.height / 2, config.color, config.scale);
                     shakeDuration = 10;
                     shakeMagnitude = 5;
                 } else {
@@ -1104,6 +1118,7 @@ function handleCollisions() {
             ep.y + ep.height > player.y) {
             if (player.shieldActive) {
                 player.shieldActive = false;
+                recycleEnemyProjectile(enemyProjectiles[i]);
                 enemyProjectiles.splice(i, 1);
                 createExplosion(ep.x, ep.y, '#00d4ff', 1);
                 shakeDuration = 10;
@@ -1179,7 +1194,10 @@ function update(dt) {
     // [BUG FIX 2] Use reverse loops instead of forEach+splice
     for (let i = projectiles.length - 1; i >= 0; i--) {
         projectiles[i].update(dt);
-        if (projectiles[i].y < 0) projectiles.splice(i, 1);
+        if (projectiles[i].y < 0) {
+            recycleProjectile(projectiles[i]);
+            projectiles.splice(i, 1);
+        }
     }
 
     for (let i = powerUps.length - 1; i >= 0; i--) {
@@ -1189,7 +1207,10 @@ function update(dt) {
 
     for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
         enemyProjectiles[i].update(dt);
-        if (enemyProjectiles[i].y > CANVAS_HEIGHT) enemyProjectiles.splice(i, 1);
+        if (enemyProjectiles[i].y > CANVAS_HEIGHT) {
+            recycleEnemyProjectile(enemyProjectiles[i]);
+            enemyProjectiles.splice(i, 1);
+        }
     }
 
     let hitWall = false;
@@ -1366,29 +1387,48 @@ function gameLoop() {
     if (dt > 2) dt = 2; // Cap dt to prevent huge jumps
     lastTime = now;
 
-    update(dt);
-    draw();
-    animationId = requestAnimationFrame(gameLoop);
+    try {
+        update(dt);
+        draw();
+        animationId = requestAnimationFrame(gameLoop);
+    } catch (e) {
+        console.error("Game Loop Crashed:", e);
+        gameActive = false;
+        alert("游戏运行中发生严重错误，已中断: " + e.message + "\n请查看控制台获取详细信息。");
+    }
 }
 
 function startGame() {
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+    // Try to init audio, but don't stop the game if it fails
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } else if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    } catch (e) {
+        console.warn("Audio Context init blocked or not supported:", e);
     }
-    gameActive = true;
-    score = 0;
-    level = 1;
-    scoreEl.textContent = score;
-    levelEl.textContent = level;
-    initEnemies();
-    player = new Player();
-    projectiles = [];
-    enemyProjectiles = [];
-    powerUps = [];
-    particles = [];
-    overlay.classList.add('hidden');
-    lastTime = performance.now(); // Initialize lastTime
-    gameLoop();
+
+    try {
+        gameActive = true;
+        score = 0;
+        level = 1;
+        scoreEl.textContent = score;
+        levelEl.textContent = level;
+        initEnemies();
+        player = new Player();
+        projectiles = [];
+        enemyProjectiles = [];
+        powerUps = [];
+        particles = [];
+        overlay.classList.add('hidden');
+        lastTime = performance.now(); // Initialize lastTime
+        gameLoop();
+    } catch (e) {
+        console.error("Game Start Logic Error:", e);
+        alert("无法启动游戏核心逻辑: " + e.message);
+    }
 }
 
 function gameOver() {
