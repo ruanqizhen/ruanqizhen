@@ -84,8 +84,11 @@ function initEnemies() {
 
     for (let r = 0; r < rows; r++) {
         let type = 1;
-        if (r === 0) type = 3; // Commander
-        else if (r === 1) type = 2; // Interceptor
+        if (r === 0) {
+            type = (level > 6 && Math.random() < 0.5) ? 4 : 3; // 50% chance for Elite after level 6
+        } else if (r === 1) {
+            type = 2; // Interceptor
+        }
 
         for (let c = 0; c < cols; c++) {
             const targetX = offsetX + c * spacingX;
@@ -386,6 +389,7 @@ function startGame() {
         overlay.classList.add('hidden');
         lastTime = performance.now();
         gameTime = 0; // Reset game time
+        lastFireTime = 0; // Reset firing cooldown time
         gameLoop();
     } catch (e) {
         console.error("Game Start Logic Error:", e);

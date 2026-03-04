@@ -25,33 +25,43 @@ function handleCollisions() {
                 p.y + p.height > e.y) {
 
                 // Hit!
-                e.health--;
-                if (e.health <= 0) {
-                    playSound('explosion');
-                    const config = ENEMY_CONFIG[e.type] || ENEMY_CONFIG[1];
-                    createExplosion(e.x + e.width / 2, e.y + e.height / 2, config.color, config.scale);
-                    score += e.points;
-
-                    if (isChallengeStage) {
-                        challengeEnemiesDefeated++;
-                    }
-
-                    e._remove = true; // Mark for removal
-
-                    // Drop Power-up
-                    if (Math.random() < POWERUP_DROP_CHANCE) {
-                        const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
-                        powerUps.push(new PowerUp(e.x, e.y, type));
-                    }
-
-                    if (score > highScore) {
-                        highScore = score;
-                        localStorage.setItem('galaga-high-score', highScore);
-                        highScoreEl.textContent = highScore;
+                if (e.shield > 0) {
+                    e.shield--;
+                    if (e.shield <= 0) {
+                        playSound('explosion'); // shield break sound
+                        createExplosion(e.x + e.width / 2, e.y + e.height / 2, '#0000ff', 1.5);
+                    } else {
+                        e.hitFlashTimer = 100; // Visual feedback for non-lethal shield hit
                     }
                 } else {
-                    // Visual feedback for non-lethal hit
-                    e.hitFlashTimer = 100;
+                    e.health--;
+                    if (e.health <= 0) {
+                        playSound('explosion');
+                        const config = ENEMY_CONFIG[e.type] || ENEMY_CONFIG[1];
+                        createExplosion(e.x + e.width / 2, e.y + e.height / 2, config.color, config.scale);
+                        score += e.points;
+
+                        if (isChallengeStage) {
+                            challengeEnemiesDefeated++;
+                        }
+
+                        e._remove = true; // Mark for removal
+
+                        // Drop Power-up
+                        if (Math.random() < POWERUP_DROP_CHANCE) {
+                            const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+                            powerUps.push(new PowerUp(e.x, e.y, type));
+                        }
+
+                        if (score > highScore) {
+                            highScore = score;
+                            localStorage.setItem('galaga-high-score', highScore);
+                            highScoreEl.textContent = highScore;
+                        }
+                    } else {
+                        // Visual feedback for non-lethal hit
+                        e.hitFlashTimer = 100;
+                    }
                 }
 
                 p._remove = true; // Mark projectile for removal
@@ -99,6 +109,37 @@ function handleCollisions() {
                     }
                 }
             });
+        }
+
+        // Collision with enemy tracking missiles
+        if (!p._remove) {
+            for (let j = enemyProjectiles.length - 1; j >= 0; j--) {
+                const ep = enemyProjectiles[j];
+                if (ep._remove) continue;
+
+                if (ep instanceof TrackingMissile) {
+                    if (p.x < ep.x + ep.width &&
+                        p.x + p.width > ep.x &&
+                        p.y < ep.y + ep.height &&
+                        p.y + p.height > ep.y) {
+
+                        p._remove = true;
+
+                        // Immediately recycle and remove the missile so it disappears
+                        recycleEnemyProjectile(ep);
+                        enemyProjectiles.splice(j, 1);
+
+                        createExplosion(ep.x + ep.width / 2, ep.y + ep.height / 2, '#ff8800', 0.8);
+                        playSound('explosion');
+                        score += 50;
+                        if (uiCache.score !== score) {
+                            uiCache.score = score;
+                            scoreEl.textContent = score;
+                        }
+                        break;
+                    }
+                }
+            }
         }
     });
 

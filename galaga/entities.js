@@ -114,6 +114,88 @@ class EnemyProjectile {
     }
 }
 
+class TrackingMissile extends EnemyProjectile {
+    reset(x, y) {
+        super.reset(x, y);
+        this.width = TRACKING_MISSILE_WIDTH;
+        this.height = TRACKING_MISSILE_HEIGHT;
+        // Tracking missiles need an initial velocity vector to not stall (speed = dy, speedX = dx)
+        this.speed = TRACKING_MISSILE_SPEED; // initial dy
+        this.speedX = 0;                     // initial dx (will be set by Enemy)
+    }
+
+    draw() {
+        ctx.save();
+        ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+
+        // Calculate angle based on velocity
+        const angle = Math.atan2(this.speed, this.speedX) - Math.PI / 2;
+        ctx.rotate(angle);
+
+        ctx.fillStyle = '#ff8800'; // Orange missile
+        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+
+        // Thruster glow
+        ctx.fillStyle = '#ffddaa';
+        ctx.fillRect(-this.width / 4, -this.height / 2 - 4, this.width / 2, 4);
+        ctx.restore();
+    }
+
+    update(dt) {
+        // Find target vector
+        const targetX = player.x + player.width / 2;
+        const targetY = player.y + player.height / 2;
+
+        const dx = targetX - (this.x + this.width / 2);
+        const dy = targetY - (this.y + this.height / 2);
+
+        // Current angle
+        const currentAngle = Math.atan2(this.speed, this.speedX);
+
+        // Target angle
+        let targetAngle = Math.atan2(dy, dx);
+
+        // Steer towards target
+        let angleDiff = targetAngle - currentAngle;
+
+        // Normalize angle difference to [-PI, PI]
+        while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+        while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+
+        const turnStep = TRACKING_MISSILE_TURN_RATE * dt;
+
+        let newAngle = currentAngle;
+        if (Math.abs(angleDiff) < turnStep) {
+            newAngle = targetAngle;
+        } else {
+            newAngle += Math.sign(angleDiff) * turnStep;
+        }
+
+        // Clamp angle to strictly downward within a 45-degree cone (+/- PI/4 from PI/2)
+        let diffFromDown = newAngle - Math.PI / 2;
+        while (diffFromDown > Math.PI) diffFromDown -= Math.PI * 2;
+        while (diffFromDown < -Math.PI) diffFromDown += Math.PI * 2;
+
+        const MAX_WANDERING = Math.PI / 4; // 45 degrees
+        if (diffFromDown > MAX_WANDERING) diffFromDown = MAX_WANDERING;
+        if (diffFromDown < -MAX_WANDERING) diffFromDown = -MAX_WANDERING;
+
+        newAngle = Math.PI / 2 + diffFromDown;
+
+        // Apply new velocity components using the constant tracking speed magnitude
+        this.speedX = Math.cos(newAngle) * TRACKING_MISSILE_SPEED;
+        this.speed = Math.sin(newAngle) * TRACKING_MISSILE_SPEED;
+
+        this.x += this.speedX * dt;
+        this.y += this.speed * dt;
+
+        // Missile trail
+        if (Math.random() < 0.5 * dt) {
+            trails.push(getTrail(this.x + this.width / 2, this.y, '#ff8800', 2));
+        }
+    }
+}
+
 class Enemy {
     constructor(x, y, type = 1) {
         this.x = x;
@@ -129,12 +211,15 @@ class Enemy {
 
         const config = ENEMY_CONFIG[this.type] || ENEMY_CONFIG[1];
         this.health = config.health;
+        this.shield = config.shield || 0;
+        this.maxShield = this.shield;
         this.points = config.points;
         this.diveSpeedY = config.diveSpeedY;
         this.maxHealth = this.health;
 
         if (type === 2) this.zigzagTimer = 0;
         if (type === 3) this.angle = 0;
+        if (type === 4) this.diveProb = 0.00005; // Elite dives less
 
         // New properties for updated enemy behavior
         this.isDiving = false;
@@ -180,13 +265,32 @@ class Enemy {
 
         ctx.restore();
 
-        // Health bar for Commander (drawn above in world space)
-        if (this.type === 3 && this.health < this.maxHealth) {
+        // Health bar for Commander or Elite (drawn above in world space)
+        if ((this.type === 3 || this.type === 4) && (this.health < this.maxHealth || this.shield < this.maxShield)) {
             ctx.save();
-            ctx.fillStyle = '#ff0000';
-            ctx.fillRect(this.x, this.y - 10, this.width, 4);
-            ctx.fillStyle = '#00ff00';
-            ctx.fillRect(this.x, this.y - 10, this.width * (this.health / this.maxHealth), 4);
+            ctx.fillStyle = '#ff0000'; // Base health red
+            ctx.fillRect(this.x, this.y - 12, this.width, 4);
+            ctx.fillStyle = '#00ff00'; // Current health green
+            ctx.fillRect(this.x, this.y - 12, this.width * (this.health / this.maxHealth), 4);
+
+            if (this.maxShield > 0) {
+                // Shield bar (blue) just below health bar
+                ctx.fillStyle = '#000088';
+                ctx.fillRect(this.x, this.y - 6, this.width, 3);
+                ctx.fillStyle = '#00d4ff';
+                ctx.fillRect(this.x, this.y - 6, this.width * (this.shield / this.maxShield), 3);
+            }
+            ctx.restore();
+        }
+
+        // Draw active shield sphere for Elites
+        if (this.shield > 0) {
+            ctx.save();
+            ctx.strokeStyle = `rgba(0, 212, 255, ${0.5 + Math.sin(gameTime / 100) * 0.3})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.7, 0, Math.PI * 2);
+            ctx.stroke();
             ctx.restore();
         }
     }
@@ -264,7 +368,14 @@ class Enemy {
 
                 if (Math.random() < this.diveProb) this.isDiving = true;
                 if (Math.random() < this.bombProb) {
-                    enemyProjectiles.push(getEnemyProjectile(this.x + this.width / 2, this.y + this.height));
+                    if (this.type === 4) {
+                        // Elite fires tracking missiles
+                        let missile = new TrackingMissile(this.x + this.width / 2, this.y + this.height);
+                        missile.speedX = (Math.random() - 0.5) * 2; // Initial horizontal spread
+                        enemyProjectiles.push(missile);
+                    } else {
+                        enemyProjectiles.push(getEnemyProjectile(this.x + this.width / 2, this.y + this.height));
+                    }
                 }
             }
         }

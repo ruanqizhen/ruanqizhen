@@ -63,6 +63,12 @@ const PROJECTILE_WIDTH = 4;
 const PROJECTILE_HEIGHT = 15;
 const ENEMY_PROJECTILE_WIDTH = 4;
 const ENEMY_PROJECTILE_HEIGHT = 15;
+const TRACKING_MISSILE_WIDTH = 6;
+const TRACKING_MISSILE_HEIGHT = 20;
+
+// Tracking Missile Properties
+const TRACKING_MISSILE_SPEED = 3;
+const TRACKING_MISSILE_TURN_RATE = 0.05; // radians per frame
 
 // PowerUp dimensions
 const POWERUP_WIDTH = 30;
@@ -79,12 +85,15 @@ const interceptorImg = new Image();
 interceptorImg.src = './enemy_interceptor.png';
 const commanderImg = new Image();
 commanderImg.src = './enemy_commander.png';
+const eliteImg = new Image(); // Can reuse commander or have a new one. Recolor fallback handles it if missing.
+eliteImg.src = './enemy_elite.png';
 
 // Config mapping for enemy types (data-driven: add new enemy types here)
 const ENEMY_CONFIG = {
     1: { health: 1, points: SCORE_DRONE, diveSpeedY: 5, color: '#ffaa00', scale: 1, img: enemyImg },         // Drone
     2: { health: 1, points: SCORE_INTERCEPTOR, diveSpeedY: 7, color: '#00d4ff', scale: 1.5, img: interceptorImg }, // Interceptor
-    3: { health: 2, points: SCORE_COMMANDER, diveSpeedY: 4, color: '#a020f0', scale: 2, img: commanderImg }    // Commander
+    3: { health: 2, points: SCORE_COMMANDER, diveSpeedY: 4, color: '#a020f0', scale: 2, img: commanderImg },    // Commander
+    4: { health: 3, shield: 3, points: 800, diveSpeedY: 3, color: '#ff00ff', scale: 2.5, img: eliteImg }        // Elite (Shielded)
 };
 
 const ENEMY_ENTRY_SPEED_FACTOR = 0.015;
