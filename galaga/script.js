@@ -811,6 +811,41 @@ function recycleEnemyProjectile(ep) {
     enemyProjectilePool.push(ep);
 }
 
+// Pre-render PowerUps to Offscreen Canvases for O(1) drawing
+const powerUpSprites = {
+    'D': document.createElement('canvas'),
+    'S': document.createElement('canvas'),
+    'R': document.createElement('canvas')
+};
+
+// The glow requires some padding around the original size
+const PU_RENDER_PADDING = 20;
+const PU_RENDER_SIZE = POWERUP_WIDTH + PU_RENDER_PADDING * 2;
+
+['D', 'S', 'R'].forEach(type => {
+    const pCanvas = powerUpSprites[type];
+    pCanvas.width = PU_RENDER_SIZE;
+    pCanvas.height = PU_RENDER_SIZE;
+    const pCtx = pCanvas.getContext('2d');
+
+    pCtx.shadowBlur = 15;
+    pCtx.shadowColor = type === 'D' ? '#00ff00' : (type === 'S' ? '#00d4ff' : '#ff00ff');
+    pCtx.fillStyle = '#fff';
+    pCtx.font = 'bold 20px Inter';
+    pCtx.textAlign = 'center';
+    pCtx.textBaseline = 'middle';
+
+    // Draw circle background
+    pCtx.strokeStyle = pCtx.shadowColor;
+    pCtx.lineWidth = 2;
+    pCtx.beginPath();
+    pCtx.arc(PU_RENDER_SIZE / 2, PU_RENDER_SIZE / 2, POWERUP_WIDTH / 2, 0, Math.PI * 2);
+    pCtx.stroke();
+
+    // Draw Text
+    pCtx.fillText(type, PU_RENDER_SIZE / 2, PU_RENDER_SIZE / 2);
+});
+
 class PowerUp {
     constructor(x, y, type) {
         this.x = x;
@@ -822,23 +857,8 @@ class PowerUp {
     }
 
     draw() {
-        ctx.save();
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = this.type === 'D' ? '#00ff00' : (this.type === 'S' ? '#00d4ff' : '#ff00ff');
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 20px Inter';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // Draw circle background
-        ctx.strokeStyle = ctx.shadowColor;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.fillText(this.type, this.x + this.width / 2, this.y + this.height / 2);
-        ctx.restore();
+        // Draw pre-rendered sprite. Offset by padding to center the visual core.
+        ctx.drawImage(powerUpSprites[this.type], this.x - PU_RENDER_PADDING, this.y - PU_RENDER_PADDING);
     }
 
     update(dt) {
@@ -846,30 +866,33 @@ class PowerUp {
     }
 }
 
-// Starfield Background
-const stars = [];
+// Starfield Background (Optimized with CPU Cache Locality via TypedArray)
+const STAR_STRIDE = 4; // x, y, size, speed
+const starsRaw = new Float32Array(STAR_COUNT * STAR_STRIDE);
+
 for (let i = 0; i < STAR_COUNT; i++) {
-    stars.push({
-        x: Math.random() * CANVAS_WIDTH,
-        y: Math.random() * CANVAS_HEIGHT,
-        size: Math.random() * STAR_SIZE_MAX,
-        speed: Math.random() * STAR_SPEED_MAX + 1
-    });
+    const idx = i * STAR_STRIDE;
+    starsRaw[idx] = Math.random() * CANVAS_WIDTH;         // x
+    starsRaw[idx + 1] = Math.random() * CANVAS_HEIGHT;    // y
+    starsRaw[idx + 2] = Math.random() * STAR_SIZE_MAX;    // size
+    starsRaw[idx + 3] = Math.random() * STAR_SPEED_MAX + 1; // speed
 }
 
 function updateStars(dt) {
-    stars.forEach(star => {
-        star.y += star.speed * dt;
-        if (star.y > CANVAS_HEIGHT) star.y = 0;
-    });
+    for (let i = 0; i < starsRaw.length; i += STAR_STRIDE) {
+        starsRaw[i + 1] += starsRaw[i + 3] * dt; // y += speed * dt
+        if (starsRaw[i + 1] > CANVAS_HEIGHT) {
+            starsRaw[i + 1] = 0; // reset y
+        }
+    }
 }
 
 function drawStars() {
     const starColor = `hsl(${180 + levelColorOffset}, 50%, 80%)`;
     ctx.fillStyle = starColor;
-    stars.forEach(star => {
-        ctx.fillRect(star.x, star.y, star.size, star.size);
-    });
+    for (let i = 0; i < starsRaw.length; i += STAR_STRIDE) {
+        ctx.fillRect(starsRaw[i], starsRaw[i + 1], starsRaw[i + 2], starsRaw[i + 2]);
+    }
 }
 
 // Game Instances
