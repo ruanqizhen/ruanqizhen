@@ -94,7 +94,7 @@ function initEnemies() {
     // Build flat array of base types
     let typeArray = new Array(totalEnemies).fill(1); // Default to Drone (1)
     for (let i = 0; i < cols; i++) {
-        typeArray[i] = 3; // First row: Commander (3)
+        typeArray[i] = level === 1 ? 2 : 3; // First row: Commander (3) starting from Level 2, otherwise Interceptor
         typeArray[cols + i] = 2; // Second row: Interceptor (2)
     }
 
@@ -144,6 +144,11 @@ function initEnemies() {
     if (isChallengeStage) {
         challengeEnemiesTotal = enemies.length;
     }
+
+    // Drop a random power-up at the start of the level
+    const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+    const dropX = Math.random() * (CANVAS_WIDTH - 60) + 30;
+    powerUps.push(new PowerUp(dropX, -20, type));
 }
 
 function update(dt) {

@@ -6,6 +6,7 @@ const particlePool = [];
 const trailPool = [];
 const projectilePool = [];
 const enemyProjectilePool = [];
+const trackingMissilePool = [];
 
 function getParticle(x, y, color, scale) {
     let p = particlePool.pop();
@@ -44,6 +45,17 @@ function getEnemyProjectile(x, y) {
     return new EnemyProjectile(x, y);
 }
 
+function getTrackingMissile(x, y) {
+    let ep = trackingMissilePool.pop();
+    if (ep) { ep.reset(x, y); return ep; }
+    return new TrackingMissile(x, y);
+}
+
 function recycleEnemyProjectile(ep) {
-    enemyProjectilePool.push(ep);
+    ep._remove = false; // reset state to prevent ghost deletion
+    if (ep.isTrackingMissile) {
+        trackingMissilePool.push(ep);
+    } else {
+        enemyProjectilePool.push(ep);
+    }
 }

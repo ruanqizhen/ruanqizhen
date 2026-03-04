@@ -124,6 +124,11 @@ class EnemyProjectile {
 }
 
 class TrackingMissile extends EnemyProjectile {
+    constructor(x, y) {
+        super(x, y);
+        this.isTrackingMissile = true;
+    }
+
     reset(x, y) {
         super.reset(x, y);
         this.width = TRACKING_MISSILE_WIDTH;
@@ -131,22 +136,90 @@ class TrackingMissile extends EnemyProjectile {
         // Tracking missiles need an initial velocity vector to not stall (speed = dy, speedX = dx)
         this.speed = TRACKING_MISSILE_SPEED; // initial dy
         this.speedX = 0;                     // initial dx (will be set by Enemy)
+        this.isTrackingMissile = true;
     }
 
     draw() {
         ctx.save();
         ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
 
-        // Calculate angle based on velocity
+        // Calculate angle based on velocity.
+        // Math.atan2 gives angle where 0 is Right. 
+        // We subtract PI/2 so that 0 means Up (visually the nose of the rocket).
+        // Note: The missile's visual design points UPwards relative to its local transformed coordinates.
         const angle = Math.atan2(this.speed, this.speedX) - Math.PI / 2;
         ctx.rotate(angle);
 
-        ctx.fillStyle = '#ff8800'; // Orange missile
-        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        const hw = this.width / 2;
+        const hh = this.height / 2;
 
-        // Thruster glow
+        // --- Draw Rocket Fins (Wings) ---
+        ctx.fillStyle = '#cc2200'; // Dark red fins
+        ctx.beginPath();
+        // Left fin
+        ctx.moveTo(-hw * 0.4, hh * 0.2);
+        ctx.lineTo(-hw, hh);
+        ctx.lineTo(-hw * 0.4, hh * 0.8);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.beginPath();
+        // Right fin
+        ctx.moveTo(hw * 0.4, hh * 0.2);
+        ctx.lineTo(hw, hh);
+        ctx.lineTo(hw * 0.4, hh * 0.8);
+        ctx.closePath();
+        ctx.fill();
+
+        // --- Draw Fuselage (Main Body) ---
+        // A pill/bullet shape. We use bezier curves for the nose cone.
+        ctx.fillStyle = '#ffaa00'; // Orange body
+        ctx.beginPath();
+        ctx.moveTo(-hw * 0.6, hh * 0.8); // Bottom left
+        ctx.lineTo(-hw * 0.6, -hh * 0.2); // Left side up
+        // Curve to nose tip
+        ctx.bezierCurveTo(-hw * 0.6, -hh, hw * 0.6, -hh, hw * 0.6, -hh * 0.2);
+        ctx.lineTo(hw * 0.6, hh * 0.8); // Right side down
+        // Bottom curve
+        ctx.quadraticCurveTo(0, hh, -hw * 0.6, hh * 0.8);
+        ctx.closePath();
+        ctx.fill();
+
+        // --- Draw Window/Detail ---
+        ctx.fillStyle = '#00d4ff'; // Cyan window
+        ctx.beginPath();
+        ctx.arc(0, -hh * 0.1, hw * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Window highlight
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-hw * 0.08, -hh * 0.12, hw * 0.08, 0, Math.PI * 2);
+        ctx.fill();
+
+        // --- Draw Thruster Flame (Dynamic) ---
+        // Engine base
+        ctx.fillStyle = '#555555';
+        ctx.fillRect(-hw * 0.3, hh * 0.8, hw * 0.6, hh * 0.2);
+
+        // Flame pulses based on gameTime
+        const flameLength = hh * 0.5 + Math.random() * (hh * 0.5);
         ctx.fillStyle = '#ffddaa';
-        ctx.fillRect(-this.width / 4, -this.height / 2 - 4, this.width / 2, 4);
+        ctx.beginPath();
+        ctx.moveTo(-hw * 0.3, hh);
+        ctx.lineTo(0, hh + flameLength);
+        ctx.lineTo(hw * 0.3, hh);
+        ctx.closePath();
+        ctx.fill();
+
+        // Inner hot flame
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(-hw * 0.15, hh);
+        ctx.lineTo(0, hh + flameLength * 0.6);
+        ctx.lineTo(hw * 0.15, hh);
+        ctx.closePath();
+        ctx.fill();
         ctx.restore();
     }
 
@@ -379,7 +452,7 @@ class Enemy {
                 if (Math.random() < this.bombProb) {
                     if (this.type === 4) {
                         // Elite fires tracking missiles
-                        let missile = new TrackingMissile(this.x + this.width / 2, this.y + this.height);
+                        let missile = getTrackingMissile(this.x + this.width / 2, this.y + this.height);
                         missile.speedX = (Math.random() - 0.5) * 2; // Initial horizontal spread
                         enemyProjectiles.push(missile);
                     } else {
@@ -418,6 +491,7 @@ class Boss {
         this.moveTimer = 0;
         this.targetX = this.x;
         this.deathTimer = 0;
+        this.powerupTimer = 15000; // 15 seconds timer
         this.pendingActions = []; // Frame-based action queue replaces setTimeout
     }
 
@@ -507,6 +581,15 @@ class Boss {
         this.attackTimer -= dt;
         if (this.attackTimer <= 0) {
             this.firePattern();
+        }
+
+        // Periodic 15s powerup drop
+        this.powerupTimer -= dt * 16.67;
+        if (this.powerupTimer <= 0) {
+            this.powerupTimer = 15000;
+            const type = POWERUP_TYPES[Math.floor(Math.random() * POWERUP_TYPES.length)];
+            powerUps.push(new PowerUp(this.x, this.y, type));
+            playSound('shoot'); // Ping sound to alert player
         }
 
         // Process pending actions queue (replaces setTimeout)
