@@ -581,8 +581,14 @@ class Boss {
                     delay, action: () => {
                         const rand = Math.random();
                         let minionType = 1;
-                        if (rand > 0.9) minionType = 3;
-                        else if (rand > 0.6) minionType = 2;
+                        if (level > 6) {
+                            if (rand > 0.6) minionType = 4; // 40% chance for Elite
+                            else if (rand > 0.3) minionType = 3; // 30% chance for Commander
+                            else if (rand > 0.1) minionType = 2; // 20% chance for Interceptor
+                        } else {
+                            if (rand > 0.9) minionType = 3;
+                            else if (rand > 0.6) minionType = 2;
+                        }
                         let minion = new Enemy(this.x + (Math.random() - 0.5) * this.width, this.y + this.height, minionType);
                         minion.state = 'formation';
                         minion.isDiving = true;

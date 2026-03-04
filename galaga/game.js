@@ -83,14 +83,16 @@ function initEnemies() {
     const offsetX = (CANVAS_WIDTH - (cols - 1) * spacingX) / 2;
 
     for (let r = 0; r < rows; r++) {
-        let type = 1;
-        if (r === 0) {
-            type = (level > 6 && Math.random() < 0.5) ? 4 : 3; // 50% chance for Elite after level 6
-        } else if (r === 1) {
-            type = 2; // Interceptor
-        }
-
         for (let c = 0; c < cols; c++) {
+            let type = 1; // Drone
+
+            if (r === 0) {
+                // For the top row, Commander (3). After level 3, each has a 50% chance to be Elite (4)
+                type = (level > 5 && Math.random() < 0.5) ? 4 : 3;
+            } else if (r === 1) {
+                type = 2; // Interceptor
+            }
+
             const targetX = offsetX + c * spacingX;
             const targetY = ENEMY_FORMATION_OFFSET_Y_START + r * spacingY;
             let e = new Enemy(targetX, targetY, type);
