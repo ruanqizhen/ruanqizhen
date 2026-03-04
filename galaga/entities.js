@@ -12,7 +12,7 @@ class Player {
         this.dx = 0;
 
         // Power-up states
-        this.shieldActive = false;
+        this.shieldLevel = 0;
         this.dualShotTimer = 0;
         this.rapidFireTimer = 0;
     }
@@ -27,13 +27,22 @@ class Player {
             ctx.fillRect(this.x, this.y, this.width, this.height);
         }
 
-        // Shield Effect
-        if (this.shieldActive) {
-            ctx.strokeStyle = '#00d4ff';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.8, 0, Math.PI * 2);
-            ctx.stroke();
+        // Shield Effect (Stackable)
+        if (this.shieldLevel > 0) {
+            const colors = ['#00d4ff', '#00ff73', '#d000ff', '#ffdf00']; // Blue, Green, Purple, Gold
+            ctx.lineWidth = 2;
+
+            for (let i = 0; i < this.shieldLevel; i++) {
+                // Max out visual rings at 4 to prevent screen clutter, but logic can handle more
+                if (i >= 4) break;
+
+                ctx.strokeStyle = colors[i];
+                ctx.beginPath();
+                // Draw slightly pulsating concentric rings
+                const pulse = Math.sin(gameTime / 200 + i) * 3;
+                ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width * 0.55 + i * 2 + pulse, 0, Math.PI * 2);
+                ctx.stroke();
+            }
         }
 
         ctx.restore();

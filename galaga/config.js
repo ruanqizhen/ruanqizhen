@@ -178,6 +178,7 @@ const timeDualEl = document.getElementById('time-dual');
 const buffRapidEl = document.getElementById('buff-rapid');
 const timeRapidEl = document.getElementById('time-rapid');
 const buffShieldEl = document.getElementById('buff-shield');
+const statusShieldEl = document.getElementById('status-shield');
 
 // Mutable Game State
 let score = 0;

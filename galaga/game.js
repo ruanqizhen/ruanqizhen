@@ -168,7 +168,10 @@ function update(dt) {
         }
     } else { buffRapidEl.classList.remove('visible'); }
 
-    if (player.shieldActive) { buffShieldEl.classList.add('visible'); }
+    if (player.shieldLevel > 0) {
+        buffShieldEl.classList.add('visible');
+        statusShieldEl.textContent = player.shieldLevel + ' 层';
+    }
     else { buffShieldEl.classList.remove('visible'); }
 
     // Handle Input State

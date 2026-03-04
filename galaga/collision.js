@@ -160,8 +160,8 @@ function handleCollisions() {
             boss.x - boss.width / 2 < player.x + player.width &&
             boss.x + boss.width / 2 > player.x) {
 
-            if (player.shieldActive) {
-                player.shieldActive = false;
+            if (player.shieldLevel > 0) {
+                player.shieldLevel--;
                 boss.yOffset -= 50;
                 createExplosion(player.x + player.width / 2, player.y, '#00d4ff', 1.5);
                 shakeDuration = 10;
@@ -182,8 +182,8 @@ function handleCollisions() {
                 e.x < player.x + player.width &&
                 e.x + e.width > player.x) {
 
-                if (player.shieldActive) {
-                    player.shieldActive = false;
+                if (player.shieldLevel > 0) {
+                    player.shieldLevel--;
                     enemies.splice(i, 1);
                     const config = ENEMY_CONFIG[e.type] || ENEMY_CONFIG[1];
                     createExplosion(e.x + e.width / 2, e.y + e.height / 2, config.color, config.scale);
@@ -206,8 +206,8 @@ function handleCollisions() {
             ep.x + ep.width > player.x &&
             ep.y < player.y + player.height &&
             ep.y + ep.height > player.y) {
-            if (player.shieldActive) {
-                player.shieldActive = false;
+            if (player.shieldLevel > 0) {
+                player.shieldLevel--;
                 recycleEnemyProjectile(enemyProjectiles[i]);
                 enemyProjectiles.splice(i, 1);
                 createExplosion(ep.x, ep.y, '#00d4ff', 1);
@@ -228,7 +228,7 @@ function handleCollisions() {
             pu.y + pu.height > player.y) {
 
             if (pu.type === 'D') player.dualShotTimer = gameTime + DUAL_SHOT_DURATION;
-            if (pu.type === 'S') player.shieldActive = true;
+            if (pu.type === 'S') player.shieldLevel++;
             if (pu.type === 'R') player.rapidFireTimer = gameTime + RAPID_FIRE_DURATION;
 
             powerUps.splice(i, 1);
