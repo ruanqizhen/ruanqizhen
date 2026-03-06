@@ -1,0 +1,52 @@
+import { Entity } from './Entity';
+import { Tank } from './Tank';
+import { Direction, TankFaction } from '../types';
+import { BULLET_SIZE, BATTLE_AREA_X, BATTLE_AREA_Y, BATTLE_AREA_W, BATTLE_AREA_H } from '../constants';
+import { GameManager } from '../engine/GameManager';
+
+export class Bullet extends Entity {
+    public owner: Tank;
+    public direction: Direction;
+    public speed: number;
+    public power: number;
+
+    constructor(gameManager: GameManager, owner: Tank) {
+        super(gameManager, BULLET_SIZE, BULLET_SIZE);
+        this.owner = owner;
+        this.direction = owner.direction;
+        this.speed = owner.bulletSpeed;
+        this.power = owner.bulletPower;
+    }
+
+    public update(dt: number) {
+        if (this.isDead) return;
+
+        let dx = 0; let dy = 0;
+        if (this.direction === Direction.UP) dy = -this.speed;
+        else if (this.direction === Direction.DOWN) dy = this.speed;
+        else if (this.direction === Direction.LEFT) dx = -this.speed;
+        else if (this.direction === Direction.RIGHT) dx = this.speed;
+
+        this.x += dx * dt;
+        this.y += dy * dt;
+
+        // Collision priority 1: Boundary
+        if (this.x < 0 || this.x + this.w > BATTLE_AREA_W || this.y < 0 || this.y + this.h > BATTLE_AREA_H) {
+            this.isDead = true;
+            return;
+        }
+
+        // Call external collision logic for base, bricks, steel, entities.
+        // Return early if bullet was destroyed
+        this.gameManager.getCollisionSystem().processBullet(this);
+    }
+
+    public render(ctx: CanvasRenderingContext2D) {
+        if (this.isDead) return;
+        const screenX = this.x + BATTLE_AREA_X;
+        const screenY = this.y + BATTLE_AREA_Y;
+
+        ctx.fillStyle = this.owner.faction === TankFaction.PLAYER ? '#fff' : '#f00';
+        ctx.fillRect(screenX, screenY, this.w, this.h);
+    }
+}

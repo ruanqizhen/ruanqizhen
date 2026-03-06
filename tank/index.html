@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="经典90坦克大战网页版重制，支持鼠标拖拽操作。">
+  <meta name="author" content="阮奇桢 (Ruan Qizhen)">
+  <title>90坦克 - Yanshan Retro Arcade</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+
+<body>
+  <div id="game-container">
+    <div id="overlay">
+      <h1 id="overlay-title">坦克大战</h1>
+      <button id="start-btn">开始游戏</button>
+      <div class="instructions">
+        使用键盘或拖拽移动坦克<br>
+        空格 或 点击鼠标 射击<br>
+      </div>
+      <br><br><br><br><br><br>
+      <a href="https://qizhen.xyz/" target="_blank" class="personal-link">访问我的个人主页</a>
+    </div>
+    <canvas id="gameCanvas" width="600" height="800"></canvas>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
