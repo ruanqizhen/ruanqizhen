@@ -113,27 +113,7 @@ export class CollisionSystem {
             else if (remainderY > 10 && remainderY < 20) newDy = Math.min(20 - remainderY, Math.abs(dx));
         }
 
-        // Forest mowing: if tank has mower, clear forest tiles it overlaps
-        if (!blocking && tank.hasMower) {
-            const movedBox: AABB = {
-                x: tank.x + newDx,
-                y: tank.y + newDy,
-                w: tank.w,
-                h: tank.h
-            };
-            const terrainUnder = this.queryTerrain(movedBox);
-            for (const cell of terrainUnder) {
-                if (cell.type === 3) { // Forest
-                    this.map.terrain[cell.r][cell.c] = 0;
-                    // Emit green debris particles
-                    this.gameManager.getParticleSystem().emitDebris(
-                        cell.c * CELL_SIZE + CELL_SIZE / 2,
-                        cell.r * CELL_SIZE + CELL_SIZE / 2,
-                        6, '#3a2'
-                    );
-                }
-            }
-        }
+
 
         return { dx: newDx, dy: newDy };
     }

@@ -49,7 +49,6 @@ export class PlayerTank extends Tank {
         this.updateStats();
 
         this.hasShield = true;
-        this.hasMower = true;
         this.shieldTimer = 180; // 3 seconds at 60fps
         this.isDead = false;
     }

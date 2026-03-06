@@ -13,7 +13,6 @@ export abstract class Tank extends Entity {
     public hasShield: boolean = false;
     public shieldTimer: number = 0;
     public hasBoat: boolean = false;
-    public hasMower: boolean = false;
 
     public speed: number = 1.5;
     public iceSlideFrames: number = 0;

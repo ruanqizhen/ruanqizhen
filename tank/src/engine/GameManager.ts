@@ -282,6 +282,15 @@ export class GameManager {
                 break;
 
             case GameState.STAGE_INTRO: {
+                this.drawGameplayScene(CW, CH);
+
+                // Fade out background between frame 60 and 120
+                let bgAlpha = 1;
+                if (this.stateTimer > 60) {
+                    bgAlpha = Math.max(0, 1 - (this.stateTimer - 60) / 60);
+                }
+                this.ctx.globalAlpha = bgAlpha;
+
                 // Dark background with subtle gradient
                 const igr = this.ctx.createLinearGradient(0, 0, 0, CH);
                 igr.addColorStop(0, '#080810');
@@ -294,6 +303,7 @@ export class GameManager {
                 const lineY = CH / 2;
                 const lineProgress = Math.min(this.stateTimer / 40, 1);
                 const lineWidth = CW * 0.6 * lineProgress;
+
                 this.ctx.strokeStyle = '#00d4ff';
                 this.ctx.lineWidth = 1;
                 this.ctx.shadowColor = '#00d4ff';
@@ -309,7 +319,7 @@ export class GameManager {
                 this.ctx.shadowBlur = 0;
 
                 // Stage number with glow
-                const alpha = Math.min(this.stateTimer / 30, 1);
+                const alpha = bgAlpha * Math.min(this.stateTimer / 30, 1);
                 this.ctx.globalAlpha = alpha;
                 this.ctx.fillStyle = '#fff';
                 this.ctx.font = 'bold 18px "Orbitron", "Noto Sans SC", sans-serif';
@@ -318,110 +328,14 @@ export class GameManager {
                 this.ctx.fillStyle = '#00d4ff';
                 this.ctx.font = 'bold 36px "Orbitron", sans-serif';
                 this.ctx.fillText(`${this.currentStageIdx + 1}`, CW / 2, lineY + 22);
+
                 this.ctx.globalAlpha = 1;
                 break;
             }
 
             case GameState.PLAYING:
             case GameState.PAUSED:
-                this.map.draw(this.ctx, 'below');
-
-                this.player.render(this.ctx);
-                this.enemies.forEach(e => e.render(this.ctx));
-                this.bullets.forEach(b => b.render(this.ctx));
-
-                this.map.draw(this.ctx, 'above');
-                this.powerUpSystem.render(this.ctx);
-
-                // Render particles
-                this.particleSystem.render(this.ctx);
-
-                // ── Battle Area Border: neon glow frame ──
-                const bx = 0, by = 40, bw = CW, bh = CH - 40;
-                // Outer glow
-                this.ctx.shadowColor = '#00d4ff';
-                this.ctx.shadowBlur = 12;
-                this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.35)';
-                this.ctx.lineWidth = 2;
-                this.ctx.strokeRect(bx + 1, by + 1, bw - 2, bh - 2);
-                this.ctx.shadowBlur = 0;
-                // Inner border
-                this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-                this.ctx.lineWidth = 1;
-                this.ctx.strokeRect(bx + 3, by + 3, bw - 6, bh - 6);
-                // Corner accents (small L-shapes)
-                const cl = 12;
-                this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.5)';
-                this.ctx.lineWidth = 2;
-                // Top-left
-                this.ctx.beginPath();
-                this.ctx.moveTo(bx + 2, by + 2 + cl); this.ctx.lineTo(bx + 2, by + 2); this.ctx.lineTo(bx + 2 + cl, by + 2);
-                this.ctx.stroke();
-                // Top-right
-                this.ctx.beginPath();
-                this.ctx.moveTo(bx + bw - 2 - cl, by + 2); this.ctx.lineTo(bx + bw - 2, by + 2); this.ctx.lineTo(bx + bw - 2, by + 2 + cl);
-                this.ctx.stroke();
-                // Bottom-left
-                this.ctx.beginPath();
-                this.ctx.moveTo(bx + 2, by + bh - 2 - cl); this.ctx.lineTo(bx + 2, by + bh - 2); this.ctx.lineTo(bx + 2 + cl, by + bh - 2);
-                this.ctx.stroke();
-                // Bottom-right
-                this.ctx.beginPath();
-                this.ctx.moveTo(bx + bw - 2 - cl, by + bh - 2); this.ctx.lineTo(bx + bw - 2, by + bh - 2); this.ctx.lineTo(bx + bw - 2, by + bh - 2 - cl);
-                this.ctx.stroke();
-
-                // ── Modern HUD Bar ──
-                const hudH = 40;
-                const hudGr = this.ctx.createLinearGradient(0, 0, 0, hudH);
-                hudGr.addColorStop(0, 'rgba(15, 15, 25, 0.95)');
-                hudGr.addColorStop(1, 'rgba(10, 10, 18, 0.9)');
-                this.ctx.fillStyle = hudGr;
-                this.ctx.fillRect(0, 0, CW, hudH);
-                // HUD bottom border glow
-                this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.25)';
-                this.ctx.lineWidth = 1;
-                this.ctx.beginPath();
-                this.ctx.moveTo(0, hudH);
-                this.ctx.lineTo(CW, hudH);
-                this.ctx.stroke();
-
-                this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
-                this.ctx.textAlign = 'left';
-                // High Score
-                this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                this.ctx.fillText('HI', 14, 26);
-                this.ctx.fillStyle = '#ffcc00';
-                this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-                this.ctx.fillText(`${this.highScore}`, 34, 26);
-                // Score
-                this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
-                this.ctx.fillText('1UP', 110, 26);
-                this.ctx.fillStyle = '#00d4ff';
-                this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-                this.ctx.fillText(`${this.player.score}`, 145, 26);
-                // Lives
-                this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
-                this.ctx.fillText('生命', 220, 26);
-                this.ctx.fillStyle = '#ff3366';
-                this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-                this.ctx.fillText(`${'♥'.repeat(Math.max(0, this.player.lives))}`, 256, 26);
-                // Enemy count
-                const enemiesLeft = this.enemies.length;
-                this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
-                this.ctx.fillText('敌军', 350, 26);
-                this.ctx.fillStyle = '#ffcc00';
-                this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-                this.ctx.fillText(`${enemiesLeft}`, 386, 26);
-                // Stage
-                this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
-                this.ctx.fillText('关卡', 480, 26);
-                this.ctx.fillStyle = '#fff';
-                this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-                this.ctx.fillText(`${this.currentStageIdx + 1}`, 516, 26);
+                this.drawGameplayScene(CW, CH);
 
                 if (this.state === GameState.PAUSED) {
                     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
@@ -473,36 +387,7 @@ export class GameManager {
 
             case GameState.STAGE_CLEAR:
             case GameState.SCORE_TALLY:
-                // Draw the underlying game state first
-                this.map.draw(this.ctx, 'below');
-                this.player.render(this.ctx);
-                this.enemies.forEach(e => e.render(this.ctx));
-                this.bullets.forEach(b => b.render(this.ctx));
-                this.powerUpSystem.render(this.ctx);
-                this.map.draw(this.ctx, 'above');
-
-                // Render particles
-                this.particleSystem.render(this.ctx);
-
-                // Render HUD (same as PLAYING)
-                const clearHudGr = this.ctx.createLinearGradient(0, 0, 0, 40);
-                clearHudGr.addColorStop(0, 'rgba(15, 15, 25, 0.95)');
-                clearHudGr.addColorStop(1, 'rgba(10, 10, 18, 0.9)');
-                this.ctx.fillStyle = clearHudGr;
-                this.ctx.fillRect(0, 0, CW, 40);
-                this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
-                this.ctx.textAlign = 'left';
-                this.ctx.fillText('HI', 14, 26);
-                this.ctx.fillStyle = '#ffcc00';
-                this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-                this.ctx.fillText(`${this.highScore}`, 34, 26);
-                this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
-                this.ctx.fillText('1UP', 110, 26);
-                this.ctx.fillStyle = '#00d4ff';
-                this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-                this.ctx.fillText(`${this.player.score}`, 145, 26);
+                this.drawGameplayScene(CW, CH);
 
                 if (this.state === GameState.STAGE_CLEAR) {
                     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
@@ -531,5 +416,102 @@ export class GameManager {
                 }
                 break;
         }
+    }
+
+    private drawGameplayScene(CW: number, CH: number) {
+        this.map.draw(this.ctx, 'below');
+        this.player.render(this.ctx);
+        this.enemies.forEach(e => e.render(this.ctx));
+        this.bullets.forEach(b => b.render(this.ctx));
+        this.map.draw(this.ctx, 'above');
+        this.powerUpSystem.render(this.ctx);
+        this.particleSystem.render(this.ctx);
+
+        // ── Battle Area Border: neon glow frame ──
+        const bx = 0, by = 40, bw = CW, bh = CH - 40;
+        // Outer glow
+        this.ctx.shadowColor = '#00d4ff';
+        this.ctx.shadowBlur = 12;
+        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.35)';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(bx + 1, by + 1, bw - 2, bh - 2);
+        this.ctx.shadowBlur = 0;
+        // Inner border
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(bx + 3, by + 3, bw - 6, bh - 6);
+        // Corner accents (small L-shapes)
+        const cl = 12;
+        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.5)';
+        this.ctx.lineWidth = 2;
+        // Top-left
+        this.ctx.beginPath();
+        this.ctx.moveTo(bx + 2, by + 2 + cl); this.ctx.lineTo(bx + 2, by + 2); this.ctx.lineTo(bx + 2 + cl, by + 2);
+        this.ctx.stroke();
+        // Top-right
+        this.ctx.beginPath();
+        this.ctx.moveTo(bx + bw - 2 - cl, by + 2); this.ctx.lineTo(bx + bw - 2, by + 2); this.ctx.lineTo(bx + bw - 2, by + 2 + cl);
+        this.ctx.stroke();
+        // Bottom-left
+        this.ctx.beginPath();
+        this.ctx.moveTo(bx + 2, by + bh - 2 - cl); this.ctx.lineTo(bx + 2, by + bh - 2); this.ctx.lineTo(bx + 2 + cl, by + bh - 2);
+        this.ctx.stroke();
+        // Bottom-right
+        this.ctx.beginPath();
+        this.ctx.moveTo(bx + bw - 2 - cl, by + bh - 2); this.ctx.lineTo(bx + bw - 2, by + bh - 2); this.ctx.lineTo(bx + bw - 2, by + bh - 2 - cl);
+        this.ctx.stroke();
+
+        // ── Modern HUD Bar ──
+        const hudH = 40;
+        const hudGr = this.ctx.createLinearGradient(0, 0, 0, hudH);
+        hudGr.addColorStop(0, 'rgba(15, 15, 25, 0.95)');
+        hudGr.addColorStop(1, 'rgba(10, 10, 18, 0.9)');
+        this.ctx.fillStyle = hudGr;
+        this.ctx.fillRect(0, 0, CW, hudH);
+        // HUD bottom border glow
+        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.25)';
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, hudH);
+        this.ctx.lineTo(CW, hudH);
+        this.ctx.stroke();
+
+        this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
+        this.ctx.textAlign = 'left';
+        // High Score
+        this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        this.ctx.fillText('HI', 14, 26);
+        this.ctx.fillStyle = '#ffcc00';
+        this.ctx.font = 'bold 15px "Orbitron", sans-serif';
+        this.ctx.fillText(`${this.highScore}`, 34, 26);
+        // Score
+        this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
+        this.ctx.fillText('1UP', 110, 26);
+        this.ctx.fillStyle = '#00d4ff';
+        this.ctx.font = 'bold 15px "Orbitron", sans-serif';
+        this.ctx.fillText(`${this.player.score}`, 145, 26);
+        // Lives
+        this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
+        this.ctx.fillText('生命', 220, 26);
+        this.ctx.fillStyle = '#ff3366';
+        this.ctx.font = 'bold 15px "Orbitron", sans-serif';
+        this.ctx.fillText(`${'♥'.repeat(Math.max(0, this.player.lives))}`, 256, 26);
+        // Enemy count
+        const enemiesLeft = this.enemies.length;
+        this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
+        this.ctx.fillText('敌军', 350, 26);
+        this.ctx.fillStyle = '#ffcc00';
+        this.ctx.font = 'bold 15px "Orbitron", sans-serif';
+        this.ctx.fillText(`${enemiesLeft}`, 386, 26);
+        // Stage
+        this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
+        this.ctx.fillText('关卡', 480, 26);
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = 'bold 15px "Orbitron", sans-serif';
+        this.ctx.fillText(`${this.currentStageIdx + 1}`, 516, 26);
     }
 }
