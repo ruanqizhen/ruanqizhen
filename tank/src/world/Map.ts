@@ -70,7 +70,7 @@ export class MapTerrain {
             }
             return { r: minR, c: minC }; // Fallback
         }
-        return { col: 11, row: 36 } as any; // Ultimate fallback
+        return { r: 36, c: 11 }; // Ultimate fallback
     }
 
     public getEnemySpawn(entities: any[]): { r: number, c: number } | null {

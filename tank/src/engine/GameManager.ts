@@ -141,12 +141,16 @@ export class GameManager {
     public resetGame() {
         this.currentStageIdx = 0;
         this.map = new MapTerrain();
+        this.map.loadLevel(LEVELS[this.currentStageIdx]); // Load level first so base coordinates are populated
+
         this.collisionSystem = new CollisionSystem(this, this.map);
         this.spawnSystem = new SpawnSystem(this);
         this.powerUpSystem = new PowerUpSystem(this);
         this.particleSystem = new ParticleSystem(this);
+
+        // Player relies on map to find spawn position
         this.player = new PlayerTank(this);
-        this.map.loadLevel(LEVELS[this.currentStageIdx]);
+
         this.spawnSystem.loadLevelConfig(LEVELS[this.currentStageIdx]);
         this.bullets = [];
         this.enemies = [];
