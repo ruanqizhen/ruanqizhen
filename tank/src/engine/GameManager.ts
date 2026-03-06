@@ -30,26 +30,23 @@ export class GameManager {
     private stateTimer: number = 0;
     public currentStageIdx: number = 0;
 
-    private map: MapTerrain;
-    private collisionSystem: CollisionSystem;
-    private spawnSystem: SpawnSystem;
-    private powerUpSystem: PowerUpSystem;
-    private player: PlayerTank;
+    private map!: MapTerrain;
+    private collisionSystem!: CollisionSystem;
+    private spawnSystem!: SpawnSystem;
+    private powerUpSystem!: PowerUpSystem;
+    private player!: PlayerTank;
     private enemies: EnemyTank[] = [];
     private bullets: Bullet[] = [];
+
+    private confirmReleased: boolean = true;
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d')!;
         this.inputManager = new InputManager(canvas);
 
-        this.map = new MapTerrain();
-        this.collisionSystem = new CollisionSystem(this, this.map);
-        this.spawnSystem = new SpawnSystem(this);
-        this.powerUpSystem = new PowerUpSystem(this);
-        this.player = new PlayerTank(this);
-        this.map.loadLevel(LEVELS[this.currentStageIdx]);
-        this.spawnSystem.loadLevelConfig(LEVELS[this.currentStageIdx]);
+        // Initialization done in resetGame
+        this.resetGame();
 
         // Pass references to this.update and this.render
         this.gameLoop = new GameLoop(this.update.bind(this), this.render.bind(this));
@@ -62,7 +59,9 @@ export class GameManager {
         if (startBtn) {
             startBtn.addEventListener('click', () => {
                 if (this.state === GameState.MAIN_MENU) {
-                    this.switchState(GameState.PLAYING);
+                    this.confirmReleased = false;
+                    this.resetGame();
+                    this.switchState(GameState.STAGE_INTRO);
                 }
             });
         }
@@ -89,8 +88,26 @@ export class GameManager {
         }
     }
 
-    public triggerGameOver() { this.switchState(GameState.GAME_OVER); }
+    public triggerGameOver() {
+        this.switchState(GameState.GAME_OVER);
+        const startBtn = document.getElementById('start-btn');
+        if (startBtn) startBtn.innerText = '重新开始';
+    }
+
     public schedulePlayerRespawn() { this.player.respawn(); }
+
+    public resetGame() {
+        this.currentStageIdx = 0;
+        this.map = new MapTerrain();
+        this.collisionSystem = new CollisionSystem(this, this.map);
+        this.spawnSystem = new SpawnSystem(this);
+        this.powerUpSystem = new PowerUpSystem(this);
+        this.player = new PlayerTank(this);
+        this.map.loadLevel(LEVELS[this.currentStageIdx]);
+        this.spawnSystem.loadLevelConfig(LEVELS[this.currentStageIdx]);
+        this.bullets = [];
+        this.enemies = [];
+    }
 
     private switchState(newState: GameState) {
         this.state = newState;
@@ -108,11 +125,26 @@ export class GameManager {
 
     private update(dt: number) {
         const action = this.inputManager.getActionState();
+        if (!action.confirm) {
+            this.confirmReleased = true;
+        }
+        const isConfirm = action.confirm && this.confirmReleased;
+
         this.stateTimer += dt; // time measured in logical frames (1 frame = 1 / 60s)
 
         switch (this.state) {
             case GameState.MAIN_MENU:
-                if (action.confirm) {
+                // Require at least brief delay before space works to avoid catching GAME_OVER dismiss inputs
+                if (isConfirm && this.stateTimer > 30) {
+                    this.confirmReleased = false;
+                    this.resetGame();
+                    this.switchState(GameState.STAGE_INTRO);
+                }
+                break;
+
+            case GameState.STAGE_INTRO:
+                // Start stage automatically after roughly 2 seconds (120 frames at 60fps)
+                if (this.stateTimer > 120) {
                     this.switchState(GameState.PLAYING);
                 }
                 break;
@@ -150,30 +182,31 @@ export class GameManager {
 
             case GameState.GAME_OVER:
                 if (this.stateTimer > 180) { // 3 seconds
-                    if (action.confirm) {
+                    if (isConfirm) {
+                        this.confirmReleased = false;
                         this.switchState(GameState.MAIN_MENU);
                     }
                 }
                 break;
 
             case GameState.STAGE_CLEAR:
-                if (this.stateTimer > 180) {
+                // Wait for at least 1 second before accepting confirm to prevent accidental skipping
+                if (this.stateTimer > 60 && isConfirm) {
+                    this.confirmReleased = false;
                     this.switchState(GameState.SCORE_TALLY);
                 }
                 break;
 
             case GameState.SCORE_TALLY:
-                if (this.stateTimer > 180 || action.confirm) {
-                    this.currentStageIdx++;
-                    const nextLvl = LEVELS[this.currentStageIdx % LEVELS.length];
-                    this.map.loadLevel(nextLvl);
-                    this.spawnSystem.loadLevelConfig(nextLvl);
-                    this.bullets = [];
-                    this.enemies = [];
-                    // Reset player position but preserve lives/grade
-                    this.player.respawn();
-                    this.switchState(GameState.STAGE_INTRO);
-                }
+                this.currentStageIdx++;
+                const nextLvl = LEVELS[this.currentStageIdx % LEVELS.length];
+                this.map.loadLevel(nextLvl);
+                this.spawnSystem.loadLevelConfig(nextLvl);
+                this.bullets = [];
+                this.enemies = [];
+                // Reset player position but preserve lives/grade
+                this.player.respawn();
+                this.switchState(GameState.STAGE_INTRO);
                 break;
         }
     }
@@ -187,6 +220,15 @@ export class GameManager {
             case GameState.BOOT:
             case GameState.MAIN_MENU:
                 // HTML Overlay handles the UI
+                break;
+
+            case GameState.STAGE_INTRO:
+                this.ctx.fillStyle = '#111';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = 'bold 30px system-ui, sans-serif';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(`第 ${this.currentStageIdx + 1} 关`, this.canvas.width / 2, this.canvas.height / 2 - 20);
                 break;
 
             case GameState.PLAYING:
@@ -213,38 +255,72 @@ export class GameManager {
                 this.ctx.fillStyle = '#333';
                 this.ctx.fillRect(0, 0, this.canvas.width, 40);
                 this.ctx.fillStyle = '#fff';
-                this.ctx.font = '16px Arial';
+                this.ctx.font = 'bold 16px system-ui, sans-serif';
                 this.ctx.textAlign = 'left';
-                this.ctx.fillText(`SCORE: ${this.player.score} `, 90, 25);
+                this.ctx.fillText(`分数: ${this.player.score} `, 90, 25);
                 this.ctx.fillText(`♥️x${this.player.lives} `, 370, 25);
-                this.ctx.fillText(`STG ${String(this.currentStageIdx + 1).padStart(2, '0')}`, 490, 25);
+                this.ctx.fillText(`第 ${String(this.currentStageIdx + 1).padStart(2, '0')} 关`, 490, 25);
 
                 if (this.state === GameState.PAUSED) {
                     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
                     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
                     this.ctx.fillStyle = '#fff';
                     this.ctx.textAlign = 'center';
-                    this.ctx.fillText('PAUSED', this.canvas.width / 2, this.canvas.height / 2);
+                    this.ctx.font = 'bold 30px system-ui, sans-serif';
+                    this.ctx.fillText('已暂停', this.canvas.width / 2, this.canvas.height / 2);
                 }
                 break;
 
             case GameState.GAME_OVER:
                 this.ctx.fillStyle = 'red';
                 this.ctx.textAlign = 'center';
-                this.ctx.font = '40px Arial';
-                this.ctx.fillText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2);
+                this.ctx.font = 'bold 40px system-ui, sans-serif';
+                this.ctx.fillText('游戏结束', this.canvas.width / 2, this.canvas.height / 2);
                 break;
 
             case GameState.STAGE_CLEAR:
             case GameState.SCORE_TALLY:
-                this.ctx.fillStyle = '#fff';
-                this.ctx.textAlign = 'center';
-                this.ctx.font = '30px Arial';
-                this.ctx.fillText('STAGE CLEAR', this.canvas.width / 2, this.canvas.height / 2 - 50);
+                // Draw the underlying game state first
+                this.map.draw(this.ctx, 'below');
+                this.player.render(this.ctx);
+                this.enemies.forEach(e => e.render(this.ctx));
+                this.bullets.forEach(b => b.render(this.ctx));
+                this.powerUpSystem.render(this.ctx);
+                this.map.draw(this.ctx, 'above');
 
-                if (this.state === GameState.SCORE_TALLY) {
-                    this.ctx.font = '20px Arial';
-                    this.ctx.fillText(`SCORE: ${this.player.score}`, this.canvas.width / 2, this.canvas.height / 2 + 20);
+                // Render HUD
+                this.ctx.fillStyle = '#333';
+                this.ctx.fillRect(0, 0, this.canvas.width, 40);
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = '16px Arial';
+                this.ctx.textAlign = 'left';
+                this.ctx.fillText(`SCORE: ${this.player.score} `, 90, 25);
+                this.ctx.fillText(`♥️x${this.player.lives} `, 370, 25);
+                this.ctx.fillText(`STG ${String(this.currentStageIdx + 1).padStart(2, '0')}`, 490, 25);
+
+                if (this.state === GameState.STAGE_CLEAR) {
+                    // Dim background
+                    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                    this.ctx.fillStyle = '#00d4ff'; // Use the primary glow color
+                    this.ctx.textAlign = 'center';
+
+                    this.ctx.font = 'bold 50px system-ui, sans-serif';
+                    this.ctx.fillText('关卡完成', this.canvas.width / 2, this.canvas.height / 2 - 60);
+
+                    this.ctx.fillStyle = '#fff';
+                    this.ctx.font = 'bold 30px system-ui, sans-serif';
+                    this.ctx.fillText(`分数: ${this.player.score}`, this.canvas.width / 2, this.canvas.height / 2 + 10);
+
+                    if (this.stateTimer > 60) {
+                        // Blink the prompt text
+                        if (Math.floor(this.stateTimer / 30) % 2 === 0) {
+                            this.ctx.fillStyle = '#ff0055'; // Use the enemy glow color for contrast
+                            this.ctx.font = 'bold 20px system-ui, sans-serif';
+                            this.ctx.fillText('点击鼠标或空格键进入下一关', this.canvas.width / 2, this.canvas.height / 2 + 80);
+                        }
+                    }
                 }
                 break;
         }

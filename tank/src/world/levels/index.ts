@@ -25,7 +25,7 @@ const parseMap = (mapStr: string): number[][] => {
 
 export const LEVEL_01: LevelConfig = {
     stageNumber: 1,
-    totalEnemies: 20,
+    totalEnemies: 2,
     spawnInterval: 200,
     maxOnScreen: 4,
     enemyDistribution: { basic: 20, fast: 0, power: 0, armor: 0 },
@@ -35,7 +35,7 @@ export const LEVEL_01: LevelConfig = {
 
 export const LEVEL_02: LevelConfig = {
     stageNumber: 2,
-    totalEnemies: 20,
+    totalEnemies: 2,
     spawnInterval: 180,
     maxOnScreen: 5,
     enemyDistribution: { basic: 15, fast: 5, power: 0, armor: 0 },
@@ -45,7 +45,7 @@ export const LEVEL_02: LevelConfig = {
 
 export const LEVEL_03: LevelConfig = {
     stageNumber: 3,
-    totalEnemies: 20,
+    totalEnemies: 2,
     spawnInterval: 160,
     maxOnScreen: 6,
     enemyDistribution: { basic: 10, fast: 5, power: 3, armor: 2 },
@@ -55,7 +55,7 @@ export const LEVEL_03: LevelConfig = {
 
 export const LEVEL_04: LevelConfig = {
     stageNumber: 4,
-    totalEnemies: 20,
+    totalEnemies: 2,
     spawnInterval: 140,
     maxOnScreen: 7,
     enemyDistribution: { basic: 5, fast: 5, power: 5, armor: 5 },

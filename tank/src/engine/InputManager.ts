@@ -89,7 +89,7 @@ export class InputManager {
             case 'Space':
             case 'KeyZ':
                 this.actionState.shoot = false;
-                if (e.code === 'KeyZ') this.actionState.confirm = false;
+                this.actionState.confirm = false;
                 break;
             case 'KeyP':
             case 'Escape':

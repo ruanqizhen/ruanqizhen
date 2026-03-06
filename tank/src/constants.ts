@@ -23,8 +23,8 @@ export const HUD_HEIGHT = 40;       // 顶部状态栏（y: 0~40）
 export const SPAWN_ENEMY_1 = { col: 0, row: 0 };
 export const SPAWN_ENEMY_2 = { col: 14, row: 0 };
 export const SPAWN_ENEMY_3 = { col: 28, row: 0 };
-export const SPAWN_PLAYER = { col: 11, row: 35 };
-export const BASE_CELL = { col: 14, row: 35 };
+export const SPAWN_PLAYER = { col: 11, row: 36 };
+export const BASE_CELL = { col: 14, row: 36 };
 
 // ===== 帧率 =====
 export const FPS_TARGET = 60;

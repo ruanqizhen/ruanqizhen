@@ -31,10 +31,10 @@ export class MapTerrain {
         }
 
         // Force base at (14, 35) (2x2)
-        this.terrain[35][14] = 6;
-        this.terrain[35][15] = 6;
         this.terrain[36][14] = 6;
         this.terrain[36][15] = 6;
+        this.terrain[37][14] = 6;
+        this.terrain[37][15] = 6;
     }
 
     public getTerrainType(r: number, c: number): number {
