@@ -79,11 +79,27 @@ export abstract class Tank extends Entity {
         const screenX = this.x + BATTLE_AREA_X;
         const screenY = this.y + BATTLE_AREA_Y;
 
-        // Draw Shield (outer box)
-        if (this.hasShield && Math.floor(this.shieldTimer / 6) % 2 === 0) {
-            ctx.strokeStyle = '#fff';
+        // Draw Shield (glowing energy bubble)
+        if (this.hasShield) {
+            const pulse = 0.5 + 0.5 * Math.sin(Date.now() / 100);
+            const shieldAlpha = 0.15 + 0.15 * pulse;
+            const radius = this.w * 0.7 + 2 * pulse;
+            const cx = screenX + this.w / 2;
+            const cy = screenY + this.h / 2;
+
+            ctx.save();
+            ctx.shadowColor = '#00d4ff';
+            ctx.shadowBlur = 12 + 6 * pulse;
+            ctx.strokeStyle = `rgba(0, 212, 255, ${0.4 + 0.3 * pulse})`;
             ctx.lineWidth = 2;
-            ctx.strokeRect(screenX - 2, screenY - 2, this.w + 4, this.h + 4);
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.fillStyle = `rgba(0, 212, 255, ${shieldAlpha})`;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.restore();
         }
 
         ctx.save();

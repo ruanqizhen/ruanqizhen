@@ -45,28 +45,47 @@ export class MapTerrain {
         for (let r = 0; r < GRID_ROWS; r++) {
             for (let c = 0; c < GRID_COLS; c++) {
                 const type = this.terrain[r][c];
-                if (type === 0) continue;
 
                 const x = BATTLE_AREA_X + c * CELL_SIZE;
                 const y = BATTLE_AREA_Y + r * CELL_SIZE;
 
+                // Subtle grid on all tiles (below layer only)
                 if (layer === 'below') {
-                    if (type === 4) { // 水面
-                        ctx.fillStyle = '#148'; // dark water
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+                    ctx.lineWidth = 0.5;
+                    ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+                }
+
+
+                if (type === 0) continue;
+
+
+                if (layer === 'below') {
+                    if (type === 4) { // 水面 — richer water
+                        const wgr = ctx.createLinearGradient(x, y, x, y + CELL_SIZE);
+                        wgr.addColorStop(0, '#0a4a6a');
+                        wgr.addColorStop(1, '#062840');
+                        ctx.fillStyle = wgr;
                         ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                        // Animated wave highlights
+                        ctx.strokeStyle = 'rgba(100, 200, 255, 0.3)';
                         ctx.lineWidth = 1;
                         ctx.beginPath();
                         const offset = (Date.now() / 200) % (Math.PI * 2);
-                        // Draw some wave ripples
                         for (let i = 1; i <= 3; i++) {
                             const wy = y + i * 5;
                             ctx.moveTo(x, wy);
-                            for (let wx = 0; wx <= CELL_SIZE; wx += 5) {
-                                ctx.lineTo(x + wx, wy + Math.sin(wx / 5 + offset) * 2);
+                            for (let wx = 0; wx <= CELL_SIZE; wx += 4) {
+                                ctx.lineTo(x + wx, wy + Math.sin(wx / 4 + offset + i) * 1.5);
                             }
                         }
                         ctx.stroke();
+                        // Water sparkle
+                        const sparkle = Math.sin(Date.now() / 300 + c * 3 + r * 7);
+                        if (sparkle > 0.7) {
+                            ctx.fillStyle = `rgba(200, 240, 255, ${(sparkle - 0.7) * 1.5})`;
+                            ctx.fillRect(x + 7 + (r % 3) * 3, y + 3 + (c % 2) * 6, 2, 2);
+                        }
                     } else if (type === 5) { // 冰面
                         ctx.fillStyle = '#bdf'; // softer cyan/blue
                         ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
@@ -115,14 +134,19 @@ export class MapTerrain {
                             if (mask & 0b0100) drawBrick(x, y + half, half, half);        // BL
                             if (mask & 0b1000) drawBrick(x + half, y + half, half, half); // BR
                         }
-                    } else if (type === 2) { // 钢墙
-                        ctx.fillStyle = '#777';
+                    } else if (type === 2) { // 钢墙 — metallic shine
+                        // Base steel
+                        const sgr = ctx.createLinearGradient(x, y, x + CELL_SIZE, y + CELL_SIZE);
+                        sgr.addColorStop(0, '#888');
+                        sgr.addColorStop(0.3, '#aaa');
+                        sgr.addColorStop(0.5, '#ccc');
+                        sgr.addColorStop(0.7, '#aaa');
+                        sgr.addColorStop(1, '#777');
+                        ctx.fillStyle = sgr;
                         ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                        ctx.fillStyle = '#999';
-                        ctx.fillRect(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
 
-                        // Diagonal struts and highlights
-                        ctx.strokeStyle = '#eee';
+                        // Diagonal struts
+                        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
                         ctx.lineWidth = 1;
                         ctx.beginPath();
                         ctx.moveTo(x + 3, y + 3);
@@ -131,12 +155,20 @@ export class MapTerrain {
                         ctx.lineTo(x + 3, y + CELL_SIZE - 3);
                         ctx.stroke();
 
-                        ctx.fillStyle = 'rgba(255,255,255,0.6)'; // top-left glow
-                        ctx.fillRect(x, y, CELL_SIZE, 2);
-                        ctx.fillRect(x, y, 2, CELL_SIZE);
-                        ctx.fillStyle = 'rgba(0,0,0,0.4)'; // bottom-right shadow
-                        ctx.fillRect(x, y + CELL_SIZE - 2, CELL_SIZE, 2);
-                        ctx.fillRect(x + CELL_SIZE - 2, y, 2, CELL_SIZE);
+                        // Edge bevels
+                        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                        ctx.fillRect(x, y, CELL_SIZE, 1);
+                        ctx.fillRect(x, y, 1, CELL_SIZE);
+                        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                        ctx.fillRect(x, y + CELL_SIZE - 1, CELL_SIZE, 1);
+                        ctx.fillRect(x + CELL_SIZE - 1, y, 1, CELL_SIZE);
+
+                        // Rivet dots (4 corners)
+                        ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                        ctx.fillRect(x + 3, y + 3, 2, 2);
+                        ctx.fillRect(x + CELL_SIZE - 5, y + 3, 2, 2);
+                        ctx.fillRect(x + 3, y + CELL_SIZE - 5, 2, 2);
+                        ctx.fillRect(x + CELL_SIZE - 5, y + CELL_SIZE - 5, 2, 2);
                     } else if (type === 3) { // 森林
                         ctx.fillStyle = '#141'; // background shadow
                         ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
@@ -154,21 +186,18 @@ export class MapTerrain {
                         ctx.arc(x + 14, y + 4, 3, 0, Math.PI * 2);
                         ctx.arc(x + 4, y + 14, 2, 0, Math.PI * 2);
                         ctx.fill();
-                    } else if (type === 6) { // 基地
-                        // Fortress base design
-                        ctx.fillStyle = '#555'; // Outer steel walls
+                    } else if (type === 6) { // 基地 — glowing eagle
+                        // Background
+                        ctx.fillStyle = '#333';
                         ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                        ctx.fillStyle = '#777';
-                        ctx.fillRect(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
-                        ctx.fillStyle = '#999';
-                        ctx.fillRect(x + 3, y + 3, CELL_SIZE - 6, 2);
-                        ctx.fillRect(x + 3, y + 3, 2, CELL_SIZE - 6);
-
-                        // Inner base color
+                        ctx.fillStyle = '#444';
+                        ctx.fillRect(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
                         ctx.fillStyle = '#111';
-                        ctx.fillRect(x + 4, y + 4, CELL_SIZE - 8, CELL_SIZE - 8);
+                        ctx.fillRect(x + 3, y + 3, CELL_SIZE - 6, CELL_SIZE - 6);
 
-                        // Center Eagle/Star shape
+                        // Glowing eagle star
+                        ctx.shadowColor = '#ffaa00';
+                        ctx.shadowBlur = 6;
                         ctx.fillStyle = '#e94';
                         ctx.beginPath();
                         ctx.moveTo(x + CELL_SIZE / 2, y + 4);
@@ -177,13 +206,19 @@ export class MapTerrain {
                         ctx.lineTo(x + CELL_SIZE - 4, y + CELL_SIZE / 2 - 2);
                         ctx.lineTo(x + CELL_SIZE / 2 - 5, y + CELL_SIZE - 4);
                         ctx.fill();
+                        ctx.shadowBlur = 0;
 
-                        ctx.fillStyle = '#fa6'; // highlight
+                        ctx.fillStyle = '#fa6';
                         ctx.beginPath();
                         ctx.moveTo(x + CELL_SIZE / 2, y + 4);
                         ctx.lineTo(x + CELL_SIZE / 2 + 2, y + CELL_SIZE / 2);
                         ctx.lineTo(x + CELL_SIZE / 2 - 2, y + CELL_SIZE / 2);
                         ctx.fill();
+
+                        // Border glow
+                        ctx.strokeStyle = 'rgba(255, 170, 0, 0.3)';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
                     }
                 }
             }

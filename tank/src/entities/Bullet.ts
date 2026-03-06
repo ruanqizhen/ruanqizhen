@@ -45,8 +45,24 @@ export class Bullet extends Entity {
         if (this.isDead) return;
         const screenX = this.x + BATTLE_AREA_X;
         const screenY = this.y + BATTLE_AREA_Y;
+        const cx = screenX + this.w / 2;
+        const cy = screenY + this.h / 2;
 
-        ctx.fillStyle = this.owner.faction === TankFaction.PLAYER ? '#fff' : '#f00';
-        ctx.fillRect(screenX, screenY, this.w, this.h);
+        const isPlayer = this.owner.faction === TankFaction.PLAYER;
+        const color = isPlayer ? '#00d4ff' : '#ff3333';
+
+        // Glow effect
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(cx, cy, Math.max(this.w, this.h) / 2 + 1, 0, Math.PI * 2);
+        ctx.fill();
+        // Bright core
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(cx, cy, Math.max(this.w, this.h) / 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
     }
 }

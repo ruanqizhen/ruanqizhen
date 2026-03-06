@@ -1,8 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@400;700&display=swap');
+
 :root {
-  --bg-color: #050505;
-  --primary-glow: #00d4ff;
-  --enemy-glow: #ff0055;
-  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+  --bg-color: #0a0a12;
+  --primary: #00d4ff;
+  --primary-dim: rgba(0, 212, 255, 0.15);
+  --accent: #ff3366;
+  --accent-dim: rgba(255, 51, 102, 0.15);
+  --gold: #ffcc00;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-border: rgba(255, 255, 255, 0.08);
+  --font-display: 'Orbitron', 'Noto Sans SC', sans-serif;
+  --font-body: 'Noto Sans SC', 'Inter', system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body,
@@ -17,14 +31,42 @@ html {
   justify-content: center;
   align-items: center;
   color: white;
-  font-family: var(--font-main);
+  font-family: var(--font-body);
 }
 
+/* ─── Ambient Background Glow ─── */
+.ambient-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 30% 20%, rgba(0, 212, 255, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 500px 500px at 70% 80%, rgba(255, 51, 102, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 300px 300px at 50% 50%, rgba(255, 204, 0, 0.03) 0%, transparent 60%);
+  animation: ambient-pulse 8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes ambient-pulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* ─── Game Container ─── */
 #game-container {
   position: relative;
-  box-shadow: 0 0 50px rgba(0, 212, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  z-index: 1;
+  border-radius: 16px;
   overflow: hidden;
   width: min(100vw, calc(100vh * 0.75));
   aspect-ratio: 600 / 800;
@@ -33,11 +75,17 @@ html {
   display: flex;
   justify-content: center;
   align-items: center;
+  border: 1px solid var(--surface-border);
+  box-shadow:
+    0 0 60px rgba(0, 212, 255, 0.1),
+    0 0 120px rgba(0, 212, 255, 0.05),
+    0 20px 60px rgba(0, 0, 0, 0.6);
 }
 
+/* ─── Canvas ─── */
 canvas {
   display: block;
-  background: radial-gradient(circle at center, #111 0%, #050505 100%);
+  background: #0a0a12;
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -45,6 +93,223 @@ canvas {
   cursor: crosshair;
 }
 
+/* ─── Overlay ─── */
+#overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(180deg, rgba(10, 10, 18, 0.95) 0%, rgba(10, 10, 18, 0.85) 50%, rgba(10, 10, 18, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: none !important;
+}
+
+.overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 40px;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Logo Section ─── */
+.logo-section {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.tank-icon {
+  font-size: 3rem;
+  margin-bottom: 8px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  font-weight: 900;
+  margin: 0;
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, #fff 0%, var(--primary) 50%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.4));
+  animation: titleGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  0% {
+    filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.3));
+  }
+
+  100% {
+    filter: drop-shadow(0 0 40px rgba(0, 212, 255, 0.6));
+  }
+}
+
+.subtitle {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 8px;
+  color: var(--accent);
+  margin: 8px 0 0 0;
+  text-transform: uppercase;
+  font-weight: 700;
+  text-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+}
+
+/* ─── Start Button ─── */
+button {
+  position: relative;
+  padding: 16px 48px;
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(255, 51, 102, 0.1) 100%);
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  color: white;
+  border-radius: 50px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 0 20px rgba(0, 212, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+button:hover {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3) 0%, rgba(255, 51, 102, 0.2) 100%);
+  border-color: var(--primary);
+  box-shadow:
+    0 0 40px rgba(0, 212, 255, 0.3),
+    0 0 80px rgba(0, 212, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-text {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, var(--primary), transparent, transparent);
+  animation: spin 4s linear infinite;
+  opacity: 0.15;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ─── Instructions ─── */
+.instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 24px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.key {
+  display: inline-block;
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+/* ─── Personal Link ─── */
+.personal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+}
+
+.personal-link:hover {
+  color: var(--primary);
+  border-color: rgba(0, 212, 255, 0.2);
+  background: rgba(0, 212, 255, 0.05);
+  text-shadow: 0 0 10px var(--primary);
+}
+
+/* ─── HUD (unused from HTML, rendered in canvas) ─── */
 #hud {
   position: absolute;
   top: 20px;
@@ -59,85 +324,7 @@ canvas {
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
-.score-box span {
-  color: var(--primary-glow);
-}
-
-#overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-  transition: opacity 0.3s ease;
-}
-
-#overlay.hidden {
-  display: none !important;
-}
-
-h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  background: linear-gradient(to bottom, #fff, var(--primary-glow));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
-}
-
-button {
-  padding: 15px 40px;
-  font-size: 1.2rem;
-  background: transparent;
-  border: 2px solid var(--primary-glow);
-  color: var(--primary-glow);
-  border-radius: 30px;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
-}
-
-button:hover {
-  background: var(--primary-glow);
-  color: black;
-  box-shadow: 0 0 30px var(--primary-glow);
-}
-
-.instructions {
-  margin-top: 30px;
-  font-size: 0.9rem;
-  color: #888;
-  text-align: center;
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-
-.personal-link {
-  color: var(--primary-glow);
-  text-decoration: none;
-  font-size: 0.9rem;
-  opacity: 0.8;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border-bottom: 1px solid transparent;
-}
-
-.personal-link:hover {
-  opacity: 1;
-  text-shadow: 0 0 10px var(--primary-glow);
-  border-bottom: 1px solid var(--primary-glow);
-}
-
+/* ─── Active Buffs ─── */
 #active-buffs {
   position: absolute;
   top: 70px;
@@ -174,17 +361,33 @@ button:hover {
   text-transform: uppercase;
 }
 
-#buff-dual .buff-tag {
-  background: #00ff00;
-  box-shadow: 0 0 10px #00ff00;
-}
+/* ─── Responsive ─── */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2rem;
+    letter-spacing: 2px;
+  }
 
-#buff-rapid .buff-tag {
-  background: #ff00ff;
-  box-shadow: 0 0 10px #ff00ff;
-}
+  .subtitle {
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+  }
 
-#buff-shield .buff-tag {
-  background: #00d4ff;
-  box-shadow: 0 0 10px #00d4ff;
+  button {
+    padding: 12px 32px;
+    font-size: 0.95rem;
+  }
+
+  .instructions {
+    padding: 12px 16px;
+  }
+
+  .control-group {
+    font-size: 0.75rem;
+  }
+
+  .key {
+    font-size: 0.6rem;
+    padding: 2px 6px;
+  }
 }
