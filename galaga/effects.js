@@ -91,8 +91,9 @@ const PU_RENDER_SIZE = POWERUP_WIDTH + PU_RENDER_PADDING * 2;
     pCtx.beginPath();
     pCtx.arc(PU_RENDER_SIZE / 2, PU_RENDER_SIZE / 2, POWERUP_WIDTH / 2, 0, Math.PI * 2);
     pCtx.stroke();
-
-    pCtx.fillText(type, PU_RENDER_SIZE / 2, PU_RENDER_SIZE / 2);
+	
+	const text = type === 'D' ? '┆┆' : (type === 'S' ? '🛡️' : '⁝');
+    pCtx.fillText(text, PU_RENDER_SIZE / 2, PU_RENDER_SIZE / 2);
 });
 
 class PowerUp {
