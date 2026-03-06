@@ -122,12 +122,12 @@ export abstract class Tank extends Entity {
         const trackR = w / 2 - trackW;
         const trackY = -h / 2;
 
-        ctx.fillStyle = '#222';
+        ctx.fillStyle = '#555'; // Lighter tracks
         ctx.fillRect(trackL, trackY, trackW, h);
         ctx.fillRect(trackR, trackY, trackW, h);
 
         // Track treads (horizontal lines)
-        ctx.fillStyle = '#444';
+        ctx.fillStyle = '#888'; // Lighter track ridges
         for (let i = 2; i < h; i += 6) {
             ctx.fillRect(trackL, trackY + i, trackW, 2);
             ctx.fillRect(trackR, trackY + i, trackW, 2);
@@ -142,9 +142,18 @@ export abstract class Tank extends Entity {
         ctx.fillStyle = hullColor;
         ctx.fillRect(hullX, hullY, hullW, hullH);
 
+        // 3D Shading for Hull edges
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'; // Top-left highlight
+        ctx.fillRect(hullX, hullY, hullW, 2);
+        ctx.fillRect(hullX, hullY, 2, hullH);
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'; // Bottom-right shadow
+        ctx.fillRect(hullX, hullY + hullH - 2, hullW, 2);
+        ctx.fillRect(hullX + hullW - 2, hullY, 2, hullH);
+
         // Hull detailing (inner rectangle)
         ctx.fillStyle = hullDetailColor;
-        ctx.fillRect(hullX + 2, hullY + 2, hullW - 4, hullH - 4);
+        ctx.fillRect(hullX + 3, hullY + 3, hullW - 6, hullH - 6);
 
         // 3. Draw Barrel array (drawn before turret so it's underneath)
         const barrelW = w * 0.15;

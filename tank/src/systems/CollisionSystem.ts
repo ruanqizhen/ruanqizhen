@@ -44,6 +44,8 @@ export class CollisionSystem {
         const hits: Tank[] = [];
         for (const entity of entities) {
             if (entity.isDead) continue;
+            // Ignore enemies that are still in spawn animation
+            if ((entity as any).hasSpawned === false) continue;
 
             const entityBox: AABB = {
                 x: entity.x,
@@ -79,6 +81,22 @@ export class CollisionSystem {
             if (cell.type === 1 || cell.type === 2 || cell.type === 6 || (cell.type === 4 && !tank.hasBoat)) {
                 blocking = true;
                 break;
+            }
+        }
+
+        // Entity overlaps
+        if (!blocking) {
+            const entityHits = this.queryEntities(targetBox);
+            for (const entity of entityHits) {
+                if (entity !== tank) {
+                    blocking = true;
+                    if (tank.faction !== entity.faction) {
+                        // Different factions hit each other! Both take damage.
+                        tank.applyDamage();
+                        entity.applyDamage();
+                    }
+                    break;
+                }
             }
         }
 
