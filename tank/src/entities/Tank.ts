@@ -58,6 +58,7 @@ export abstract class Tank extends Entity {
         }
 
         this.gameManager.addBullet(bullet);
+        this.gameManager.getSoundManager().playShoot();
         return bullet;
     }
 

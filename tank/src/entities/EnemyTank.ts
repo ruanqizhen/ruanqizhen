@@ -55,16 +55,30 @@ export class EnemyTank extends Tank {
         this.shootCooldown = 60;
     }
 
+    public upgrade(newGrade: TankGrade) {
+        this.grade = newGrade;
+        switch (newGrade) {
+            case TankGrade.BASIC:
+                this.hp = Math.max(this.hp, 1); this.speed = 1.5; this.bulletSpeed = 4; this.bulletPower = 1; break;
+            case TankGrade.FAST:
+                this.hp = Math.max(this.hp, 1); this.speed = 2.5; this.bulletSpeed = 6; this.bulletPower = 1; break;
+            case TankGrade.POWER:
+                this.hp = Math.max(this.hp, 1); this.speed = 1.5; this.bulletSpeed = 4; this.bulletPower = 2; break;
+            case TankGrade.ARMOR:
+                this.hp = Math.max(this.hp, 4); this.speed = 1.5; this.bulletSpeed = 4; this.bulletPower = 1; break;
+        }
+    }
+
     public applyDamage() {
         if (!this.hasSpawned) return;
 
         this.hp--;
 
-        if (this.holdsPowerUp) {
-            // Drop power-up logic will be handled by the SpawnSystem / GameManager upon death
-        }
-
         if (this.hp <= 0) {
+            // Drop power-up if this was a flashing enemy
+            if (this.holdsPowerUp) {
+                this.gameManager.getPowerUpSystem().spawnPowerUp(this.x, this.y);
+            }
             this.isDead = true;
             // Reward score based on grade
             let score = 0;
@@ -232,10 +246,15 @@ export class EnemyTank extends Tank {
 
         // Calculate intended movement
         let dx = 0; let dy = 0;
-        if (this.direction === Direction.UP) dy = -this.speed;
-        else if (this.direction === Direction.DOWN) dy = this.speed;
-        else if (this.direction === Direction.LEFT) dx = -this.speed;
-        else if (this.direction === Direction.RIGHT) dx = this.speed;
+        let moveSpeed = this.speed;
+        // Apply speed boost from reverse Clock power-up
+        if (this.gameManager.getPowerUpSystem().enemySpeedBoostTimer > 0) {
+            moveSpeed *= 2;
+        }
+        if (this.direction === Direction.UP) dy = -moveSpeed;
+        else if (this.direction === Direction.DOWN) dy = moveSpeed;
+        else if (this.direction === Direction.LEFT) dx = -moveSpeed;
+        else if (this.direction === Direction.RIGHT) dx = moveSpeed;
 
         const res = this.gameManager.getCollisionSystem().resolveMovement(this, dx, dy);
 

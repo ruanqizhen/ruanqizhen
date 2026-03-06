@@ -25,7 +25,7 @@ const parseMap = (mapStr: string): number[][] => {
 
 export const LEVEL_01: LevelConfig = {
     stageNumber: 1,
-    totalEnemies: 2,
+    totalEnemies: 20,
     spawnInterval: 200,
     maxOnScreen: 4,
     enemyDistribution: { basic: 20, fast: 0, power: 0, armor: 0 },

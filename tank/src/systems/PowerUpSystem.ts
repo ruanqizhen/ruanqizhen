@@ -1,6 +1,7 @@
 import { GameManager } from '../engine/GameManager';
 import { PowerUp, PowerUpType } from '../entities/PowerUp';
 import { TankGrade, TankFaction } from '../types';
+import { CELL_SIZE, GRID_COLS, GRID_ROWS } from '../constants';
 
 export class PowerUpSystem {
     private gameManager: GameManager;
@@ -9,14 +10,59 @@ export class PowerUpSystem {
     // Global timers for powerups
     public clockTimer: number = 0;
     public shovelTimer: number = 0;
+    public enemySpeedBoostTimer: number = 0;
 
     constructor(gameManager: GameManager) {
         this.gameManager = gameManager;
     }
 
+    private findValidSpawnPosition(startX: number, startY: number): { x: number, y: number } {
+        let finalX = Math.floor(startX / CELL_SIZE) * CELL_SIZE;
+        let finalY = Math.floor(startY / CELL_SIZE) * CELL_SIZE;
+
+        const isValid = (testX: number, testY: number) => {
+            const hits = this.gameManager.getCollisionSystem().queryTerrain({ x: testX, y: testY, w: CELL_SIZE * 2, h: CELL_SIZE * 2 });
+            if (hits.some((c: any) => c.type === 1 || c.type === 2 || c.type === 4 || c.type === 6)) return false;
+
+            const newBox = { x: testX, y: testY, w: CELL_SIZE * 2, h: CELL_SIZE * 2 };
+            for (const p of this.powerups) {
+                if (!p.isDead) {
+                    const pBox = { x: p.x, y: p.y, w: p.w, h: p.h };
+                    if (this.gameManager.getCollisionSystem().isIntersecting(newBox, pBox)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        };
+
+        let radius = 0;
+        let found = false;
+        while (radius < 10) {
+            for (let dx = -radius; dx <= radius; dx += 2) {
+                for (let dy = -radius; dy <= radius; dy += 2) {
+                    const testX = finalX + dx * CELL_SIZE;
+                    const testY = finalY + dy * CELL_SIZE;
+                    if (testX >= 0 && testX <= GRID_COLS * CELL_SIZE - CELL_SIZE * 2 &&
+                        testY >= 0 && testY <= GRID_ROWS * CELL_SIZE - CELL_SIZE * 2) {
+                        if (isValid(testX, testY)) {
+                            finalX = testX;
+                            finalY = testY;
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+                if (found) break;
+            }
+            if (found) break;
+            radius++;
+        }
+        return { x: finalX, y: finalY };
+    }
+
     public spawnPowerUp(x: number, y: number) {
-        // Find nearest valid empty spot if on water or out of bounds
-        // For MVP, just dropping at x, y snapped to grid is fine unless we add a strict bounds check
+        const pos = this.findValidSpawnPosition(x, y);
 
         // Random type
         const types = [
@@ -25,12 +71,19 @@ export class PowerUpSystem {
         ];
         const type = types[Math.floor(Math.random() * types.length)];
 
-        const pu = new PowerUp(x, y, type);
+        const pu = new PowerUp(pos.x, pos.y, type);
+        this.powerups.push(pu);
+    }
+
+    public spawnPowerUpByType(x: number, y: number, type: PowerUpType) {
+        const pos = this.findValidSpawnPosition(x, y);
+        const pu = new PowerUp(pos.x, pos.y, type);
         this.powerups.push(pu);
     }
 
     public update() {
         if (this.clockTimer > 0) this.clockTimer--;
+        if (this.enemySpeedBoostTimer > 0) this.enemySpeedBoostTimer--;
 
         if (this.shovelTimer > 0) {
             this.shovelTimer--;
@@ -53,8 +106,21 @@ export class PowerUpSystem {
             pu.update();
             if (!pu.isDead) {
                 const puBox = { x: pu.x, y: pu.y, w: pu.w, h: pu.h };
+                // Player pickup
                 if (this.gameManager.getCollisionSystem().isIntersecting(pBox, puBox)) {
                     this.collectPowerUp(pu);
+                    return;
+                }
+                // Enemy pickup (reverse effects)
+                const enemies = this.gameManager.getEntities().filter((e: any) =>
+                    e.faction === TankFaction.ENEMY && !e.isDead && (e as any).hasSpawned !== false
+                );
+                for (const enemy of enemies) {
+                    const eBox = { x: enemy.x, y: enemy.y, w: enemy.w, h: enemy.h };
+                    if (this.gameManager.getCollisionSystem().isIntersecting(eBox, puBox)) {
+                        this.enemyCollectPowerUp(pu);
+                        break;
+                    }
                 }
             }
         });
@@ -65,6 +131,7 @@ export class PowerUpSystem {
     private collectPowerUp(pu: PowerUp) {
         pu.isDead = true;
         const player = this.gameManager.getPlayer();
+        this.gameManager.getSoundManager().playPowerUp();
 
         // this.gameManager.addScore(500); // PRD score for powerups usually 500
 
@@ -80,8 +147,8 @@ export class PowerUpSystem {
                 this.applyBaseReinforcement(2); // 2 = STEEL
                 break;
             case PowerUpType.BOMB:
-                const enemies = this.gameManager.getEntities().filter(e => e.faction === TankFaction.ENEMY);
-                enemies.forEach(e => {
+                const enemies = this.gameManager.getEntities().filter((e: any) => e.faction === TankFaction.ENEMY);
+                enemies.forEach((e: any) => {
                     // Trigger explosion effects
                     e.isDead = true;
                 });
@@ -100,18 +167,70 @@ export class PowerUpSystem {
         }
     }
 
+    /** Enemy picked up a power-up — reverse/harmful effects on player */
+    private enemyCollectPowerUp(pu: PowerUp) {
+        pu.isDead = true;
+        const player = this.gameManager.getPlayer();
+        this.gameManager.getSoundManager().playGameOver(); // ominous sound
+
+        switch (pu.type) {
+            case PowerUpType.HELMET:
+                // Reverse: Remove player's shield
+                player.hasShield = false;
+                player.shieldTimer = 0;
+                break;
+            case PowerUpType.CLOCK:
+                // Reverse: Speed up all enemies temporarily (double speed for 10s)
+                this.enemySpeedBoostTimer = 600;
+                break;
+            case PowerUpType.SHOVEL:
+                // Reverse: Destroy base reinforcement, turn surrounding to empty
+                this.shovelTimer = 0;
+                this.destroyBaseWalls();
+                break;
+            case PowerUpType.BOMB:
+                // Reverse: Kill the player!
+                player.applyDamage();
+                break;
+            case PowerUpType.STAR:
+                // Reverse: Downgrade the player
+                if (player.grade > TankGrade.BASIC) {
+                    const newGrade = player.grade - 1;
+                    player.upgrade(newGrade);
+                }
+                break;
+            case PowerUpType.TANK:
+                // Reverse: Player loses a life
+                player.lives--;
+                if (player.lives < 0) {
+                    this.gameManager.triggerGameOver();
+                }
+                break;
+            case PowerUpType.GUN:
+                // Reverse: Upgrade ALL enemies on screen
+                const enemies = this.gameManager.getEntities().filter((e: any) => e.faction === TankFaction.ENEMY);
+                enemies.forEach((e: any) => {
+                    if (e.grade < TankGrade.ARMOR) {
+                        const newGrade = e.grade + 1;
+                        e.upgrade(newGrade);
+                    }
+                });
+                break;
+        }
+    }
+
     public render(ctx: CanvasRenderingContext2D) {
         this.powerups.forEach(pu => pu.render(ctx));
     }
 
     private applyBaseReinforcement(type: number) {
         const map = this.gameManager.getMap();
-        // Base is at 35, 14 and 35, 15 and 36, 14 and 36, 15 (2x2)
+        // Base is at 36, 14 and 36, 15 and 37, 14 and 37, 15 (2x2)
         // Surrounding tiles:
         const coords = [
-            [34, 13], [34, 14], [34, 15], [34, 16],
-            [35, 13], [35, 16],
-            [36, 13], [36, 16]
+            [35, 13], [35, 14], [35, 15], [35, 16],
+            [36, 13], [36, 16],
+            [37, 13], [37, 16]
         ];
 
         coords.forEach(([r, c]) => {
@@ -126,5 +245,20 @@ export class PowerUpSystem {
 
     private revertBaseReinforcement() {
         this.applyBaseReinforcement(1); // revert to full brick
+    }
+
+    private destroyBaseWalls() {
+        const map = this.gameManager.getMap();
+        const coords = [
+            [35, 13], [35, 14], [35, 15], [35, 16],
+            [36, 13], [36, 16],
+            [37, 13], [37, 16]
+        ];
+        coords.forEach(([r, c]) => {
+            if (map.terrain[r] && map.terrain[r][c] !== undefined) {
+                map.terrain[r][c] = 0; // empty
+                map.brickMasks.delete(`${c},${r}`);
+            }
+        });
     }
 }

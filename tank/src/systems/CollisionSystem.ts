@@ -116,6 +116,57 @@ export class CollisionSystem {
         return { dx: newDx, dy: newDy };
     }
 
+    /** Push apart any overlapping same-faction entities */
+    public separateOverlappingEntities() {
+        const entities = this.gameManager.getEntities();
+        for (let i = 0; i < entities.length; i++) {
+            for (let j = i + 1; j < entities.length; j++) {
+                const a = entities[i];
+                const b = entities[j];
+                if (a.isDead || b.isDead) continue;
+                // Skip entities still in spawn animation
+                if ((a as any).hasSpawned === false || (b as any).hasSpawned === false) continue;
+
+                const aBox: AABB = { x: a.x, y: a.y, w: a.w, h: a.h };
+                const bBox: AABB = { x: b.x, y: b.y, w: b.w, h: b.h };
+
+                if (!this.isIntersecting(aBox, bBox)) continue;
+
+                // Calculate overlap amounts
+                const overlapX = Math.min(aBox.x + aBox.w - bBox.x, bBox.x + bBox.w - aBox.x);
+                const overlapY = Math.min(aBox.y + aBox.h - bBox.y, bBox.y + bBox.h - aBox.y);
+
+                // Push apart along the axis with smaller overlap
+                const pushSpeed = 2; // pixels per frame
+                if (overlapX < overlapY) {
+                    // Push horizontally
+                    if (a.x < b.x) {
+                        a.x -= Math.min(pushSpeed, overlapX / 2);
+                        b.x += Math.min(pushSpeed, overlapX / 2);
+                    } else {
+                        a.x += Math.min(pushSpeed, overlapX / 2);
+                        b.x -= Math.min(pushSpeed, overlapX / 2);
+                    }
+                } else {
+                    // Push vertically
+                    if (a.y < b.y) {
+                        a.y -= Math.min(pushSpeed, overlapY / 2);
+                        b.y += Math.min(pushSpeed, overlapY / 2);
+                    } else {
+                        a.y += Math.min(pushSpeed, overlapY / 2);
+                        b.y -= Math.min(pushSpeed, overlapY / 2);
+                    }
+                }
+
+                // Clamp to bounds
+                a.x = Math.max(0, Math.min(BATTLE_AREA_W - a.w, a.x));
+                a.y = Math.max(0, Math.min(BATTLE_AREA_H - a.h, a.y));
+                b.x = Math.max(0, Math.min(BATTLE_AREA_W - b.w, b.x));
+                b.y = Math.max(0, Math.min(BATTLE_AREA_H - b.h, b.y));
+            }
+        }
+    }
+
     public processBullet(bullet: Bullet) {
         // 1. Check bullet-bullet collisions first
         const allBullets = this.gameManager.getBullets();
@@ -140,6 +191,9 @@ export class CollisionSystem {
 
             entity.applyDamage();
             bullet.isDead = true;
+            if (entity.isDead) {
+                this.gameManager.getSoundManager().playExplosion();
+            }
             return;
         }
 
@@ -158,6 +212,7 @@ export class CollisionSystem {
                         this.map.brickMasks.set(`${cell.c},${cell.r}`, newMask);
                     }
                     this.gameManager.getParticleSystem().emitDebris(bullet.x + bullet.w / 2, bullet.y + bullet.h / 2, 8, '#c84');
+                    this.gameManager.getSoundManager().playHitBrick();
                     bullet.isDead = true;
                     return;
                 }
@@ -168,11 +223,13 @@ export class CollisionSystem {
                 } else {
                     this.gameManager.getParticleSystem().emitDebris(bullet.x + bullet.w / 2, bullet.y + bullet.h / 2, 5, '#eee');
                 }
+                this.gameManager.getSoundManager().playHitSteel();
                 bullet.isDead = true;
                 return;
             } else if (cell.type === 6) { // Base
                 this.map.terrain[cell.r][cell.c] = 0;
                 this.gameManager.getParticleSystem().emitExplosion(bullet.x + bullet.w / 2, bullet.y + bullet.h / 2, 60, '#ff4');
+                this.gameManager.getSoundManager().playExplosion();
                 bullet.isDead = true;
                 this.gameManager.triggerGameOver();
                 return;

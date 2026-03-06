@@ -1,4 +1,4 @@
-import { CELL_SIZE } from '../constants';
+import { CELL_SIZE, BATTLE_AREA_X, BATTLE_AREA_Y } from '../constants';
 
 
 export enum PowerUpType {
@@ -19,18 +19,14 @@ export class PowerUp {
     public type: PowerUpType;
     public isDead: boolean = false;
 
-    private lifespan: number = 600; // 10 seconds at 60fps
+    private lifespan: number = 1000; // 10 seconds at 60fps
 
     constructor(x: number, y: number, type: PowerUpType) {
         this.x = x;
         this.y = y;
         this.type = type;
 
-        // Ensure aligned to grid mostly, or just drop where enemy died?
-        // PRD says drops at enemy death location. 
-        // Snap strictly to 2x2 grid for typical retro feel
-        this.x = Math.floor(x / CELL_SIZE) * CELL_SIZE;
-        this.y = Math.floor(y / CELL_SIZE) * CELL_SIZE;
+        // Coordinates are pre-snapped and collision-checked by PowerUpSystem
     }
 
     public update() {
@@ -54,11 +50,16 @@ export class PowerUp {
 
         // Simple placeholder rendering for each powerup type
         ctx.save();
-        ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
+        ctx.translate(this.x + this.w / 2 + BATTLE_AREA_X, this.y + this.h / 2 + BATTLE_AREA_Y);
 
         // Draw a base box
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = '#000';
         ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+
+        // Draw white border for visibility
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-this.w / 2, -this.h / 2, this.w, this.h);
 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -66,13 +67,13 @@ export class PowerUp {
         ctx.fillStyle = '#f0f';
 
         switch (this.type) {
-            case PowerUpType.HELMET: ctx.fillText('H', 0, 0); break;
-            case PowerUpType.CLOCK: ctx.fillText('C', 0, 0); break;
-            case PowerUpType.SHOVEL: ctx.fillText('S', 0, 0); break;
-            case PowerUpType.BOMB: ctx.fillText('B', 0, 0); break;
-            case PowerUpType.STAR: ctx.fillText('★', 0, 0); break;
-            case PowerUpType.TANK: ctx.fillText('1U', 0, 0); break;
-            case PowerUpType.GUN: ctx.fillText('G', 0, 0); break;
+            case PowerUpType.HELMET: ctx.fillText('🛡️', 0, 0); break;
+            case PowerUpType.CLOCK: ctx.fillText('⏰', 0, 0); break;
+            case PowerUpType.SHOVEL: ctx.fillText('⛏️', 0, 0); break;
+            case PowerUpType.BOMB: ctx.fillText('💣', 0, 0); break;
+            case PowerUpType.STAR: ctx.fillText('⭐', 0, 0); break;
+            case PowerUpType.TANK: ctx.fillText('🚜', 0, 0); break;
+            case PowerUpType.GUN: ctx.fillText('🔫', 0, 0); break;
         }
 
         ctx.restore();

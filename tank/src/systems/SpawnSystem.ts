@@ -78,17 +78,24 @@ export class SpawnSystem {
     private trySpawn() {
         const point = this.spawnPoints[this.nextSpawnPointIndex];
 
-        // Check if spawn point is occupied
-        const spawnAABB = {
-            x: point.c * CELL_SIZE,
-            y: point.r * CELL_SIZE,
-            w: 40, // 2x2 cells
-            h: 40
-        };
+        // Check if spawn point is occupied by ANY entity (including spawning ones)
+        const spawnX = point.c * CELL_SIZE;
+        const spawnY = point.r * CELL_SIZE;
+        const spawnAABB = { x: spawnX, y: spawnY, w: 40, h: 40 };
 
-        const occupyingEntities = this.gameManager.getCollisionSystem().queryEntities(spawnAABB);
+        // Check against ALL entities, including those still in spawn animation
+        const allEntities = this.gameManager.getEntities();
+        let occupied = false;
+        for (const entity of allEntities) {
+            if (entity.isDead) continue;
+            const entityBox = { x: entity.x, y: entity.y, w: entity.w, h: entity.h };
+            if (this.gameManager.getCollisionSystem().isIntersecting(spawnAABB, entityBox)) {
+                occupied = true;
+                break;
+            }
+        }
 
-        if (occupyingEntities.length === 0) {
+        if (!occupied) {
             // Spawn!
             const grade = this.spawnQueue.pop() || TankGrade.BASIC;
             const isFlashing = this.flashingIndices.has(this.enemiesSpawned);
@@ -103,8 +110,8 @@ export class SpawnSystem {
         // Always rotate spawn point, even if failed this frame
         this.nextSpawnPointIndex = (this.nextSpawnPointIndex + 1) % this.spawnPoints.length;
 
-        // if failed, will try next frame at next point because spawnTimer is still <= 0 or is reset if spawned
-        if (occupyingEntities.length > 0) {
+        // if failed, will try next frame at next point
+        if (occupied) {
             this.spawnTimer = 10; // short retry delay
         }
     }

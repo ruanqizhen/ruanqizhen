@@ -5,6 +5,7 @@ import { CollisionSystem } from '../systems/CollisionSystem';
 import { SpawnSystem } from '../systems/SpawnSystem';
 import { PowerUpSystem } from '../systems/PowerUpSystem';
 import { ParticleSystem } from '../systems/ParticleSystem';
+import { SoundManager } from './SoundManager';
 import { PlayerTank } from '../entities/PlayerTank';
 import { Tank } from '../entities/Tank';
 import { EnemyTank } from '../entities/EnemyTank';
@@ -36,6 +37,7 @@ export class GameManager {
     private spawnSystem!: SpawnSystem;
     private powerUpSystem!: PowerUpSystem;
     private particleSystem!: ParticleSystem;
+    private soundManager: SoundManager;
     private player!: PlayerTank;
     private enemies: EnemyTank[] = [];
     private bullets: Bullet[] = [];
@@ -46,6 +48,7 @@ export class GameManager {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d')!;
         this.inputManager = new InputManager(canvas);
+        this.soundManager = new SoundManager();
 
         // Initialization done in resetGame
         this.resetGame();
@@ -77,6 +80,7 @@ export class GameManager {
     public getMap() { return this.map; }
     public getPowerUpSystem() { return this.powerUpSystem; }
     public getParticleSystem() { return this.particleSystem; }
+    public getSoundManager() { return this.soundManager; }
 
     public getInputManager() { return this.inputManager; }
     public getCollisionSystem() { return this.collisionSystem; }
@@ -93,6 +97,7 @@ export class GameManager {
 
     public triggerGameOver() {
         this.switchState(GameState.GAME_OVER);
+        this.soundManager.playGameOver();
         const startBtn = document.getElementById('start-btn');
         if (startBtn) startBtn.innerText = '重新开始';
     }
@@ -149,6 +154,7 @@ export class GameManager {
             case GameState.STAGE_INTRO:
                 // Start stage automatically after roughly 2 seconds (120 frames at 60fps)
                 if (this.stateTimer > 120) {
+                    this.soundManager.playStageStart();
                     this.switchState(GameState.PLAYING);
                 }
                 break;
@@ -161,6 +167,9 @@ export class GameManager {
                 this.player.update(dt);
                 this.enemies.forEach(e => e.update(dt));
                 this.enemies = this.enemies.filter(e => !e.isDead);
+
+                // Push apart any overlapping tanks
+                this.collisionSystem.separateOverlappingEntities();
 
                 this.bullets.forEach(b => b.update(dt));
                 this.bullets = this.bullets.filter(b => !b.isDead);
@@ -245,9 +254,9 @@ export class GameManager {
                 this.player.render(this.ctx);
                 this.enemies.forEach(e => e.render(this.ctx));
                 this.bullets.forEach(b => b.render(this.ctx));
-                this.powerUpSystem.render(this.ctx);
 
                 this.map.draw(this.ctx, 'above');
+                this.powerUpSystem.render(this.ctx);
 
                 // Render battle area border
                 this.ctx.strokeStyle = '#555';
