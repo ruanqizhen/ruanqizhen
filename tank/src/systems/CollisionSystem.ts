@@ -145,12 +145,9 @@ export class CollisionSystem {
 
         const terrainHits = this.queryTerrain(bullet.getAABB());
         for (const cell of terrainHits) {
-            if (cell.type === 1) {
+            if (cell.type === 1) { // Brick
                 const mask = this.map.brickMasks.get(`${cell.c},${cell.r}`) || 0;
                 if (mask > 0) {
-                    // DESTROY_MASK no longer used since bricks are completely destroyed at once
-                    // The user requested that the entire brick is destroyed instead of part of it.
-                    // This means we clear all 4 bits (0b1111).
                     const destroyBits = 0b1111;
                     const newMask = mask & ~destroyBits;
 
@@ -160,15 +157,22 @@ export class CollisionSystem {
                     } else {
                         this.map.brickMasks.set(`${cell.c},${cell.r}`, newMask);
                     }
+                    this.gameManager.getParticleSystem().emitDebris(bullet.x + bullet.w / 2, bullet.y + bullet.h / 2, 8, '#c84');
                     bullet.isDead = true;
                     return;
                 }
-            } else if (cell.type === 2) {
-                if (bullet.power === 2) this.map.terrain[cell.r][cell.c] = 0;
+            } else if (cell.type === 2) { // Steel
+                if (bullet.power === 2) {
+                    this.map.terrain[cell.r][cell.c] = 0;
+                    this.gameManager.getParticleSystem().emitDebris(bullet.x + bullet.w / 2, bullet.y + bullet.h / 2, 12, '#aaa');
+                } else {
+                    this.gameManager.getParticleSystem().emitDebris(bullet.x + bullet.w / 2, bullet.y + bullet.h / 2, 5, '#eee');
+                }
                 bullet.isDead = true;
                 return;
-            } else if (cell.type === 6) {
+            } else if (cell.type === 6) { // Base
                 this.map.terrain[cell.r][cell.c] = 0;
+                this.gameManager.getParticleSystem().emitExplosion(bullet.x + bullet.w / 2, bullet.y + bullet.h / 2, 60, '#ff4');
                 bullet.isDead = true;
                 this.gameManager.triggerGameOver();
                 return;

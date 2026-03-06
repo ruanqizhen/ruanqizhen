@@ -71,8 +71,12 @@ export class PlayerTank extends Tank {
         // Death
         this.lives--;
         this.isDead = true;
+        this.gameManager.getParticleSystem().emitExplosion(this.x + this.w / 2, this.y + this.h / 2, 50, '#fa2');
+
         if (this.lives >= 0) {
-            this.gameManager.schedulePlayerRespawn();
+            setTimeout(() => {
+                this.gameManager.schedulePlayerRespawn();
+            }, 1000); // Wait 1s for explosion
         } else {
             this.gameManager.triggerGameOver();
         }

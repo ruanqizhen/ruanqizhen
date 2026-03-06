@@ -74,13 +74,15 @@ export class EnemyTank extends Tank {
                 case TankGrade.POWER: score = 300; break;
                 case TankGrade.ARMOR: score = 400; break;
             }
-            // Trigger explosion and score popup via GameManager...
-            // this.gameManager.addScore(score); etc
-            score; // Temporary use to suppress lint
+            // Trigger explosion 
+            this.gameManager.getParticleSystem().emitExplosion(this.x + this.w / 2, this.y + this.h / 2, 40, '#f22');
+            this.gameManager.getPlayer().score += score;
         } else {
             // Armor tank hit flash
             this.hitFlashActive = true;
             this.flashTimer = 4;
+            // Emit minor debris
+            this.gameManager.getParticleSystem().emitDebris(this.x + this.w / 2, this.y + this.h / 2, 10, '#ddd');
         }
     }
 

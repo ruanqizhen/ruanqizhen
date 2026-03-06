@@ -4,6 +4,7 @@ import { MapTerrain } from '../world/Map';
 import { CollisionSystem } from '../systems/CollisionSystem';
 import { SpawnSystem } from '../systems/SpawnSystem';
 import { PowerUpSystem } from '../systems/PowerUpSystem';
+import { ParticleSystem } from '../systems/ParticleSystem';
 import { PlayerTank } from '../entities/PlayerTank';
 import { Tank } from '../entities/Tank';
 import { EnemyTank } from '../entities/EnemyTank';
@@ -34,6 +35,7 @@ export class GameManager {
     private collisionSystem!: CollisionSystem;
     private spawnSystem!: SpawnSystem;
     private powerUpSystem!: PowerUpSystem;
+    private particleSystem!: ParticleSystem;
     private player!: PlayerTank;
     private enemies: EnemyTank[] = [];
     private bullets: Bullet[] = [];
@@ -74,6 +76,7 @@ export class GameManager {
     public getPlayer() { return this.player; }
     public getMap() { return this.map; }
     public getPowerUpSystem() { return this.powerUpSystem; }
+    public getParticleSystem() { return this.particleSystem; }
 
     public getInputManager() { return this.inputManager; }
     public getCollisionSystem() { return this.collisionSystem; }
@@ -102,6 +105,7 @@ export class GameManager {
         this.collisionSystem = new CollisionSystem(this, this.map);
         this.spawnSystem = new SpawnSystem(this);
         this.powerUpSystem = new PowerUpSystem(this);
+        this.particleSystem = new ParticleSystem(this);
         this.player = new PlayerTank(this);
         this.map.loadLevel(LEVELS[this.currentStageIdx]);
         this.spawnSystem.loadLevelConfig(LEVELS[this.currentStageIdx]);
@@ -166,6 +170,9 @@ export class GameManager {
 
                 // Run Powerup system
                 this.powerUpSystem.update();
+
+                // Run Particle system
+                this.particleSystem.update(dt);
 
                 // Check stage clear
                 if (this.spawnSystem.isFinished() && this.enemies.length === 0) {
@@ -287,6 +294,9 @@ export class GameManager {
                 this.bullets.forEach(b => b.render(this.ctx));
                 this.powerUpSystem.render(this.ctx);
                 this.map.draw(this.ctx, 'above');
+
+                // Render particles
+                this.particleSystem.render(this.ctx);
 
                 // Render HUD
                 this.ctx.fillStyle = '#333';
