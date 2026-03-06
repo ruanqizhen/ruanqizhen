@@ -72,7 +72,7 @@ export class PowerUp {
             case PowerUpType.SHOVEL: ctx.fillText('⛏️', 0, 0); break;
             case PowerUpType.BOMB: ctx.fillText('💣', 0, 0); break;
             case PowerUpType.STAR: ctx.fillText('⭐', 0, 0); break;
-            case PowerUpType.TANK: ctx.fillText('🚜', 0, 0); break;
+            case PowerUpType.TANK: ctx.fillText('❤️', 0, 0); break;
             case PowerUpType.GUN: ctx.fillText('🔫', 0, 0); break;
         }
 
