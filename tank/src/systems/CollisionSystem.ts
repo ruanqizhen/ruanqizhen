@@ -189,6 +189,61 @@ export class CollisionSystem {
         }
     }
 
+    /** Actively push tanks out of walls if they are stuck */
+    public separateFromWalls() {
+        const entities = this.gameManager.getEntities();
+        for (const tank of entities) {
+            if (tank.isDead) continue;
+            // Ignore tanks in spawn animation
+            if ((tank as any).hasSpawned === false) continue;
+
+            const box: AABB = { x: tank.x, y: tank.y, w: tank.w, h: tank.h };
+            const terrainHits = this.queryTerrain(box);
+
+            for (const cell of terrainHits) {
+                if (cell.type === 1 || cell.type === 2 || cell.type === 6 || (cell.type === 4 && !tank.hasBoat)) {
+                    const cellBox: AABB = {
+                        x: cell.c * CELL_SIZE,
+                        y: cell.r * CELL_SIZE,
+                        w: CELL_SIZE,
+                        h: CELL_SIZE
+                    };
+
+                    if (this.isIntersecting(box, cellBox)) {
+                        const overlapX = Math.min(box.x + box.w - cellBox.x, cellBox.x + cellBox.w - box.x);
+                        const overlapY = Math.min(box.y + box.h - cellBox.y, cellBox.y + cellBox.h - box.y);
+
+                        const pushSpeed = 1.5; // pixels per frame to gently slide them out
+                        if (overlapX < overlapY) {
+                            // Push horizontally away from wall center
+                            if (box.x + box.w / 2 < cellBox.x + cellBox.w / 2) {
+                                tank.x -= Math.min(pushSpeed, overlapX);
+                            } else {
+                                tank.x += Math.min(pushSpeed, overlapX);
+                            }
+                        } else {
+                            // Push vertically away from wall center
+                            if (box.y + box.h / 2 < cellBox.y + cellBox.h / 2) {
+                                tank.y -= Math.min(pushSpeed, overlapY);
+                            } else {
+                                tank.y += Math.min(pushSpeed, overlapY);
+                            }
+                        }
+
+                        // Clamp to map bounds
+                        tank.x = Math.max(0, Math.min(BATTLE_AREA_W - tank.w, tank.x));
+                        tank.y = Math.max(0, Math.min(BATTLE_AREA_H - tank.h, tank.y));
+
+                        // Update current box so further checks in this frame use the new unstuck position
+                        box.x = tank.x;
+                        box.y = tank.y;
+                    }
+                }
+            }
+        }
+    }
+
+
     public processBullet(bullet: Bullet) {
         // 1. Check bullet-bullet collisions first
         const allBullets = this.gameManager.getBullets();

@@ -6,6 +6,7 @@ export type BrickMask = number; // bit0=TL, bit1=TR, bit2=BL, bit3=BR
 export class MapTerrain {
     public terrain: number[][] = [];
     public brickMasks: Map<string, BrickMask> = new Map();
+    public baseCoords: { r: number, c: number }[] = [];
 
     constructor() {
         this.initEmpty();
@@ -30,11 +31,98 @@ export class MapTerrain {
             }
         }
 
-        // Force base at (14, 35) (2x2)
-        this.terrain[36][14] = 6;
-        this.terrain[36][15] = 6;
-        this.terrain[37][14] = 6;
-        this.terrain[37][15] = 6;
+        this.baseCoords = [];
+        for (let r = 0; r < GRID_ROWS; r++) {
+            for (let c = 0; c < GRID_COLS; c++) {
+                if (this.terrain[r][c] === 6) {
+                    this.baseCoords.push({ r, c });
+                }
+            }
+        }
+
+        // Fallback default base if map lacks one
+        if (this.baseCoords.length === 0) {
+            this.terrain[36][14] = 6;
+            this.terrain[36][15] = 6;
+            this.terrain[37][14] = 6;
+            this.terrain[37][15] = 6;
+            this.baseCoords.push({ r: 36, c: 14 }, { r: 36, c: 15 }, { r: 37, c: 14 }, { r: 37, c: 15 });
+        }
+    }
+
+    public getPlayerSpawn(): { r: number, c: number } {
+        if (this.baseCoords.length > 0) {
+            const minC = Math.min(...this.baseCoords.map(b => b.c));
+            const minR = Math.min(...this.baseCoords.map(b => b.r));
+            const maxC = Math.max(...this.baseCoords.map(b => b.c));
+
+            // Try left side first (3 tiles away)
+            if (minC >= 3) {
+                return { r: minR, c: minC - 3 };
+            }
+            // Try right side (2 tiles away from right edge of base)
+            if (maxC <= GRID_COLS - 4) {
+                return { r: minR, c: maxC + 2 };
+            }
+            // Try top
+            if (minR >= 3) {
+                return { r: minR - 3, c: minC };
+            }
+            return { r: minR, c: minC }; // Fallback
+        }
+        return { col: 11, row: 36 } as any; // Ultimate fallback
+    }
+
+    public getEnemySpawn(entities: any[]): { r: number, c: number } | null {
+        const candidates: { r: number, c: number }[] = [];
+        const minBaseDistSq = 20 * 20; // At least 20 cells away from any base block
+
+        for (let r = 0; r <= GRID_ROWS - 2; r++) {
+            for (let c = 0; c <= GRID_COLS - 2; c++) {
+                // Must be purely empty 2x2 space
+                if (this.terrain[r][c] !== 0 || this.terrain[r][c + 1] !== 0 ||
+                    this.terrain[r + 1][c] !== 0 || this.terrain[r + 1][c + 1] !== 0) {
+                    continue;
+                }
+
+                // Must be far from base
+                let farFromBase = true;
+                for (const b of this.baseCoords) {
+                    const distSq = (b.r - r) ** 2 + (b.c - c) ** 2;
+                    if (distSq < minBaseDistSq) {
+                        farFromBase = false;
+                        break;
+                    }
+                }
+                if (!farFromBase) continue;
+
+                // Must not be occupied by existing entities
+                const spawnX = c * CELL_SIZE;
+                const spawnY = r * CELL_SIZE;
+                let occupied = false;
+                for (const entity of entities) {
+                    if (entity.isDead) continue;
+                    // Standard AABB intersection check
+                    if (spawnX < entity.x + entity.w &&
+                        spawnX + CELL_SIZE * 2 > entity.x &&
+                        spawnY < entity.y + entity.h &&
+                        spawnY + CELL_SIZE * 2 > entity.y) {
+                        occupied = true;
+                        break;
+                    }
+                }
+
+                if (!occupied) {
+                    candidates.push({ r, c });
+                }
+            }
+        }
+
+        if (candidates.length === 0) return null;
+
+        // Randomly select one candidate
+        const idx = Math.floor(Math.random() * candidates.length);
+        return candidates[idx];
     }
 
     public getTerrainType(r: number, c: number): number {

@@ -1,7 +1,7 @@
 import { Tank } from './Tank';
 import { TankGrade, TankFaction, Direction } from '../types';
 import { GameManager } from '../engine/GameManager';
-import { SPAWN_PLAYER, CELL_SIZE, BATTLE_AREA_X, BATTLE_AREA_Y } from '../constants';
+import { CELL_SIZE, BATTLE_AREA_X, BATTLE_AREA_Y } from '../constants';
 
 export class PlayerTank extends Tank {
     public lives: number = 3;
@@ -40,8 +40,9 @@ export class PlayerTank extends Tank {
     }
 
     public respawn() {
-        this.x = SPAWN_PLAYER.col * CELL_SIZE;
-        this.y = SPAWN_PLAYER.row * CELL_SIZE;
+        const spawnPos = this.gameManager.getMap().getPlayerSpawn();
+        this.x = spawnPos.c * CELL_SIZE;
+        this.y = spawnPos.r * CELL_SIZE;
         this.direction = Direction.UP;
         this.grade = TankGrade.BASIC;
         this.isMax = false;

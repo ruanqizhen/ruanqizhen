@@ -133,7 +133,7 @@ export class PowerUpSystem {
         const player = this.gameManager.getPlayer();
         this.gameManager.getSoundManager().playPowerUp();
 
-        // this.gameManager.addScore(500); // PRD score for powerups usually 500
+        this.gameManager.addScore(500);
 
         switch (pu.type) {
             case PowerUpType.HELMET:
@@ -147,9 +147,13 @@ export class PowerUpSystem {
                 this.applyBaseReinforcement(2); // 2 = STEEL
                 break;
             case PowerUpType.BOMB:
-                const enemies = this.gameManager.getEntities().filter((e: any) => e.faction === TankFaction.ENEMY);
+                const enemies = this.gameManager.getEntities().filter((e: any) =>
+                    e.faction === TankFaction.ENEMY && !e.isDead && (e as any).hasSpawned !== false
+                );
                 enemies.forEach((e: any) => {
                     // Trigger explosion effects
+                    this.gameManager.getParticleSystem().emitExplosion(e.x + e.w / 2, e.y + e.h / 2, 30, '#f55');
+                    this.gameManager.getSoundManager().playExplosion();
                     e.isDead = true;
                 });
                 break;
@@ -225,17 +229,25 @@ export class PowerUpSystem {
 
     private applyBaseReinforcement(type: number) {
         const map = this.gameManager.getMap();
-        // Base is at 36, 14 and 36, 15 and 37, 14 and 37, 15 (2x2)
-        // Surrounding tiles:
-        const coords = [
-            [35, 13], [35, 14], [35, 15], [35, 16],
-            [36, 13], [36, 16],
-            [37, 13], [37, 16]
-        ];
+        const coordsSet = new Set<string>();
 
-        coords.forEach(([r, c]) => {
+        map.baseCoords.forEach(bc => {
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    const nr = bc.r + dr;
+                    const nc = bc.c + dc;
+                    // Ignore tiles that are the base itself
+                    if (!map.baseCoords.some(b => b.r === nr && b.c === nc)) {
+                        coordsSet.add(`${nr},${nc}`);
+                    }
+                }
+            }
+        });
+
+        coordsSet.forEach(coordStr => {
+            const [r, c] = coordStr.split(',').map(Number);
             if (map.terrain[r] && map.terrain[r][c] !== undefined) {
-                // only replace if it's empty, brick, or steel. Don't replace water if standard design, but retro usually replaces all.
+                // To avoid breaking water/ice arbitrarily in Yanshan edition, we generally just replace it anyway for reinforcement
                 map.terrain[r][c] = type;
                 if (type === 1) map.brickMasks.set(`${c},${r}`, 0b1111);
                 else map.brickMasks.delete(`${c},${r}`);
@@ -249,12 +261,22 @@ export class PowerUpSystem {
 
     private destroyBaseWalls() {
         const map = this.gameManager.getMap();
-        const coords = [
-            [35, 13], [35, 14], [35, 15], [35, 16],
-            [36, 13], [36, 16],
-            [37, 13], [37, 16]
-        ];
-        coords.forEach(([r, c]) => {
+        const coordsSet = new Set<string>();
+
+        map.baseCoords.forEach(bc => {
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    const nr = bc.r + dr;
+                    const nc = bc.c + dc;
+                    if (!map.baseCoords.some(b => b.r === nr && b.c === nc)) {
+                        coordsSet.add(`${nr},${nc}`);
+                    }
+                }
+            }
+        });
+
+        coordsSet.forEach(coordStr => {
+            const [r, c] = coordStr.split(',').map(Number);
             if (map.terrain[r] && map.terrain[r][c] !== undefined) {
                 map.terrain[r][c] = 0; // empty
                 map.brickMasks.delete(`${c},${r}`);
