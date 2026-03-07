@@ -132,10 +132,9 @@ export class PlayerTank extends Tank {
                     this.dragOffset = { x: cx - mx, y: cy - my };
                     this.dragTarget = { x: cx, y: cy };
                 } else {
-                    this.isDragging = false;
+                    // Clicked elsewhere on map. Start auto-shooting, but DON'T clear dragging!
                     this.isAutoShooting = true;
-                    this.dragTarget = null;
-                    this.dragOffset = null;
+                    // If we weren't already dragging something, there's no active drag target anyway.
                 }
             } else if (this.isDragging && this.dragOffset) {
                 this.dragTarget = { x: mx + this.dragOffset.x, y: my + this.dragOffset.y };
@@ -222,8 +221,8 @@ export class PlayerTank extends Tank {
             }
         }
 
-        // 3.5 Auto-align if no input
-        if (!wantsToMove) {
+        // 3.5 Auto-align if no input and NOT actively holding a drag position
+        if (!wantsToMove && !this.isDragging) {
             if (!aligned) {
                 // Force movement to finish snapping
                 wantsToMove = true;
@@ -251,7 +250,7 @@ export class PlayerTank extends Tank {
         }
 
         // 4. Mouse Auto Shooting Setup
-        if (!wantsToMove && this.isAutoShooting) {
+        if (this.isAutoShooting) {
             const mx = mousePos.x - BATTLE_AREA_X;
             const my = mousePos.y - BATTLE_AREA_Y;
             const cx = this.x + this.w / 2;
@@ -270,10 +269,15 @@ export class PlayerTank extends Tank {
             }
 
             if (this.direction !== targetDir) {
-                // If not facing, turn
-                this.direction = targetDir;
+                // If not facing, turn FIRST, do NOT shoot this frame.
+                // We overwrite intendedDirection so the physical movement step below turns us instead
+                intendedDirection = targetDir;
+                // Force a move evaluation so the turn actually processes
+                wantsToMove = true;
+            } else {
+                wantsToShoot = true; // Only attempt to fire if already facing the target
+                // Tank can continue moving in its dragged direction while shooting
             }
-            wantsToShoot = true; // Attempt to fire
         }
 
         if (wantsToMove) {
