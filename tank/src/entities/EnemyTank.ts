@@ -187,50 +187,134 @@ export class EnemyTank extends Tank {
         return null;
     }
 
+    /** Returns the best axis-aligned direction to move toward a target pixel position */
+    private getDirectionToward(targetX: number, targetY: number): Direction {
+        const cx = this.x + this.w / 2;
+        const cy = this.y + this.h / 2;
+        const dx = targetX - cx;
+        const dy = targetY - cy;
+
+        // Prefer the axis with the larger delta
+        if (Math.abs(dx) > Math.abs(dy)) {
+            return dx > 0 ? Direction.RIGHT : Direction.LEFT;
+        } else {
+            return dy > 0 ? Direction.DOWN : Direction.UP;
+        }
+    }
+
+    /** Find the closest power-up on the map and return direction toward it, or null */
+    private getPowerUpDirection(): Direction | null {
+        const powerUps = this.gameManager.getPowerUpSystem().getPowerUps().filter(p => !p.isDead);
+        if (powerUps.length === 0) return null;
+
+        const cx = this.x + this.w / 2;
+        const cy = this.y + this.h / 2;
+
+        let closest = powerUps[0];
+        let closestDist = Infinity;
+        for (const pu of powerUps) {
+            const d = Math.abs(pu.x - cx) + Math.abs(pu.y - cy); // Manhattan distance
+            if (d < closestDist) {
+                closestDist = d;
+                closest = pu;
+            }
+        }
+
+        return this.getDirectionToward(closest.x + closest.w / 2, closest.y + closest.h / 2);
+    }
+
+    /** Get direction toward the base center */
+    private getBaseDirection(): Direction {
+        const baseCoords = this.gameManager.getMap().baseCoords;
+        if (baseCoords.length === 0) {
+            return Direction.DOWN; // fallback
+        }
+        const avgC = baseCoords.reduce((s, b) => s + b.c, 0) / baseCoords.length;
+        const avgR = baseCoords.reduce((s, b) => s + b.r, 0) / baseCoords.length;
+        const baseX = (avgC + 0.5) * CELL_SIZE;
+        const baseY = (avgR + 0.5) * CELL_SIZE;
+        return this.getDirectionToward(baseX, baseY);
+    }
+
+    /** Check if the player is within a given pixel distance */
+    private isPlayerNearby(range: number): boolean {
+        const player = this.gameManager.getPlayer();
+        if (!player || player.isDead) return false;
+        const dx = (player.x + player.w / 2) - (this.x + this.w / 2);
+        const dy = (player.y + player.h / 2) - (this.y + this.h / 2);
+        return Math.abs(dx) + Math.abs(dy) < range;
+    }
+
     private updateAI() {
         const aligned = this.isAlignedToGrid();
         const losDir = this.getLineOfSightDirection();
 
+        // ── Priority 1: Player in line of sight — shoot or turn to shoot ──
         if (losDir !== null) {
             if (this.direction === losDir) {
-                // [P1] Line of sight shooting
                 if (aligned) {
                     this.shoot();
                 }
             } else if (aligned) {
-                // [P2] Line of sight moving
                 this.snapToGrid();
                 this.direction = losDir;
-                this.stuckFrames = 0; // reset stuck when locking on player
+                this.stuckFrames = 0;
             }
-        } else {
-            // [P3] Powerup Targeting (Skipped until Powerups are added)
-
-            // [P4] Stuck navigation & [P5] Default wandering
+        }
+        // ── Priority 2: Player nearby (~200px) — chase the player ──
+        else if (this.isPlayerNearby(200) && aligned) {
+            const player = this.gameManager.getPlayer();
+            const chaseDir = this.getDirectionToward(
+                player.x + player.w / 2, player.y + player.h / 2
+            );
+            if (this.direction !== chaseDir) {
+                this.snapToGrid();
+                this.direction = chaseDir;
+                this.stuckFrames = 0;
+            }
+        }
+        // ── Priority 3: Power-up on map — go pick it up ──
+        else if (aligned && this.getPowerUpDirection() !== null) {
+            const puDir = this.getPowerUpDirection()!;
+            if (this.direction !== puDir) {
+                this.snapToGrid();
+                this.direction = puDir;
+                this.stuckFrames = 0;
+            }
+        }
+        // ── Priority 4: Head toward the base ──
+        else {
+            // Stuck navigation & random wandering
             this.randomTurnTimer--;
-            let shouldTurnRandomly = false;
+            let shouldTurn = false;
 
             if (this.stuckFrames >= 3) {
-                // [P4]
-                shouldTurnRandomly = true;
+                shouldTurn = true;
             } else if (this.randomTurnTimer <= 0) {
-                // [P5]
                 this.randomTurnTimer = 180;
-                if (Math.random() < 0.3) {
-                    shouldTurnRandomly = true;
+                // 70% chance: head toward base; 30% chance: random turn for variety
+                if (Math.random() < 0.7 && aligned) {
+                    this.snapToGrid();
+                    this.direction = this.getBaseDirection();
+                    this.stuckFrames = 0;
+                } else if (Math.random() < 0.5) {
+                    shouldTurn = true;
                 }
             }
 
-            if (shouldTurnRandomly) {
+            if (shouldTurn) {
                 if (aligned) {
                     this.snapToGrid();
-                    // Pick a new direction from the remaining 3
                     const dirs = [Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT]
                         .filter(d => d !== this.direction);
-                    this.direction = dirs[Math.floor(Math.random() * dirs.length)];
+                    // Bias: 50% chance to pick base direction, 50% truly random
+                    if (Math.random() < 0.5) {
+                        this.direction = this.getBaseDirection();
+                    } else {
+                        this.direction = dirs[Math.floor(Math.random() * dirs.length)];
+                    }
                     this.stuckFrames = 0;
                 } else if (this.stuckFrames > 30) {
-                    // if terribly stuck and off-grid (e.g. tank collision), force snap and turn
                     this.snapToGrid();
                     const dirs = [Direction.UP, Direction.DOWN, Direction.LEFT, Direction.RIGHT]
                         .filter(d => d !== this.direction);
@@ -240,11 +324,7 @@ export class EnemyTank extends Tank {
             }
         }
 
-        // We snap to grid only when changing direction, or let collision handle it?
-        // Actually it's better to only let them turn smoothly or snap them, but Map handles slip anyway.
-        // Wait, collision resolution allows smooth enough turning since tanks are smaller than two cells.
-
-        // Calculate intended movement
+        // ── Movement execution ──
         let dx = 0; let dy = 0;
         let moveSpeed = this.speed;
         // Apply speed boost from reverse Clock power-up
@@ -268,8 +348,8 @@ export class EnemyTank extends Tank {
         this.x += res.dx;
         this.y += res.dy;
 
-        // Ensure random shooting happens very rarely if not locked on
-        if (aligned && Math.random() < 0.01) {
+        // Random shooting when no line of sight (rare)
+        if (aligned && Math.random() < 0.015) {
             this.shoot();
         }
     }

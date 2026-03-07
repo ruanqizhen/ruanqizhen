@@ -38,225 +38,70 @@ const parseMap = (mapStr: string): number[][] => {
     return mapStr.trim().split('\n').map(r => r.trim().split('').map(n => parseInt(n, 10)));
 };
 
-export const LEVEL_01: LevelConfig = {
-    stageNumber: 1,
-    totalEnemies: 2,
-    spawnInterval: 200,
-    maxOnScreen: 4,
-    enemyDistribution: { basic: 20, fast: 0, power: 0, armor: 0 },
-    flashingEnemyIndices: [3, 7, 11],
-    mapData: parseMap(level01Map)
-};
-
-export const LEVEL_02: LevelConfig = {
-    stageNumber: 2,
-    totalEnemies: 2,
-    spawnInterval: 180,
-    maxOnScreen: 5,
-    enemyDistribution: { basic: 15, fast: 5, power: 0, armor: 0 },
-    flashingEnemyIndices: [3, 7, 11],
-    mapData: parseMap(level02Map)
-};
-
-export const LEVEL_03: LevelConfig = {
-    stageNumber: 3,
-    totalEnemies: 2,
-    spawnInterval: 160,
-    maxOnScreen: 6,
-    enemyDistribution: { basic: 10, fast: 5, power: 3, armor: 2 },
-    flashingEnemyIndices: [3, 7, 11],
-    mapData: parseMap(level03Map)
-};
-
-export const LEVEL_04: LevelConfig = {
-    stageNumber: 4,
-    totalEnemies: 2,
-    spawnInterval: 140,
-    maxOnScreen: 7,
-    enemyDistribution: { basic: 5, fast: 5, power: 5, armor: 5 },
-    flashingEnemyIndices: [3, 7, 11],
-    mapData: parseMap(level04Map)
-};
-
-export const LEVEL_05: LevelConfig = {
-    stageNumber: 5,
-    totalEnemies: 20,
-    spawnInterval: 120,
-    maxOnScreen: 8,
-    enemyDistribution: { basic: 2, fast: 3, power: 7, armor: 8 },
-    flashingEnemyIndices: [3, 7, 11, 15],
-    mapData: parseMap(level05Map)
-};
-
-export const LEVEL_06: LevelConfig = {
-    stageNumber: 6,
-    totalEnemies: 21,
-    spawnInterval: 150,
-    maxOnScreen: 7,
-    enemyDistribution: { basic: 3, fast: 4, power: 6, armor: 8 },
-    flashingEnemyIndices: [3, 7, 11, 15],
-    mapData: parseMap(level06Map)
-};
-
-export const LEVEL_07: LevelConfig = {
-    stageNumber: 7,
-    totalEnemies: 22,
-    spawnInterval: 140,
-    maxOnScreen: 7,
-    enemyDistribution: { basic: 4, fast: 4, power: 6, armor: 8 },
-    flashingEnemyIndices: [3, 7, 11, 15],
-    mapData: parseMap(level07Map)
-};
-
-export const LEVEL_08: LevelConfig = {
-    stageNumber: 8,
-    totalEnemies: 23,
-    spawnInterval: 130,
-    maxOnScreen: 8,
-    enemyDistribution: { basic: 4, fast: 4, power: 6, armor: 9 },
-    flashingEnemyIndices: [3, 7, 11, 15],
-    mapData: parseMap(level08Map)
-};
-
-export const LEVEL_09: LevelConfig = {
-    stageNumber: 9,
-    totalEnemies: 24,
-    spawnInterval: 120,
-    maxOnScreen: 8,
-    enemyDistribution: { basic: 4, fast: 4, power: 7, armor: 9 },
-    flashingEnemyIndices: [3, 7, 11, 15],
-    mapData: parseMap(level09Map)
-};
-
-export const LEVEL_10: LevelConfig = {
-    stageNumber: 10,
-    totalEnemies: 25,
-    spawnInterval: 110,
-    maxOnScreen: 9,
-    enemyDistribution: { basic: 3, fast: 3, power: 7, armor: 12 },
-    flashingEnemyIndices: [3, 7, 11, 15, 19],
-    mapData: parseMap(level10Map)
-};
-
-export const LEVEL_11: LevelConfig = {
-    stageNumber: 11,
-    totalEnemies: 26,
-    spawnInterval: 100,
-    maxOnScreen: 9,
-    enemyDistribution: { basic: 3, fast: 3, power: 7, armor: 13 },
-    flashingEnemyIndices: [3, 7, 11, 15, 19],
-    mapData: parseMap(level11Map)
-};
-
-export const LEVEL_12: LevelConfig = {
-    stageNumber: 12,
-    totalEnemies: 27,
-    spawnInterval: 90,
-    maxOnScreen: 10,
-    enemyDistribution: { basic: 2, fast: 4, power: 8, armor: 13 },
-    flashingEnemyIndices: [3, 7, 11, 15, 19],
-    mapData: parseMap(level12Map)
-};
-
-export const LEVEL_13: LevelConfig = {
-    stageNumber: 13,
-    totalEnemies: 28,
-    spawnInterval: 80,
-    maxOnScreen: 10,
-    enemyDistribution: { basic: 2, fast: 4, power: 8, armor: 14 },
-    flashingEnemyIndices: [3, 7, 11, 15, 19],
-    mapData: parseMap(level13Map)
-};
-
-export const LEVEL_14: LevelConfig = {
-    stageNumber: 14,
-    totalEnemies: 29,
-    spawnInterval: 70,
-    maxOnScreen: 11,
-    enemyDistribution: { basic: 3, fast: 4, power: 8, armor: 14 },
-    flashingEnemyIndices: [3, 7, 11, 15, 19],
-    mapData: parseMap(level14Map)
-};
-
-export const LEVEL_15: LevelConfig = {
-    stageNumber: 15,
-    totalEnemies: 30,
-    spawnInterval: 60,
-    maxOnScreen: 11,
-    enemyDistribution: { basic: 0, fast: 3, power: 9, armor: 18 },
-    flashingEnemyIndices: [3, 7, 11, 15, 19, 23],
-    mapData: parseMap(level15Map)
-};
-
-export const LEVEL_16: LevelConfig = {
-    stageNumber: 16,
-    totalEnemies: 31,
-    spawnInterval: 60,
-    maxOnScreen: 12,
-    enemyDistribution: { basic: 1, fast: 3, power: 9, armor: 18 },
-    flashingEnemyIndices: [3, 7, 11, 15, 19, 23],
-    mapData: parseMap(level16Map)
-};
-
-export const LEVEL_17: LevelConfig = {
-    stageNumber: 17,
-    totalEnemies: 32,
-    spawnInterval: 60,
-    maxOnScreen: 12,
-    enemyDistribution: { basic: 1, fast: 3, power: 9, armor: 19 },
-    flashingEnemyIndices: [3, 7, 11, 15, 19, 23],
-    mapData: parseMap(level17Map)
-};
-
-export const LEVEL_18: LevelConfig = {
-    stageNumber: 18,
-    totalEnemies: 33,
-    spawnInterval: 60,
-    maxOnScreen: 13,
-    enemyDistribution: { basic: 2, fast: 3, power: 9, armor: 19 },
-    flashingEnemyIndices: [3, 7, 11, 15, 19, 23],
-    mapData: parseMap(level18Map)
-};
-
-export const LEVEL_19: LevelConfig = {
-    stageNumber: 19,
-    totalEnemies: 34,
-    spawnInterval: 60,
-    maxOnScreen: 13,
-    enemyDistribution: { basic: 1, fast: 3, power: 10, armor: 20 },
-    flashingEnemyIndices: [3, 7, 11, 15, 19, 23],
-    mapData: parseMap(level19Map)
-};
-
-export const LEVEL_20: LevelConfig = {
-    stageNumber: 20,
-    totalEnemies: 35,
-    spawnInterval: 60,
-    maxOnScreen: 14,
-    enemyDistribution: { basic: 1, fast: 3, power: 10, armor: 21 },
-    flashingEnemyIndices: [3, 7, 11, 15, 19, 23, 27],
-    mapData: parseMap(level20Map)
-};
-
-export const LEVELS: LevelConfig[] = [
-    LEVEL_01,
-    LEVEL_02,
-    LEVEL_03,
-    LEVEL_04,
-    LEVEL_05,
-    LEVEL_06,
-    LEVEL_07,
-    LEVEL_08,
-    LEVEL_09,
-    LEVEL_10,
-    LEVEL_11,
-    LEVEL_12,
-    LEVEL_13,
-    LEVEL_14,
-    LEVEL_15,
-    LEVEL_16,
-    LEVEL_17,
-    LEVEL_18,
-    LEVEL_19,
-    LEVEL_20
+// All map data indexed by stage (0-based)
+const MAP_DATA: string[] = [
+    level01Map, level02Map, level03Map, level04Map, level05Map,
+    level06Map, level07Map, level08Map, level09Map, level10Map,
+    level11Map, level12Map, level13Map, level14Map, level15Map,
+    level16Map, level17Map, level18Map, level19Map, level20Map,
 ];
+
+/**
+ * Dynamically generate a LevelConfig from the stage number (1-based).
+ *
+ * - totalEnemies:  linearly increases from  5 (stage 1)  to  30 (stage 20), clamped [5, 30]
+ * - maxOnScreen:   linearly increases from  3 (stage 1)  to  15 (stage 20), clamped [3, 15]
+ * - spawnInterval: linearly decreases from 200 (stage 1) to  60 (stage 20), clamped [60, 200]
+ * - enemyDistribution: armor & power ratios grow with stage, basic shrinks
+ * - flashingEnemyIndices: randomly generated, count grows with stage
+ */
+function generateLevelConfig(stage: number, mapStr: string): LevelConfig {
+    // ── clamp helper ──
+    const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+
+    // ── progress ratio 0..1 across 20 stages ──
+    const t = clamp((stage - 1) / 19, 0, 1);
+
+    // ── core scalars ──
+    const totalEnemies = clamp(Math.round(5 + t * 25), 5, 30);
+    const maxOnScreen = clamp(Math.round(3 + t * 12), 3, 15);
+    const spawnInterval = clamp(Math.round(200 - t * 140), 60, 200);
+
+    // ── enemy distribution (ratios shift toward harder types) ──
+    //  basic:  60% → 5%   fast: 20% → 10%   power: 15% → 30%   armor: 5% → 55%
+    const basicRatio = 0.60 - t * 0.55;   // 0.60 → 0.05
+    const fastRatio = 0.20 - t * 0.10;   // 0.20 → 0.10
+    const powerRatio = 0.15 + t * 0.15;   // 0.15 → 0.30
+    // armor gets the remainder
+
+    const basic = Math.max(0, Math.round(totalEnemies * basicRatio));
+    const fast = Math.max(0, Math.round(totalEnemies * fastRatio));
+    const power = Math.max(0, Math.round(totalEnemies * powerRatio));
+    const armor = Math.max(0, totalEnemies - basic - fast - power);
+
+    // ── flashing enemy indices (random, count grows with stage) ──
+    const flashCount = clamp(Math.floor(2 + t * 6), 2, 8);
+    const flashSet = new Set<number>();
+    let attempts = 0;
+    while (flashSet.size < flashCount && attempts < 100) {
+        // Pick a random index in [1, totalEnemies-1] — avoid index 0 (first spawn)
+        flashSet.add(1 + Math.floor(Math.random() * (totalEnemies - 1)));
+        attempts++;
+    }
+    const flashingEnemyIndices = Array.from(flashSet).sort((a, b) => a - b);
+
+    return {
+        stageNumber: stage,
+        totalEnemies,
+        spawnInterval,
+        maxOnScreen,
+        enemyDistribution: { basic, fast, power, armor },
+        flashingEnemyIndices,
+        mapData: parseMap(mapStr),
+    };
+}
+
+// Build all 20 levels
+export const LEVELS: LevelConfig[] = MAP_DATA.map((mapStr, i) =>
+    generateLevelConfig(i + 1, mapStr)
+);

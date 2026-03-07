@@ -11,6 +11,7 @@ export class PowerUpSystem {
     public clockTimer: number = 0;
     public shovelTimer: number = 0;
     public enemySpeedBoostTimer: number = 0;
+    public getPowerUps() { return this.powerups; }
 
     constructor(gameManager: GameManager) {
         this.gameManager = gameManager;

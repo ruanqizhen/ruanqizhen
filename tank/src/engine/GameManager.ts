@@ -72,6 +72,11 @@ export class GameManager {
         if (savedScore) {
             this.highScore = parseInt(savedScore, 10) || 0;
         }
+        // Sync the main menu high score display
+        const hiScoreEl = document.getElementById('main-high-score-val');
+        if (hiScoreEl) {
+            hiScoreEl.innerText = this.highScore.toString();
+        }
 
         // Initialization done in resetGame
         this.resetGame();
