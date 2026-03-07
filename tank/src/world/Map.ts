@@ -51,37 +51,60 @@ export class MapTerrain {
     }
 
     public getPlayerSpawn(): { r: number, c: number } {
+        // Helper: check if a 2x2 area starting at (r,c) is passable (type 0, 3, or 5)
+        const isSpawnable = (r: number, c: number): boolean => {
+            if (r < 0 || c < 0 || r + 1 >= GRID_ROWS || c + 1 >= GRID_COLS) return false;
+            const ok = (t: number) => t === 0 || t === 3 || t === 5;
+            return ok(this.terrain[r][c]) && ok(this.terrain[r][c + 1]) &&
+                ok(this.terrain[r + 1][c]) && ok(this.terrain[r + 1][c + 1]);
+        };
+
+        // Determine preferred spawn position near the base
+        let prefR = 36, prefC = 11; // ultimate fallback
         if (this.baseCoords.length > 0) {
             const minC = Math.min(...this.baseCoords.map(b => b.c));
             const minR = Math.min(...this.baseCoords.map(b => b.r));
             const maxC = Math.max(...this.baseCoords.map(b => b.c));
 
-            // Try left side first (3 tiles away)
-            if (minC >= 3) {
-                return { r: minR, c: minC - 3 };
-            }
-            // Try right side (2 tiles away from right edge of base)
-            if (maxC <= GRID_COLS - 4) {
-                return { r: minR, c: maxC + 2 };
-            }
-            // Try top
-            if (minR >= 3) {
-                return { r: minR - 3, c: minC };
-            }
-            return { r: minR, c: minC }; // Fallback
+            if (minC >= 3) { prefR = minR; prefC = minC - 3; }
+            else if (maxC <= GRID_COLS - 4) { prefR = minR; prefC = maxC + 2; }
+            else if (minR >= 3) { prefR = minR - 3; prefC = minC; }
+            else { prefR = minR; prefC = minC; }
         }
-        return { r: 36, c: 11 }; // Ultimate fallback
+
+        // If preferred position is clear, use it
+        if (isSpawnable(prefR, prefC)) {
+            return { r: prefR, c: prefC };
+        }
+
+        // Otherwise spiral outward to find the nearest clear 2x2 area
+        for (let radius = 1; radius < 15; radius++) {
+            for (let dr = -radius; dr <= radius; dr++) {
+                for (let dc = -radius; dc <= radius; dc++) {
+                    if (Math.abs(dr) !== radius && Math.abs(dc) !== radius) continue; // only check perimeter
+                    const nr = prefR + dr;
+                    const nc = prefC + dc;
+                    if (isSpawnable(nr, nc)) {
+                        return { r: nr, c: nc };
+                    }
+                }
+            }
+        }
+
+        // Absolute fallback — return preferred even if blocked (collision system will push out)
+        return { r: prefR, c: prefC };
     }
 
     public getEnemySpawn(entities: any[]): { r: number, c: number } | null {
         const candidates: { r: number, c: number }[] = [];
-        const minBaseDistSq = 20 * 20; // At least 20 cells away from any base block
+        const minBaseDistSq = 400; // 20 cells squared
 
         for (let r = 0; r <= GRID_ROWS - 2; r++) {
             for (let c = 0; c <= GRID_COLS - 2; c++) {
-                // Must be purely empty 2x2 space
-                if (this.terrain[r][c] !== 0 || this.terrain[r][c + 1] !== 0 ||
-                    this.terrain[r + 1][c] !== 0 || this.terrain[r + 1][c + 1] !== 0) {
+                // Must be passable 2x2 space (empty, forest, or ice)
+                const isPassable = (t: number) => t === 0 || t === 3 || t === 5;
+                if (!isPassable(this.terrain[r][c]) || !isPassable(this.terrain[r][c + 1]) ||
+                    !isPassable(this.terrain[r + 1][c]) || !isPassable(this.terrain[r + 1][c + 1])) {
                     continue;
                 }
 
@@ -126,7 +149,9 @@ export class MapTerrain {
     }
 
     public getTerrainType(r: number, c: number): number {
-        return this.terrain[r]?.[c] || 0;
+        // Explicit bounds check: out of bounds is as impassable as steel
+        if (r < 0 || r >= GRID_ROWS || c < 0 || c >= GRID_COLS) return 2;
+        return this.terrain[r][c];
     }
 
     private hasSameType(r: number, c: number, type: number, dr: number, dc: number): boolean {
