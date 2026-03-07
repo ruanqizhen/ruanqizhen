@@ -345,15 +345,12 @@ export class MapTerrain {
                             ctx.fill();
                         };
 
-                        // Draw regular grid pattern of small rivets on steel plates
-                        // We will place 4 rivets in a 2x2 grid if the block is inside
-                        const showInnerRivets = prng(r * 4 + c * 8) > 0.3; // 70% chance to show inner rivets to keep it clean
-                        if (showInnerRivets) {
-                            drawRivet(x + CELL_SIZE * 0.3, y + CELL_SIZE * 0.3);
-                            drawRivet(x + CELL_SIZE * 0.7, y + CELL_SIZE * 0.3);
-                            drawRivet(x + CELL_SIZE * 0.3, y + CELL_SIZE * 0.7);
-                            drawRivet(x + CELL_SIZE * 0.7, y + CELL_SIZE * 0.7);
-                        }
+                        // Draw individual sparse rivets on steel plates
+                        // We will place up to 4 rivets in a 2x2 grid, but each only has a ~25% chance to appear
+                        if (prng(r * 11 + c * 7) > 0.75) drawRivet(x + CELL_SIZE * 0.3, y + CELL_SIZE * 0.3);
+                        if (prng(r * 13 + c * 5) > 0.75) drawRivet(x + CELL_SIZE * 0.7, y + CELL_SIZE * 0.3);
+                        if (prng(r * 17 + c * 3) > 0.75) drawRivet(x + CELL_SIZE * 0.3, y + CELL_SIZE * 0.7);
+                        if (prng(r * 19 + c * 2) > 0.75) drawRivet(x + CELL_SIZE * 0.7, y + CELL_SIZE * 0.7);
 
                         // Keep explicit corner rivets if corners are disconnected
                         if (!t && !l) drawRivet(x + 5.5, y + 5.5);

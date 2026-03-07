@@ -163,8 +163,8 @@ export abstract class Tank extends Entity {
         let bEdge = 'rgba(0, 0, 0, 0.5)';
         let tIn = 'rgba(0, 0, 0, 0.3)';
         let bIn = 'rgba(255, 255, 255, 0.4)';
-        let bL = 'rgba(255, 255, 255, 0.4)'; // Barrel Left highlight
-        let bR = 'rgba(0, 0, 0, 0.5)'; // Barrel Right shadow
+        let bL = 'rgba(255, 255, 255, 0.7)'; // Barrel Left highlight
+        let bR = 'rgba(0, 0, 0, 0.2)'; // Barrel Right shadow
 
         // Adjust shading based on orientation (light from screen Top-Left)
         if (this.direction === Direction.RIGHT) {
@@ -174,8 +174,8 @@ export abstract class Tank extends Entity {
             bEdge = 'rgba(255, 255, 255, 0.2)'; // Screen Left
             tIn = 'rgba(255, 255, 255, 0.4)';   // Target Right
             bIn = 'rgba(0, 0, 0, 0.3)';         // Target Left
-            bL = 'rgba(255, 255, 255, 0.4)';
-            bR = 'rgba(0, 0, 0, 0.5)';
+            bL = 'rgba(255, 255, 255, 0.7)';
+            bR = 'rgba(0, 0, 0, 0.2)';
         } else if (this.direction === Direction.DOWN) {
             lEdge = 'rgba(0, 0, 0, 0.5)';       // Screen Right (Shadow)
             rEdge = 'rgba(255, 255, 255, 0.2)'; // Screen Left
@@ -183,8 +183,8 @@ export abstract class Tank extends Entity {
             bEdge = 'rgba(255, 255, 255, 0.6)'; // Screen Top
             tIn = 'rgba(255, 255, 255, 0.4)';   // Target Bottom
             bIn = 'rgba(0, 0, 0, 0.3)';         // Target Top
-            bL = 'rgba(0, 0, 0, 0.5)';          // Barrel Left side (Actually Screen Right)
-            bR = 'rgba(255, 255, 255, 0.4)';    // Barrel Right side (Actually Screen Left)
+            bL = 'rgba(0, 0, 0, 0.2)';          // Barrel Left side (Actually Screen Right)
+            bR = 'rgba(255, 255, 255, 0.7)';    // Barrel Right side (Actually Screen Left)
         } else if (this.direction === Direction.LEFT) {
             lEdge = 'rgba(0, 0, 0, 0.5)';       // Screen Bottom 
             rEdge = 'rgba(255, 255, 255, 0.6)'; // Screen Top
@@ -192,8 +192,8 @@ export abstract class Tank extends Entity {
             bEdge = 'rgba(0, 0, 0, 0.5)';       // Screen Right
             tIn = 'rgba(0, 0, 0, 0.3)';         // Target Left 
             bIn = 'rgba(255, 255, 255, 0.4)';   // Target Right
-            bL = 'rgba(0, 0, 0, 0.5)';          // Barrel Left (Screen Bottom)
-            bR = 'rgba(255, 255, 255, 0.4)';    // Barrel Right (Screen Top)
+            bL = 'rgba(0, 0, 0, 0.2)';          // Barrel Left (Screen Bottom)
+            bR = 'rgba(255, 255, 255, 0.7)';    // Barrel Right (Screen Top)
         }
 
         // Track outer bevels (3D effect)
@@ -242,7 +242,7 @@ export abstract class Tank extends Entity {
         const barrelY = -h / 2 - 6;
 
         // Barrel base
-        ctx.fillStyle = '#667';
+        ctx.fillStyle = '#99a';
         ctx.fillRect(barrelX, barrelY, barrelW, barrelH);
 
         // Barrel cylindrical shading
@@ -252,7 +252,7 @@ export abstract class Tank extends Entity {
         ctx.fillRect(barrelX + barrelW * 0.7, barrelY, barrelW * 0.3, barrelH);
 
         // Muzzle brake
-        ctx.fillStyle = '#445';
+        ctx.fillStyle = '#778';
         ctx.fillRect(barrelX - 2, barrelY, barrelW + 4, 5);
         ctx.fillStyle = bL;
         ctx.fillRect(barrelX - 2, barrelY, (barrelW + 4) * 0.3, 5);

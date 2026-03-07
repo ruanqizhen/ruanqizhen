@@ -290,10 +290,10 @@ export class EnemyTank extends Tank {
             if (this.hitFlashActive) {
                 color = '#fff'; // White flash
             } else {
-                if (this.hp === 4) color = '#2a2'; // Green
-                else if (this.hp === 3) color = '#f80'; // Orange
-                else if (this.hp === 2) color = '#f22'; // Red
-                else color = '#fff'; // White
+                if (this.hp === 4) color = '#0066ff'; // Strong blue
+                else if (this.hp === 3) color = '#5577bb'; // Muted blue
+                else if (this.hp === 2) color = '#888899'; // Very faded blue
+                else color = '#aaaaaa'; // Plain gray
             }
         }
 
