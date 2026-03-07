@@ -136,7 +136,7 @@ export class PlayerTank extends Tank {
                     this.isAutoShooting = true;
                     // If we weren't already dragging something, there's no active drag target anyway.
                 }
-            } else if (this.isDragging && this.dragOffset) {
+            } else if (this.isDragging && this.dragOffset && !this.isAutoShooting) {
                 this.dragTarget = { x: mx + this.dragOffset.x, y: my + this.dragOffset.y };
             }
         } else {
@@ -269,26 +269,26 @@ export class PlayerTank extends Tank {
             }
 
             if (this.direction !== targetDir) {
-                // If not facing, turn FIRST, do NOT shoot this frame.
-                // We overwrite intendedDirection so the physical movement step below turns us instead
-                intendedDirection = targetDir;
-                // Force a move evaluation so the turn actually processes
-                wantsToMove = true;
+                // If not facing the click, rotate the tank chassis first. No shooting this frame.
+                this.direction = targetDir;
             } else {
-                wantsToShoot = true; // Only attempt to fire if already facing the target
-                // Tank can continue moving in its dragged direction while shooting
+                // We are locked onto the target direction. Proceed to shoot.
+                wantsToShoot = true;
             }
         }
 
         if (wantsToMove) {
-            if (this.direction !== intendedDirection) {
+            // Usually, tank must face the way it drives. But if auto-shooting, it can "slide" sideways
+            if (!this.isAutoShooting && this.direction !== intendedDirection) {
+                // Turn chassis to face travel direction. Consumes 1 frame (no movement).
                 this.direction = intendedDirection;
             } else {
+                // We are either properly aligned OR sliding sideways to shoot!
                 isMoving = true;
-                if (this.direction === Direction.UP) dy = -this.speed;
-                else if (this.direction === Direction.DOWN) dy = this.speed;
-                else if (this.direction === Direction.LEFT) dx = -this.speed;
-                else if (this.direction === Direction.RIGHT) dx = this.speed;
+                if (intendedDirection === Direction.UP) dy = -this.speed;
+                else if (intendedDirection === Direction.DOWN) dy = this.speed;
+                else if (intendedDirection === Direction.LEFT) dx = -this.speed;
+                else if (intendedDirection === Direction.RIGHT) dx = this.speed;
             }
         }
 
