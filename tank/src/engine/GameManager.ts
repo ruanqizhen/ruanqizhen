@@ -30,7 +30,7 @@ export class GameManager {
     private gameLoop: GameLoop;
     private state: GameState = GameState.BOOT;
     private stateTimer: number = 0;
-    public currentStageIdx: number = 20;
+    public currentStageIdx: number = 0;
     public highScore: number = 0;
 
     private map!: MapTerrain;
@@ -59,8 +59,7 @@ export class GameManager {
         this.canvas.width = logicalWidth * dpr;
         this.canvas.height = logicalHeight * dpr;
         // Force the canvas back to the logical size via CSS
-        this.canvas.style.width = `${logicalWidth}px`;
-        this.canvas.style.height = `${logicalHeight}px`;
+        // Let CSS handle the visual scaling while keeping the coordinate system consistent
         // Normalize the coordinate system to use css pixels
         this.ctx.scale(dpr, dpr);
 
@@ -146,7 +145,7 @@ export class GameManager {
 
     public resetGame() {
         // currentStageIdx is 0-based
-        this.currentStageIdx = 20; // Set to Level 21 for testing
+        this.currentStageIdx = 0;
         this.map = new MapTerrain();
 
         // Cycle maps after level 20, but difficulty keeps increasing/capping

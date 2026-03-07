@@ -66,12 +66,10 @@ html {
 #game-container {
   position: relative;
   z-index: 1;
-  border-radius: 16px;
   overflow: hidden;
-  width: min(100vw, calc(100vh * 0.75));
+  /* Proportional scaling: fill most of vh or vw while maintaining 3:4 ratio */
+  width: min(95vw, calc(95vh * 0.75));
   aspect-ratio: 600 / 800;
-  max-width: 100vw;
-  max-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
