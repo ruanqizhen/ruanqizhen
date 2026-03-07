@@ -375,6 +375,160 @@ button:active {
   text-transform: uppercase;
 }
 
+/* ─── Button Group ─── */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  align-items: center;
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  padding: 10px 32px;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+}
+
+/* ─── Modal System ─── */
+.modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.4s ease;
+}
+
+.modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.1);
+}
+
+.modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 540px;
+  height: 85%;
+  background: var(--bg-color);
+  border: 1px solid var(--surface-border);
+  border-radius: 24px;
+  padding: 40px 30px;
+  overflow-y: auto;
+  box-shadow: 0 0 100px rgba(0, 0, 0, 0.8);
+}
+
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 24px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.modal-body h2 {
+  font-family: var(--font-display);
+  color: var(--primary);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.modal-body section {
+  margin-bottom: 32px;
+}
+
+.modal-body h3 {
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: var(--gold);
+  border-bottom: 1px solid var(--surface-border);
+  padding-bottom: 8px;
+}
+
+.help-grid {
+  display: grid;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.help-table {
+  background: var(--surface);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 0.85rem;
+}
+
+.help-table .row {
+  display: grid;
+  grid-template-columns: 80px 80px 1fr;
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.help-table .row.header {
+  background: rgba(255, 255, 255, 0.05);
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.help-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.help-items .item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 0.9rem;
+}
+
+.help-items .item span {
+  font-size: 1.4rem;
+  width: 30px;
+  text-align: center;
+}
+
+.warning {
+  padding: 15px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(255, 51, 102, 0.3);
+  border-radius: 12px;
+  font-size: 0.85rem;
+  color: #ffcad8;
+}
+
 /* ─── Responsive ─── */
 @media (max-width: 480px) {
   h1 {
@@ -403,5 +557,23 @@ button:active {
   .key {
     font-size: 0.6rem;
     padding: 2px 6px;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .modal-content {
+    padding: 30px 20px;
+  }
+
+  .help-table .row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .help-table .row span:last-child {
+    grid-column: span 2;
+    margin-top: 5px;
+    color: rgba(255, 255, 255, 0.6);
   }
 }

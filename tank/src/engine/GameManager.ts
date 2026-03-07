@@ -97,6 +97,32 @@ export class GameManager {
                 }
             });
         }
+
+        // Help Modal toggle
+        const helpBtn = document.getElementById('help-btn');
+        const helpModal = document.getElementById('help-modal');
+        const closeHelp = document.getElementById('close-help');
+
+        if (helpBtn && helpModal) {
+            helpBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                helpModal.classList.remove('hidden');
+            });
+        }
+
+        if (closeHelp && helpModal) {
+            closeHelp.addEventListener('click', () => {
+                helpModal.classList.add('hidden');
+            });
+        }
+
+        if (helpModal) {
+            helpModal.addEventListener('click', (e) => {
+                if (e.target === helpModal) {
+                    helpModal.classList.add('hidden');
+                }
+            });
+        }
     }
 
     public start() {

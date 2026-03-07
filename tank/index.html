@@ -27,24 +27,73 @@
         <div class="high-score-display">
           高分记录: <span id="main-high-score-val">0</span>
         </div>
-        <button id="start-btn">
-          <span class="btn-text">开始游戏</span>
-          <span class="btn-glow"></span>
-        </button>
+        <div class="button-group">
+          <button id="start-btn">
+            <span class="btn-text">开始游戏</span>
+            <span class="btn-glow"></span>
+          </button>
+          <button id="help-btn" class="secondary-btn">
+            <span class="btn-text">游戏帮助</span>
+          </button>
+        </div>
         <div class="instructions">
           <div class="control-group">
-            <span class="key">WASD / ↑↓←→</span> 移动坦克
+            <span class="key">WASD / ↑↓←→</span> 移动
           </div>
           <div class="control-group">
-            <span class="key">鼠标拖拽 / 触屏拖拽</span> 移动坦克
-          </div>
-          <div class="control-group">
-            <span class="key">空格 / 鼠标点击 / 触屏点击</span> 射击
+            <span class="key">空格 / 点击</span> 射击
           </div>
         </div>
         <a href="https://qizhen.xyz/" target="_blank" class="personal-link">
           <span>🌐</span> 访问我的个人主页
         </a>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal hidden">
+      <div class="modal-content">
+        <button id="close-help" class="close-btn">&times;</button>
+        <div class="modal-body">
+          <h2>游戏指南</h2>
+
+          <section>
+            <h3>🎮 操作说明</h3>
+            <div class="help-grid">
+              <div class="help-item"><strong>移动:</strong> W/A/S/D 或 方向键 / 鼠标拖拽</div>
+              <div class="help-item"><strong>射击:</strong> 空格键 / Z 键 / 鼠标点击</div>
+              <div class="help-item"><strong>暂停:</strong> P 键 或 Esc 键</div>
+            </div>
+          </section>
+
+          <section>
+            <h3>🚀 坦克等级</h3>
+            <div class="help-table">
+              <div class="row header"><span>类型</span><span>速度</span><span>特点</span></div>
+              <div class="row"><span>基础型</span><span>★☆☆</span><span>由于轻便，最为常见</span></div>
+              <div class="row"><span>快速型</span><span>★★★</span><span>移动极快，难以瞄准</span></div>
+              <div class="row"><span>强力型</span><span>★☆☆</span><span>双倍火力，射速极快</span></div>
+              <div class="row"><span>重甲型</span><span>★☆☆</span><span>拥有 4 点生命值值</span></div>
+            </div>
+          </section>
+
+          <section>
+            <h3>🎁 战地道具</h3>
+            <div class="help-items">
+              <div class="item"><span>⭐</span> 强化坦克至最高等级 (手枪级)</div>
+              <div class="item"><span>🔫</span> 获得击穿钢板的能力</div>
+              <div class="item"><span>❤️</span> 增加 1 条生命</div>
+              <div class="item"><span>⛏️</span> 基地围墙变为 20 秒坚硬钢墙</div>
+              <div class="item"><span>🛡️</span> 获得 10 秒无敌护盾</div>
+              <div class="item"><span>⏰</span> 定住所有敌方坦克 10 秒</div>
+              <div class="item"><span>💣</span> 立即炸毁场上所有敌人</div>
+            </div>
+          </section>
+
+          <section class="warning">
+            <p>⚠️ 注意：烟山版特性 —— <strong>敌人也可以拾取道具</strong>，并会对你产生不利影响（如扣除生命、降级等）！</p>
+          </section>
+        </div>
       </div>
     </div>
     <canvas id="gameCanvas" width="600" height="800"></canvas>
