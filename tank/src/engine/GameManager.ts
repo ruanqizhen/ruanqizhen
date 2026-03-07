@@ -30,7 +30,7 @@ export class GameManager {
     private gameLoop: GameLoop;
     private state: GameState = GameState.BOOT;
     private stateTimer: number = 0;
-    public currentStageIdx: number = 0;
+    public currentStageIdx: number = 20;
     public highScore: number = 0;
 
     private map!: MapTerrain;
@@ -145,19 +145,24 @@ export class GameManager {
     public schedulePlayerRespawn() { this.player.respawn(); }
 
     public resetGame() {
-        this.currentStageIdx = 0;
+        // currentStageIdx is 0-based
+        this.currentStageIdx = 20; // Set to Level 21 for testing
         this.map = new MapTerrain();
-        this.map.loadLevel(LEVELS[this.currentStageIdx]); // Load level first so base coordinates are populated
+
+        // Cycle maps after level 20, but difficulty keeps increasing/capping
+        const mapIdx = this.currentStageIdx % LEVELS.length;
+        const configIdx = Math.min(this.currentStageIdx, LEVELS.length - 1);
+
+        this.map.loadLevel(LEVELS[mapIdx]);
 
         this.collisionSystem = new CollisionSystem(this, this.map);
         this.spawnSystem = new SpawnSystem(this);
         this.powerUpSystem = new PowerUpSystem(this);
         this.particleSystem = new ParticleSystem(this);
 
-        // Player relies on map to find spawn position
         this.player = new PlayerTank(this);
 
-        this.spawnSystem.loadLevelConfig(LEVELS[this.currentStageIdx]);
+        this.spawnSystem.loadLevelConfig(LEVELS[configIdx]);
         this.bullets = [];
         this.enemies = [];
     }
@@ -267,9 +272,15 @@ export class GameManager {
 
             case GameState.SCORE_TALLY:
                 this.currentStageIdx++;
-                const nextLvl = LEVELS[this.currentStageIdx % LEVELS.length];
-                this.map.loadLevel(nextLvl);
-                this.spawnSystem.loadLevelConfig(nextLvl);
+
+                const mapIdx = this.currentStageIdx % LEVELS.length;
+                const configIdx = Math.min(this.currentStageIdx, LEVELS.length - 1);
+
+                const nextMap = LEVELS[mapIdx];
+                const nextDiff = LEVELS[configIdx];
+
+                this.map.loadLevel(nextMap);
+                this.spawnSystem.loadLevelConfig(nextDiff);
                 this.bullets = [];
                 this.enemies = [];
                 // Reset player position but preserve lives/grade
