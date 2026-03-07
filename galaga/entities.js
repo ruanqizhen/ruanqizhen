@@ -144,10 +144,11 @@ class TrackingMissile extends EnemyProjectile {
         ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
 
         // Calculate angle based on velocity.
-        // Math.atan2 gives angle where 0 is Right. 
-        // We subtract PI/2 so that 0 means Up (visually the nose of the rocket).
-        // Note: The missile's visual design points UPwards relative to its local transformed coordinates.
-        const angle = Math.atan2(this.speed, this.speedX) - Math.PI / 2;
+        // Math.atan2(y, x) gives angle where 0 is Right.
+        // We add PI/2 so that 0 (relative to projectile's forward) means Down (visually the nose of the rocket).
+        // The missile's visual design was originally pointing UPwards in local coordinates.
+        // Since it's an enemy missile moving generally DOWN, we need to flip the rotation.
+        const angle = Math.atan2(this.speed, this.speedX) + Math.PI / 2;
         ctx.rotate(angle);
 
         const hw = this.width / 2;

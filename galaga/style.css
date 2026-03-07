@@ -26,11 +26,13 @@
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
             overflow: hidden;
-            max-width: 100vw;
-            max-height: 100vh;
+            width: 600px;
+            height: 800px;
             display: flex;
             justify-content: center;
             align-items: center;
+            transform-origin: center center;
+            flex-shrink: 0;
         }
 
         canvas {

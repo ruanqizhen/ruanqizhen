@@ -31,6 +31,17 @@ function drawStars() {
     }
 }
 
+function resize() {
+    const container = document.getElementById('game-container');
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const scale = Math.min(width / 600, height / 800) * 0.95; // 0.95 to leave small margin
+    container.style.transform = `scale(${scale})`;
+}
+
+window.addEventListener('resize', resize);
+window.addEventListener('load', resize);
+
 // Game Instances
 let player = new Player();
 let projectiles = [];
@@ -538,4 +549,7 @@ window.addEventListener('mouseup', () => {
     touchX = null;
 });
 
-startBtn.addEventListener('click', startGame);
+startBtn.addEventListener('click', () => {
+    resize();
+    startGame();
+});
