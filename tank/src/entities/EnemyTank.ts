@@ -90,7 +90,7 @@ export class EnemyTank extends Tank {
             }
             // Trigger explosion 
             this.gameManager.getParticleSystem().emitExplosion(this.x + this.w / 2, this.y + this.h / 2, 40, '#f22');
-            this.gameManager.getPlayer().score += score;
+            this.gameManager.addScore(score);
         } else {
             // Armor tank hit flash
             this.hitFlashActive = true;

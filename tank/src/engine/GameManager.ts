@@ -31,7 +31,7 @@ export class GameManager {
     private state: GameState = GameState.BOOT;
     private stateTimer: number = 0;
     public currentStageIdx: number = 0;
-    public highScore: number = 20000;
+    public highScore: number = 0;
 
     private map!: MapTerrain;
     private collisionSystem!: CollisionSystem;
@@ -44,6 +44,7 @@ export class GameManager {
     private bullets: Bullet[] = [];
 
     private confirmReleased: boolean = true;
+    private pauseReleased: boolean = true;
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -69,7 +70,7 @@ export class GameManager {
         // Load High Score
         const savedScore = localStorage.getItem('yanshan_tank_highscore');
         if (savedScore) {
-            this.highScore = parseInt(savedScore, 10) || 20000;
+            this.highScore = parseInt(savedScore, 10) || 0;
         }
 
         // Initialization done in resetGame
@@ -175,7 +176,11 @@ export class GameManager {
         if (!action.confirm) {
             this.confirmReleased = true;
         }
+        if (!action.pause) {
+            this.pauseReleased = true;
+        }
         const isConfirm = action.confirm && this.confirmReleased;
+        const isPause = action.pause && this.pauseReleased;
 
         this.stateTimer += dt; // time measured in logical frames (1 frame = 1 / 60s)
 
@@ -198,7 +203,8 @@ export class GameManager {
                 break;
 
             case GameState.PLAYING:
-                if (action.pause) {
+                if (isPause) {
+                    this.pauseReleased = false;
                     this.switchState(GameState.PAUSED);
                 }
 
@@ -231,7 +237,8 @@ export class GameManager {
                 break;
 
             case GameState.PAUSED:
-                if (action.pause && this.stateTimer > 30) { // 0.5s debounce roughly
+                if (isPause) {
+                    this.pauseReleased = false;
                     this.switchState(GameState.PLAYING);
                 }
                 break;
@@ -476,42 +483,42 @@ export class GameManager {
         this.ctx.lineTo(CW, hudH);
         this.ctx.stroke();
 
-        this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
         this.ctx.textAlign = 'left';
         // High Score
         this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        this.ctx.fillText('HI', 14, 26);
+        this.ctx.font = 'bold 12px "Noto Sans SC", sans-serif';
+        this.ctx.fillText('最高分', 8, 26);
         this.ctx.fillStyle = '#ffcc00';
-        this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-        this.ctx.fillText(`${this.highScore}`, 34, 26);
+        this.ctx.font = 'bold 14px "Orbitron", sans-serif';
+        this.ctx.fillText(`${this.highScore}`, 56, 26);
         // Score
         this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
-        this.ctx.fillText('1UP', 110, 26);
+        this.ctx.font = 'bold 12px "Noto Sans SC", sans-serif';
+        this.ctx.fillText('得分', 130, 26);
         this.ctx.fillStyle = '#00d4ff';
-        this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-        this.ctx.fillText(`${this.player.score}`, 145, 26);
+        this.ctx.font = 'bold 14px "Orbitron", sans-serif';
+        this.ctx.fillText(`${this.player.score}`, 162, 26);
         // Lives
         this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
-        this.ctx.fillText('生命', 220, 26);
+        this.ctx.font = 'bold 12px "Noto Sans SC", sans-serif';
+        this.ctx.fillText('生命', 260, 26);
         this.ctx.fillStyle = '#ff3366';
-        this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-        this.ctx.fillText(`${'♥'.repeat(Math.max(0, this.player.lives))}`, 256, 26);
-        // Enemy count
-        const enemiesLeft = this.enemies.length;
+        this.ctx.font = 'bold 14px "Orbitron", sans-serif';
+        this.ctx.fillText(`${'♥'.repeat(Math.max(0, this.player.lives))}`, 292, 26);
+        // Enemy count (on-screen + not yet spawned)
+        const enemiesLeft = this.enemies.length + this.spawnSystem.getRemainingToSpawn();
         this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
-        this.ctx.fillText('敌军', 350, 26);
+        this.ctx.font = 'bold 12px "Noto Sans SC", sans-serif';
+        this.ctx.fillText('敌军', 390, 26);
         this.ctx.fillStyle = '#ffcc00';
-        this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-        this.ctx.fillText(`${enemiesLeft}`, 386, 26);
+        this.ctx.font = 'bold 14px "Orbitron", sans-serif';
+        this.ctx.fillText(`${enemiesLeft}`, 422, 26);
         // Stage
         this.ctx.fillStyle = 'rgba(255,255,255,0.5)';
-        this.ctx.font = 'bold 13px "Orbitron", "Noto Sans SC", sans-serif';
-        this.ctx.fillText('关卡', 480, 26);
+        this.ctx.font = 'bold 12px "Noto Sans SC", sans-serif';
+        this.ctx.fillText('关卡', 500, 26);
         this.ctx.fillStyle = '#fff';
-        this.ctx.font = 'bold 15px "Orbitron", sans-serif';
-        this.ctx.fillText(`${this.currentStageIdx + 1}`, 516, 26);
+        this.ctx.font = 'bold 14px "Orbitron", sans-serif';
+        this.ctx.fillText(`${this.currentStageIdx + 1}`, 532, 26);
     }
 }

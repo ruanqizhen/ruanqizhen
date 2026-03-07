@@ -52,6 +52,10 @@ export class SpawnSystem {
         return this.enemiesSpawned >= this.totalEnemiesToSpawn;
     }
 
+    public getRemainingToSpawn(): number {
+        return this.totalEnemiesToSpawn - this.enemiesSpawned;
+    }
+
     public update() {
         if (this.enemiesSpawned >= this.totalEnemiesToSpawn) return;
 
