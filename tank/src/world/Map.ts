@@ -129,7 +129,28 @@ export class MapTerrain {
         return this.terrain[r]?.[c] || 0;
     }
 
+    private hasSameType(r: number, c: number, type: number, dr: number, dc: number): boolean {
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr < 0 || nr >= GRID_ROWS || nc < 0 || nc >= GRID_COLS) return false;
+        return this.terrain[nr][nc] === type;
+    }
+
+    private getNeighborMask(r: number, c: number, type: number): number {
+        let mask = 0;
+        if (this.hasSameType(r, c, type, -1, 0)) mask |= 1; // Top
+        if (this.hasSameType(r, c, type, 0, 1)) mask |= 2;  // Right
+        if (this.hasSameType(r, c, type, 1, 0)) mask |= 4;  // Bottom
+        if (this.hasSameType(r, c, type, 0, -1)) mask |= 8; // Left
+        return mask;
+    }
+
     public draw(ctx: CanvasRenderingContext2D, layer: 'below' | 'above') {
+        const prng = (seed: number) => {
+            const s = Math.sin(seed) * 10000;
+            return s - Math.floor(s);
+        };
+
         for (let r = 0; r < GRID_ROWS; r++) {
             for (let c = 0; c < GRID_COLS; c++) {
                 const type = this.terrain[r][c];
@@ -149,72 +170,124 @@ export class MapTerrain {
 
 
                 if (layer === 'below') {
-                    if (type === 4) { // 水面 — richer water
-                        const wgr = ctx.createLinearGradient(x, y, x, y + CELL_SIZE);
-                        wgr.addColorStop(0, '#0a4a6a');
-                        wgr.addColorStop(1, '#062840');
-                        ctx.fillStyle = wgr;
+                    if (type === 4) { // 水面 — continuous richer water
+                        // Add an oscillating brightness to the base color, offset by position so it ripples
+                        const baseOscillation = Math.sin(Date.now() / 800 + (r * 0.5 + c * 0.3)) * 10;
+                        const wR = Math.floor(8 + baseOscillation);
+                        const wG = Math.floor(56 + baseOscillation * 1.5);
+                        const wB = Math.floor(85 + baseOscillation * 2);
+                        ctx.fillStyle = `rgb(${Math.max(0, wR)}, ${Math.max(0, wG)}, ${Math.max(0, wB)})`;
+
                         ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                        // Animated wave highlights
-                        ctx.strokeStyle = 'rgba(100, 200, 255, 0.3)';
+
+                        const mask = this.getNeighborMask(r, c, 4);
+                        const t = mask & 1, rt = mask & 2, b = mask & 4, l = mask & 8;
+
+                        // Draw slight darker edges for shorelines
+                        ctx.fillStyle = 'rgba(0, 20, 40, 0.4)';
+                        if (!t) ctx.fillRect(x, y, CELL_SIZE, 3);
+                        if (!b) ctx.fillRect(x, y + CELL_SIZE - 3, CELL_SIZE, 3);
+                        if (!l) ctx.fillRect(x, y, 3, CELL_SIZE);
+                        if (!rt) ctx.fillRect(x + CELL_SIZE - 3, y, 3, CELL_SIZE);
+
+                        // Animated wave highlights across map
+                        ctx.strokeStyle = 'rgba(100, 200, 255, 0.25)';
                         ctx.lineWidth = 1;
                         ctx.beginPath();
-                        const offset = (Date.now() / 200) % (Math.PI * 2);
-                        for (let i = 1; i <= 3; i++) {
-                            const wy = y + i * 5;
-                            ctx.moveTo(x, wy);
-                            for (let wx = 0; wx <= CELL_SIZE; wx += 4) {
-                                ctx.lineTo(x + wx, wy + Math.sin(wx / 4 + offset + i) * 1.5);
+                        const offset = (Date.now() / 300) % (Math.PI * 2);
+                        // Make wave lines span across cells based on coordinates so they connect
+                        for (let wy = y + 5; wy < y + CELL_SIZE; wy += 8) {
+                            const globalY = wy;
+                            // Only draw bits of waves to look like ripples
+                            if ((Math.floor(globalY / 8) + c) % 3 === 0) {
+                                ctx.moveTo(x + 2, wy);
+                                for (let wx = 2; wx <= CELL_SIZE - 2; wx += 4) {
+                                    ctx.lineTo(x + wx, wy + Math.sin((x + wx) / 10 + offset) * 2);
+                                }
                             }
                         }
                         ctx.stroke();
-                        // Water sparkle
-                        const sparkle = Math.sin(Date.now() / 300 + c * 3 + r * 7);
-                        if (sparkle > 0.7) {
-                            ctx.fillStyle = `rgba(200, 240, 255, ${(sparkle - 0.7) * 1.5})`;
-                            ctx.fillRect(x + 7 + (r % 3) * 3, y + 3 + (c % 2) * 6, 2, 2);
+
+                        // Sparkles
+                        const sparkle = Math.sin(Date.now() / 400 + c * 4 + r * 5);
+                        if (sparkle > 0.8) {
+                            ctx.fillStyle = `rgba(200, 255, 255, ${(sparkle - 0.8) * 4})`;
+                            ctx.fillRect(x + 5 + (r % 2) * 8, y + 5 + (c % 2) * 8, 2, 2);
                         }
-                    } else if (type === 5) { // 冰面
+                    } else if (type === 5) { // 冰面 - continuous
                         ctx.fillStyle = '#bdf'; // softer cyan/blue
                         ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)'; // softer reflection
-                        // Reflection diagonal flares
-                        ctx.beginPath();
-                        ctx.moveTo(x + 5, y + CELL_SIZE);
-                        ctx.lineTo(x + 12, y + CELL_SIZE);
-                        ctx.lineTo(x + CELL_SIZE, y + 12);
-                        ctx.lineTo(x + CELL_SIZE, y + 5);
-                        ctx.fill();
 
-                        ctx.beginPath();
-                        ctx.moveTo(x, y + 10);
-                        ctx.lineTo(x + 4, y + 10);
-                        ctx.lineTo(x + 10, y + 4);
-                        ctx.lineTo(x + 10, y);
-                        ctx.lineTo(x + 6, y);
-                        ctx.lineTo(x, y + 6);
-                        ctx.fill();
+                        const mask = this.getNeighborMask(r, c, 5);
+                        const t = mask & 1, rt = mask & 2, b = mask & 4, l = mask & 8;
+
+                        // Shoreline bevels for ice
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                        if (!t) ctx.fillRect(x, y, CELL_SIZE, 2);
+                        if (!l) ctx.fillRect(x, y, 2, CELL_SIZE);
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                        if (!b) ctx.fillRect(x, y + CELL_SIZE - 2, CELL_SIZE, 2);
+                        if (!rt) ctx.fillRect(x + CELL_SIZE - 2, y, 2, CELL_SIZE);
+
+                        // Sparse large reflection flares that span cells occasionally
+                        if ((r + c) % 2 === 0) {
+                            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                            ctx.beginPath();
+                            ctx.moveTo(x + 5, y + CELL_SIZE);
+                            ctx.lineTo(x + 12, y + CELL_SIZE);
+                            ctx.lineTo(x + CELL_SIZE, y + 12);
+                            ctx.lineTo(x + CELL_SIZE, y + 5);
+                            ctx.fill();
+                        }
+
+                        // Snow patches
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+                        for (let i = 0; i < 4; i++) {
+                            const sx = x + prng(r * 100 + c * 10 + i) * CELL_SIZE;
+                            const sy = y + prng(r * 200 + c * 20 + i) * CELL_SIZE;
+                            const sr = 1 + prng(r * 300 + c * 30 + i) * 4;
+                            ctx.beginPath();
+                            ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
                     }
                 } else if (layer === 'above') {
                     if (type === 1) { // 砖墙
                         const mask = this.brickMasks.get(`${c},${r}`) || 0;
                         if (mask > 0) {
                             const half = CELL_SIZE / 2;
-                            // Helper to draw a staggered 3D brick 10x10 block
-                            const drawBrick = (bx: number, by: number, bw: number, bh: number) => {
-                                ctx.fillStyle = '#b64'; // slightly softer brick red/brown
-                                ctx.fillRect(bx, by, bw, bh);
-                                ctx.fillStyle = '#c75'; // softer highlight
-                                ctx.fillRect(bx, by, bw, 1); // top highlight
-                                ctx.fillStyle = '#943'; // softer shadow
-                                ctx.fillRect(bx, by + bh - 1, bw, 1); // bottom shadow
 
-                                // mortar and staggered pattern - lower contrast translucent white
-                                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-                                ctx.fillRect(bx, by + bh / 2, bw, 1); // horizontal mortar
-                                ctx.fillRect(bx + bw / 2, by, 1, bh / 2); // vertical top
-                                ctx.fillRect(bx + bw / 4, by + bh / 2, 1, bh / 2); // vertical bottom staggered
-                                ctx.fillRect(bx + bw * 0.75, by + bh / 2, 1, bh / 2); // vertical bottom staggered part 2
+                            const drawBrick = (bx: number, by: number, bw: number, bh: number) => {
+                                // Add random shade variation to each brick
+                                const seed = bx * 13 + by * 17;
+                                const rOff = Math.floor(prng(seed) * 30 - 15);
+                                const gOff = Math.floor(prng(seed + 1) * 20 - 10);
+                                const bOff = Math.floor(prng(seed + 2) * 15 - 7);
+
+                                // Base hex '#b64' is approx RGB(187, 102, 68)
+                                const rColor = Math.min(255, Math.max(0, 187 + rOff));
+                                const gColor = Math.min(255, Math.max(0, 102 + gOff));
+                                const bColor = Math.min(255, Math.max(0, 68 + bOff));
+
+                                ctx.fillStyle = `rgb(${rColor}, ${gColor}, ${bColor})`;
+                                ctx.fillRect(bx, by, bw, bh);
+
+                                // Mortar lines to make 20x10 staggered bricks globally aligned
+                                ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+
+                                // Every 10px block has a horizontal mortar line at its bottom
+                                ctx.fillRect(bx, by + bh - 1, bw, 1);
+
+                                // Vertical mortar lines staggered based on global grid position
+                                const gridX = Math.round(bx / 10);
+                                const gridY = Math.round(by / 10);
+                                if ((gridX + gridY) % 2 === 0) {
+                                    ctx.fillRect(bx + bw - 1, by, 1, bh); // right edge mortar
+                                }
+
+                                // Brick highlight on top edge
+                                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                                ctx.fillRect(bx, by, bw, 1);
                             };
 
                             if (mask & 0b0001) drawBrick(x, y, half, half);               // TL
@@ -222,91 +295,174 @@ export class MapTerrain {
                             if (mask & 0b0100) drawBrick(x, y + half, half, half);        // BL
                             if (mask & 0b1000) drawBrick(x + half, y + half, half, half); // BR
                         }
-                    } else if (type === 2) { // 钢墙 — metallic shine
+                    } else if (type === 2) { // 钢墙 — continuous metal plating
+                        const mask = this.getNeighborMask(r, c, 2);
+                        const t = mask & 1, rt = mask & 2, b = mask & 4, l = mask & 8;
+
                         // Base steel
-                        const sgr = ctx.createLinearGradient(x, y, x + CELL_SIZE, y + CELL_SIZE);
-                        sgr.addColorStop(0, '#888');
-                        sgr.addColorStop(0.3, '#aaa');
-                        sgr.addColorStop(0.5, '#ccc');
-                        sgr.addColorStop(0.7, '#aaa');
-                        sgr.addColorStop(1, '#777');
-                        ctx.fillStyle = sgr;
+                        ctx.fillStyle = '#aaa';
                         ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
 
-                        // Diagonal struts
-                        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(x + 3, y + 3);
-                        ctx.lineTo(x + CELL_SIZE - 3, y + CELL_SIZE - 3);
-                        ctx.moveTo(x + CELL_SIZE - 3, y + 3);
-                        ctx.lineTo(x + 3, y + CELL_SIZE - 3);
-                        ctx.stroke();
-
-                        // Edge bevels
-                        ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                        ctx.fillRect(x, y, CELL_SIZE, 1);
-                        ctx.fillRect(x, y, 1, CELL_SIZE);
-                        ctx.fillStyle = 'rgba(0,0,0,0.4)';
-                        ctx.fillRect(x, y + CELL_SIZE - 1, CELL_SIZE, 1);
-                        ctx.fillRect(x + CELL_SIZE - 1, y, 1, CELL_SIZE);
-
-                        // Rivet dots (4 corners)
+                        // Unified bevels (only on edges disconnected from other steel)
                         ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                        ctx.fillRect(x + 3, y + 3, 2, 2);
-                        ctx.fillRect(x + CELL_SIZE - 5, y + 3, 2, 2);
-                        ctx.fillRect(x + 3, y + CELL_SIZE - 5, 2, 2);
-                        ctx.fillRect(x + CELL_SIZE - 5, y + CELL_SIZE - 5, 2, 2);
-                    } else if (type === 3) { // 森林
-                        ctx.fillStyle = '#141'; // background shadow
-                        ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                        ctx.fillStyle = '#282'; // trees
-                        ctx.beginPath();
-                        ctx.arc(x + 5, y + 5, 6, 0, Math.PI * 2);
-                        ctx.arc(x + 15, y + 5, 5, 0, Math.PI * 2);
-                        ctx.arc(x + 5, y + 15, 5, 0, Math.PI * 2);
-                        ctx.arc(x + 15, y + 15, 6, 0, Math.PI * 2);
-                        ctx.arc(x + 10, y + 10, 7, 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.fillStyle = '#3a3'; // highlights
-                        ctx.beginPath();
-                        ctx.arc(x + 4, y + 4, 3, 0, Math.PI * 2);
-                        ctx.arc(x + 14, y + 4, 3, 0, Math.PI * 2);
-                        ctx.arc(x + 4, y + 14, 2, 0, Math.PI * 2);
-                        ctx.fill();
-                    } else if (type === 6) { // 基地 — glowing eagle
-                        // Background
-                        ctx.fillStyle = '#333';
-                        ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-                        ctx.fillStyle = '#444';
-                        ctx.fillRect(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
-                        ctx.fillStyle = '#111';
-                        ctx.fillRect(x + 3, y + 3, CELL_SIZE - 6, CELL_SIZE - 6);
+                        if (!t) ctx.fillRect(x, y, CELL_SIZE, 2);
+                        if (!l) ctx.fillRect(x, y, 2, CELL_SIZE);
+                        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                        if (!b) ctx.fillRect(x, y + CELL_SIZE - 2, CELL_SIZE, 2);
+                        if (!rt) ctx.fillRect(x + CELL_SIZE - 2, y, 2, CELL_SIZE);
 
-                        // Glowing eagle star
-                        ctx.shadowColor = '#ffaa00';
-                        ctx.shadowBlur = 6;
-                        ctx.fillStyle = '#e94';
-                        ctx.beginPath();
-                        ctx.moveTo(x + CELL_SIZE / 2, y + 4);
-                        ctx.lineTo(x + CELL_SIZE / 2 + 5, y + CELL_SIZE - 4);
-                        ctx.lineTo(x + 4, y + CELL_SIZE / 2 - 2);
-                        ctx.lineTo(x + CELL_SIZE - 4, y + CELL_SIZE / 2 - 2);
-                        ctx.lineTo(x + CELL_SIZE / 2 - 5, y + CELL_SIZE - 4);
-                        ctx.fill();
-                        ctx.shadowBlur = 0;
-
-                        ctx.fillStyle = '#fa6';
-                        ctx.beginPath();
-                        ctx.moveTo(x + CELL_SIZE / 2, y + 4);
-                        ctx.lineTo(x + CELL_SIZE / 2 + 2, y + CELL_SIZE / 2);
-                        ctx.lineTo(x + CELL_SIZE / 2 - 2, y + CELL_SIZE / 2);
-                        ctx.fill();
-
-                        // Border glow
-                        ctx.strokeStyle = 'rgba(255, 170, 0, 0.3)';
+                        // Inner plate texture
+                        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
                         ctx.lineWidth = 1;
-                        ctx.strokeRect(x + 1, y + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+                        if (!t && !l) {
+                            ctx.beginPath();
+                            ctx.moveTo(x + 4, y + 4);
+                            ctx.lineTo(x + CELL_SIZE - 4, y + CELL_SIZE - 4);
+                            ctx.stroke();
+                        } else if (!b && !rt) {
+                            ctx.beginPath();
+                            ctx.moveTo(x + CELL_SIZE - 4, y + 4);
+                            ctx.lineTo(x + 4, y + CELL_SIZE - 4);
+                            ctx.stroke();
+                        }
+
+                        // Random scattered rivets plus the disconnected corner rivets
+                        const drawRivet = (cx: number, cy: number) => {
+                            // Rivet shadow
+                            ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                            ctx.beginPath();
+                            ctx.arc(cx + 1, cy + 1, 2.5, 0, Math.PI * 2);
+                            ctx.fill();
+                            // Rivet body
+                            ctx.fillStyle = '#999';
+                            ctx.beginPath();
+                            ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+                            ctx.fill();
+                            // Rivet highlight
+                            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+                            ctx.beginPath();
+                            ctx.arc(cx - 0.5, cy - 0.5, 1, 0, Math.PI * 2);
+                            ctx.fill();
+                        };
+
+                        // Draw regular grid pattern of small rivets on steel plates
+                        // We will place 4 rivets in a 2x2 grid if the block is inside
+                        const showInnerRivets = prng(r * 4 + c * 8) > 0.3; // 70% chance to show inner rivets to keep it clean
+                        if (showInnerRivets) {
+                            drawRivet(x + CELL_SIZE * 0.3, y + CELL_SIZE * 0.3);
+                            drawRivet(x + CELL_SIZE * 0.7, y + CELL_SIZE * 0.3);
+                            drawRivet(x + CELL_SIZE * 0.3, y + CELL_SIZE * 0.7);
+                            drawRivet(x + CELL_SIZE * 0.7, y + CELL_SIZE * 0.7);
+                        }
+
+                        // Keep explicit corner rivets if corners are disconnected
+                        if (!t && !l) drawRivet(x + 5.5, y + 5.5);
+                        if (!t && !rt) drawRivet(x + CELL_SIZE - 5.5, y + 5.5);
+                        if (!b && !l) drawRivet(x + 5.5, y + CELL_SIZE - 5.5);
+                        if (!b && !rt) drawRivet(x + CELL_SIZE - 5.5, y + CELL_SIZE - 5.5);
+                    } else if (type === 3) { // 森林 — cohesive canopy
+                        const mask = this.getNeighborMask(r, c, 3);
+                        // Draw deep shadow base
+                        ctx.fillStyle = '#0f3a0f';
+                        ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+
+                        // Draw overlapping canopy shapes organically
+                        ctx.fillStyle = '#1e661e';
+                        ctx.beginPath();
+                        const numLeaves = 8 + Math.floor(prng(r * 15 + c * 25) * 5); // 8-12 leaves
+                        for (let i = 0; i < numLeaves; i++) {
+                            const cx = x + prng(r * 10 + c * 20 + i) * CELL_SIZE;
+                            const cy = y + prng(r * 30 + c * 40 + i) * CELL_SIZE;
+                            const cr = 4 + prng(r * 50 + c * 60 + i) * 6; // Radius 4 to 10
+                            ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+                        }
+
+                        // Fill gaps towards neighbors to connect the canopy
+                        if (mask & 1) ctx.arc(x + 10, y, 6, 0, Math.PI * 2);
+                        if (mask & 2) ctx.arc(x + CELL_SIZE, y + 10, 6, 0, Math.PI * 2);
+                        if (mask & 4) ctx.arc(x + 10, y + CELL_SIZE, 6, 0, Math.PI * 2);
+                        if (mask & 8) ctx.arc(x, y + 10, 6, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Organic highlights
+                        ctx.fillStyle = '#33cc33';
+                        ctx.beginPath();
+                        for (let i = 0; i < 6; i++) {
+                            const cx = x + prng(r * 70 + c * 80 + i) * CELL_SIZE;
+                            const cy = y + prng(r * 90 + c * 100 + i) * CELL_SIZE;
+                            const cr = 2 + prng(r * 110 + c * 120 + i) * 3; // Radius 2 to 5
+                            ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+                        }
+                        ctx.fill();
+
+                    } else if (type === 6) { // 基地 — large 2x2 fortress
+                        // We only want to draw the base ONCE for the entire 2x2 area.
+                        // We will elect the Top-Left block of any base to do the drawing.
+                        let isTopLeftBase = true;
+                        if (this.hasSameType(r, c, 6, -1, 0)) isTopLeftBase = false; // There is a base above
+                        if (this.hasSameType(r, c, 6, 0, -1)) isTopLeftBase = false; // There is a base left
+
+                        if (isTopLeftBase) {
+                            // Find the boundaries of this base (assumes 2x2 but handles dynamically)
+                            let w = 1, h = 1;
+                            while (this.hasSameType(r, c, 6, 0, w)) w++;
+                            while (this.hasSameType(r, c, 6, h, 0)) h++;
+
+                            const bw = w * CELL_SIZE;
+                            const bh = h * CELL_SIZE;
+
+                            // Base background platform
+                            ctx.fillStyle = '#333';
+                            ctx.fillRect(x, y, bw, bh);
+                            ctx.fillStyle = '#444';
+                            ctx.fillRect(x + 2, y + 2, bw - 4, bh - 4);
+
+                            // Concrete rim
+                            ctx.strokeStyle = '#222';
+                            ctx.lineWidth = 4;
+                            ctx.strokeRect(x + 4, y + 4, bw - 8, bh - 8);
+
+                            // Inner dark zone
+                            ctx.fillStyle = '#111';
+                            ctx.fillRect(x + 6, y + 6, bw - 12, bh - 12);
+
+                            // Glowing large eagle insignia
+                            const cx = x + bw / 2;
+                            const cy = y + bh / 2;
+
+                            ctx.shadowColor = '#ffaa00';
+                            ctx.shadowBlur = 15;
+                            ctx.fillStyle = '#e94';
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy - 12);
+                            ctx.lineTo(cx + 14, cy + 10);
+                            ctx.lineTo(cx + 6, cy + 4);
+                            ctx.lineTo(cx + 14, cy - 2);
+                            ctx.lineTo(cx + 8, cy - 2);
+                            ctx.lineTo(cx, cy + 2);
+
+                            // Mirrored left side
+                            ctx.lineTo(cx - 8, cy - 2);
+                            ctx.lineTo(cx - 14, cy - 2);
+                            ctx.lineTo(cx - 6, cy + 4);
+                            ctx.lineTo(cx - 14, cy + 10);
+                            ctx.closePath();
+                            ctx.fill();
+                            ctx.shadowBlur = 0;
+
+                            ctx.fillStyle = '#fa6';
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy - 8);
+                            ctx.lineTo(cx + 4, cy + 2);
+                            ctx.lineTo(cx - 4, cy + 2);
+                            ctx.fill();
+
+                            // Border pulse glow
+                            const pulse = (Math.sin(Date.now() / 200) + 1) / 2;
+                            ctx.strokeStyle = `rgba(255, 170, 0, ${0.2 + pulse * 0.3})`;
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(x + 2, y + 2, bw - 4, bh - 4);
+                        }
                     }
                 }
             }

@@ -12,11 +12,7 @@ export class InputManager {
         pause: false,
         confirm: false,
     };
-
     private isLeftMouseDown = false;
-    private isMouseRightDown = false;
-
-
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         this.bindEvents();
@@ -103,9 +99,25 @@ export class InputManager {
 
     private toLogical(clientX: number, clientY: number) {
         const rect = this.canvas.getBoundingClientRect();
+
+        // The game's internal logical resolution is fixed
+        const logicalWidth = 600;
+        const logicalHeight = 800;
+
+        // Handle object-fit: contain scaling and letterbox offsets
+        const scaleX = rect.width / logicalWidth;
+        const scaleY = rect.height / logicalHeight;
+        const scale = Math.min(scaleX, scaleY);
+
+        const drawnWidth = logicalWidth * scale;
+        const drawnHeight = logicalHeight * scale;
+
+        const offsetX = (rect.width - drawnWidth) / 2;
+        const offsetY = (rect.height - drawnHeight) / 2;
+
         return {
-            x: (clientX - rect.left) * (this.canvas.width / rect.width),
-            y: (clientY - rect.top) * (this.canvas.height / rect.height),
+            x: (clientX - rect.left - offsetX) / scale,
+            y: (clientY - rect.top - offsetY) / scale,
         };
     }
 
@@ -116,12 +128,11 @@ export class InputManager {
     };
 
     private handleMouseDown = (e: MouseEvent) => {
-        // Left click = 0, Right click = 2
+        this.mouseLogicalPos = this.toLogical(e.clientX, e.clientY);
+        // Left click = 0
         if (e.button === 0) {
             this.isLeftMouseDown = true;
             this.actionState.confirm = true;
-        } else if (e.button === 2) {
-            this.isMouseRightDown = true;
         }
     };
 
@@ -129,14 +140,11 @@ export class InputManager {
         if (e.button === 0) {
             this.isLeftMouseDown = false;
             this.actionState.confirm = false;
-        } else if (e.button === 2) {
-            this.isMouseRightDown = false;
         }
     };
 
     private handleMouseLeave = () => {
         this.isLeftMouseDown = false;
-        this.isMouseRightDown = false;
     };
 
     public getActionState(): ActionState {
@@ -151,9 +159,5 @@ export class InputManager {
 
     public isLeftClickHeld(): boolean {
         return this.isLeftMouseDown;
-    }
-
-    public isRightClickHeld(): boolean {
-        return this.isMouseRightDown;
     }
 }

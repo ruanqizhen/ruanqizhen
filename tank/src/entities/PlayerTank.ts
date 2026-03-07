@@ -121,8 +121,10 @@ export class PlayerTank extends Tank {
             const my = mousePos.y - BATTLE_AREA_Y;
 
             if (!this.wasLeftMouseDown) {
-                // Check if click is ON the tank
-                if (mx >= this.x && mx <= this.x + this.w && my >= this.y && my <= this.y + this.h) {
+                // Check if click is near the tank (expanded hitbox by 10px each side for easier grabbing)
+                const hitMargin = 10;
+                if (mx >= this.x - hitMargin && mx <= this.x + this.w + hitMargin &&
+                    my >= this.y - hitMargin && my <= this.y + this.h + hitMargin) {
                     this.isDragging = true;
                     this.isAutoShooting = false;
                     const cx = this.x + this.w / 2;
@@ -188,18 +190,15 @@ export class PlayerTank extends Tank {
                 this.dragOffset = null;
             }
         }
-
-        let wantsToShoot = action.shoot || inputSystem.isRightClickHeld();
-
+        let wantsToShoot = action.shoot;
         // 3. Mouse Drag Movement
         if (!wantsToMove && this.isDragging && this.dragTarget) {
             const cx = this.x + this.w / 2;
             const cy = this.y + this.h / 2;
             const deltaX = this.dragTarget.x - cx;
             const deltaY = this.dragTarget.y - cy;
-
-            // Move if dragged outside reaching distance
-            if (Math.abs(deltaX) > this.speed || Math.abs(deltaY) > this.speed) {
+            // Move if dragged outside reaching distance (use a 5px threshold for stability to avoid shaking)
+            if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
                 let rawDragDir = this.direction;
                 if (Math.abs(deltaX) > Math.abs(deltaY)) {
                     rawDragDir = deltaX > 0 ? Direction.RIGHT : Direction.LEFT;
