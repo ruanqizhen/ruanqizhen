@@ -1,5 +1,7 @@
 # HTML5 Galaga (小蜜蜂) 复刻增强版
 
+[体验地址](https://qizhen.xyz/galaga/)
+
 这是一个基于 HTML5 Canvas 和 原生 JavaScript 开发的经典“小蜜蜂 (Galaga)”复刻射击游戏。在保留了原版街机经典阵型玩法的基础上，进行了玩法升级，引入了护盾、精英怪等机制。
 
 ## 游戏预览
