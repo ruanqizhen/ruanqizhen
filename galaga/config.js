@@ -15,7 +15,7 @@ canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 
 // ====== Game Balance Constants ======
-const FIRE_COOLDOWN = 500;           // ms - player normal fire rate
+const FIRE_COOLDOWN = 300;           // ms - player normal fire rate
 const RAPID_FIRE_COOLDOWN = 100;     // ms - rapid fire power-up rate
 const PLAYER_SPEED = 3.5;
 const PROJECTILE_SPEED = 10;

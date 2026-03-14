@@ -99,7 +99,7 @@ function initEnemies() {
     // Calculate how many elites to spawn
     if (level > 5) {
         // Starts with 2 elites at level 6, adds 2 per level, capped at totalEnemies
-        numElites = Math.min((level - 5) * 2, totalEnemies);
+        numElites = Math.min((level - 6) * 2, totalEnemies);
     }
 
     // Build flat array of base types
