@@ -14,31 +14,31 @@
 
   <style>
     :root {
-      --bg-body: #f8fafc;
-      --bg-card: rgba(255, 255, 255, 0.7);
-      --text-primary: #0f172a;
-      --text-secondary: #475569;
-      --text-accent: #d97706;
-      --border-line: rgba(226, 232, 240, 0.8);
-      --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-      --shadow-hover: 0 20px 25px -5px rgba(217, 119, 6, 0.1), 0 8px 10px -6px rgba(217, 119, 6, 0.05);
-      --gradient-accent: linear-gradient(135deg, #d97706, #f59e0b);
+      --bg-body: #f4f6f5;
+      --bg-card: rgba(255, 255, 255, 0.85);
+      --text-primary: #1a2b25;
+      --text-secondary: #496058;
+      --text-accent: #2d6a5e;
+      --border-line: #e8ece9;
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.1);
+      --gradient-accent: linear-gradient(135deg, #2d6a5e, #3a8a7a);
       --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-      --bg-gradient-start: #f1f5f9;
-      --bg-gradient-end: #e2e8f0;
+      --bg-gradient-start: #f2f5f8;
+      --bg-gradient-end: #e7edf2;
     }
 
     html.dark {
-      --bg-body: #020617;
-      --bg-card: rgba(15, 23, 42, 0.8);
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-accent: #fbbf24;
-      --border-line: rgba(30, 41, 59, 0.8);
-      --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-      --shadow-hover: 0 20px 25px -5px rgba(251, 191, 36, 0.15), 0 8px 10px -6px rgba(251, 191, 36, 0.1);
-      --bg-gradient-start: #020617;
-      --bg-gradient-end: #0f172a;
+      --bg-body: #0f1714;
+      --bg-card: rgba(22, 32, 28, 0.9);
+      --text-primary: #e0e8e4;
+      --text-secondary: #8a9b95;
+      --text-accent: #5ec4b0;
+      --border-line: #243530;
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
+      --bg-gradient-start: #0f1714;
+      --bg-gradient-end: #16201c;
     }
 
     * {
@@ -48,29 +48,16 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: var(--text-primary);
       line-height: 1.6;
       background: var(--bg-body);
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      transition: background 0.5s ease;
+      transition: background 0.3s ease;
       position: relative;
       overflow-x: hidden;
-    }
-
-    /* 优化后的 CRT 扫描线效果 */
-    body::after {
-      content: " ";
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%),
-        linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.005), rgba(0, 0, 255, 0.01));
-      background-size: 100% 4px, 4px 100%;
-      z-index: 1000;
-      pointer-events: none;
-      opacity: 0.2;
     }
 
     body::before {
@@ -78,20 +65,41 @@
       position: fixed;
       inset: 0;
       z-index: -2;
-      background: radial-gradient(circle at 50% 50%, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-      opacity: 0.8;
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+      filter: url(#marble);
+      opacity: 0.10;
+      pointer-events: none;
+    }
+
+    /* Animated background pattern layer */
+    .bg-pattern {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      opacity: 0.4;
+      background:
+        radial-gradient(ellipse 600px 400px at 20% 30%, rgba(45, 106, 94, 0.08), transparent),
+        radial-gradient(ellipse 500px 500px at 80% 70%, rgba(58, 138, 122, 0.06), transparent),
+        radial-gradient(ellipse 400px 300px at 50% 50%, rgba(74, 101, 128, 0.05), transparent);
+      animation: bgShift 20s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes bgShift {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
     }
 
     .container {
       width: 100%;
-      max-width: 720px;
+      max-width: 680px;
       margin: 80px 20px;
       padding: 60px 50px;
       background: var(--bg-card);
       box-shadow: var(--shadow-card);
-      border-radius: 24px;
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       animation: fadeIn 0.8s var(--transition-smooth);
       border: 1px solid var(--border-line);
       position: relative;
@@ -102,7 +110,6 @@
         opacity: 0;
         transform: translateY(20px);
       }
-
       to {
         opacity: 1;
         transform: translateY(0);
@@ -130,52 +137,51 @@
 
     .back-link:hover {
       color: var(--text-accent);
-      background: rgba(217, 119, 6, 0.1);
+      background: rgba(45, 106, 94, 0.1);
       transform: translateX(-4px);
     }
 
     .header {
       text-align: center;
-      margin-bottom: 60px;
+      margin-bottom: 50px;
     }
 
     .header h1 {
-      font-size: 42px;
-      font-weight: 800;
-      letter-spacing: -1px;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 2px;
       margin-bottom: 16px;
-      background: var(--gradient-accent);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 4px 12px rgba(217, 119, 6, 0.2));
+      color: var(--text-primary);
     }
 
     .header p {
       font-size: 16px;
       color: var(--text-secondary);
-      max-width: 85%;
+      max-width: 90%;
       margin: 0 auto;
       font-weight: 400;
     }
 
     .games-list {
-      display: grid;
-      gap: 28px;
-      margin-bottom: 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 50px;
     }
 
     .game-card {
       background: rgba(255, 255, 255, 0.03);
-      border-radius: 20px;
-      padding: 32px;
+      border-radius: 14px;
+      padding: 24px;
       border: 1px solid var(--border-line);
-      transition: all 0.4s var(--transition-smooth);
+      transition: all 0.3s var(--transition-smooth);
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: relative;
       overflow: hidden;
+      text-decoration: none;
+      color: inherit;
     }
 
     .game-card::before {
@@ -183,35 +189,35 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 4px;
-      height: 100%;
+      right: 0;
+      height: 3px;
       background: var(--gradient-accent);
-      opacity: 0;
-      transition: opacity 0.3s;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s var(--transition-smooth);
     }
 
     .game-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-3px);
       box-shadow: var(--shadow-hover);
-      border-color: rgba(217, 119, 6, 0.3);
-      background: rgba(217, 119, 6, 0.02);
+      border-color: var(--text-accent);
     }
 
     .game-card:hover::before {
-      opacity: 1;
+      transform: scaleX(1);
     }
 
     .game-info {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 18px;
     }
 
     .game-icon-box {
-      width: 60px;
-      height: 60px;
-      background: rgba(217, 119, 6, 0.1);
-      border-radius: 16px;
+      width: 44px;
+      height: 44px;
+      background: rgba(45, 106, 94, 0.1);
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -220,28 +226,33 @@
     }
 
     .game-card:hover .game-icon-box {
-      transform: rotate(5deg) scale(1.1);
+      transform: scale(1.1) rotate(-3deg);
     }
 
     .game-title {
-      font-size: 22px;
-      font-weight: 700;
+      font-size: 17px;
+      font-weight: 600;
       color: var(--text-primary);
-      letter-spacing: -0.5px;
+    }
+
+    .game-card:hover .game-title {
+      color: var(--text-accent);
     }
 
     .game-links {
       display: flex;
-      gap: 16px;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
     }
 
     .game-link {
-      width: 48px;
-      height: 48px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 14px;
+      border-radius: 10px;
       background: var(--bg-body);
       border: 1px solid var(--border-line);
       color: var(--text-secondary);
@@ -253,10 +264,9 @@
       background: var(--text-accent);
       color: white;
       transform: scale(1.1);
-      box-shadow: 0 8px 15px rgba(217, 119, 6, 0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    /* 改进后的 Tooltip */
     .game-link::after {
       content: attr(data-tip);
       position: absolute;
@@ -286,16 +296,15 @@
       opacity: 0.6;
       border-top: 1px solid var(--border-line);
       padding-top: 30px;
-      letter-spacing: 2px;
     }
 
     .theme-toggle {
       position: fixed;
-      top: 30px;
-      right: 30px;
-      width: 48px;
-      height: 48px;
-      border-radius: 16px;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
       border: 1px solid var(--border-line);
       background: var(--bg-card);
       cursor: pointer;
@@ -303,43 +312,38 @@
       align-items: center;
       justify-content: center;
       z-index: 100;
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(8px);
       box-shadow: var(--shadow-card);
       transition: all 0.3s;
     }
 
+    #themeIcon {
+      display: inline-block;
+      transition: transform 0.35s ease, opacity 0.25s ease;
+    }
+
     .theme-toggle:hover {
-      transform: rotate(15deg);
-      border-color: var(--text-accent);
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     @media (max-width: 600px) {
       .container {
-        padding: 40px 24px;
+        padding: 40px 20px;
         margin: 20px 10px;
-        border-radius: 0;
       }
 
       .game-card {
-        flex-direction: column;
-        gap: 24px;
-        text-align: center;
-        padding: 24px;
-      }
-
-      .game-info {
-        flex-direction: column;
-        gap: 16px;
+        padding: 20px;
       }
 
       .header h1 {
-        font-size: 32px;
+        font-size: 28px;
       }
     }
   </style>
 
   <script>
-    // 立即执行以防止主题闪烁
     (function () {
       const savedTheme = localStorage.getItem('theme');
       const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -351,13 +355,25 @@
 </head>
 
 <body>
-  <button class="theme-toggle" id="themeToggle" aria-label="切换深色/浅色模式">
-    <span id="themeIcon" style="font-size: 20px;">🌙</span>
+  <svg width="0" height="0" style="position: absolute;">
+    <filter id="marble">
+      <feTurbulence id="marble-noise" type="fractalNoise" baseFrequency="0.0016 0.016" numOctaves="2" seed="123"
+        result="noise" />
+      <feColorMatrix type="saturate" values="0.1" result="mono" />
+      <feColorMatrix in="mono" type="matrix" values="9 0 0 0 -4 0 9 0 0 -4 0 0 9 0 -4 0 0 0 1 0" result="veins" />
+      <feDisplacementMap in="veins" in2="noise" scale="95" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <div class="bg-pattern"></div>
+
+  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
+    <span id="themeIcon" style="font-size: 18px;">🌙</span>
   </button>
 
   <main class="container">
     <a href="index.html" class="back-link" aria-label="返回个人主页">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
         stroke-linecap="round" stroke-linejoin="round">
         <path d="M19 12H5M12 19l-7-7 7-7" />
       </svg>
@@ -366,7 +382,7 @@
 
     <header class="header">
       <h1>怀旧游戏存档</h1>
-      <p>用代码重构经典，在像素间找回童年。这些是我在学习 Web 开发过程中复刻的一些经典小游戏。</p>
+      <p>探索数据流的艺术 · 从零开始的图形化编程实战。这些是我在学习 Web 开发过程中复刻的一些经典小游戏。</p>
     </header>
 
     <div class="games-list">
@@ -374,7 +390,7 @@
       <section class="game-card">
         <div class="game-info">
           <div class="game-icon-box" aria-hidden="true">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
               <path d="M7 10c0-3 2-5 5-5s5 2 5 5-2 5-5 5-5-2-5-5z" />
               <path d="M7 10h10" />
@@ -388,13 +404,13 @@
         </div>
         <div class="game-links">
           <a href="https://qizhen.xyz/galaga/" class="game-link" data-tip="开始游戏" target="_blank" aria-label="开始玩小蜜蜂游戏">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 3l14 9-14 9V3z" />
             </svg>
           </a>
           <a href="https://github.com/ruanqizhen/ruanqizhen/tree/main/galaga" class="game-link" data-tip="查看源码"
             target="_blank" aria-label="在 GitHub 查看小蜜蜂源码">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path
                 d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" />
             </svg>
@@ -406,7 +422,7 @@
       <section class="game-card">
         <div class="game-info">
           <div class="game-icon-box" aria-hidden="true">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
               <rect x="4" y="6" width="3" height="12" rx="1" />
               <rect x="17" y="6" width="3" height="12" rx="1" />
@@ -419,13 +435,13 @@
         </div>
         <div class="game-links">
           <a href="https://tank.qizhen.xyz/" class="game-link" data-tip="开始游戏" target="_blank" aria-label="开始玩坦克大战游戏">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 3l14 9-14 9V3z" />
             </svg>
           </a>
           <a href="https://github.com/ruanqizhen/tank" class="game-link" data-tip="查看源码" target="_blank"
             aria-label="在 GitHub 查看坦克大战源码">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path
                 d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" />
             </svg>
@@ -437,29 +453,30 @@
       <section class="game-card">
         <div class="game-info">
           <div class="game-icon-box" aria-hidden="true">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="5" width="5" height="4" rx="1"/>
-              <rect x="9.5" y="5" width="5" height="4" rx="1"/>
-              <rect x="16" y="5" width="5" height="4" rx="1"/>
-              <rect x="3" y="10.5" width="5" height="4" rx="1"/>
-              <rect x="9.5" y="10.5" width="5" height="4" rx="1"/>
-              <rect x="16" y="10.5" width="5" height="4" rx="1"/>
-              <rect x="3" y="16" width="5" height="4" rx="1"/>
-              <rect x="9.5" y="16" width="5" height="4" rx="1"/>
-              <rect x="16" y="16" width="5" height="4" rx="1"/>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="5" width="5" height="4" rx="1" />
+              <rect x="9.5" y="5" width="5" height="4" rx="1" />
+              <rect x="16" y="5" width="5" height="4" rx="1" />
+              <rect x="3" y="10.5" width="5" height="4" rx="1" />
+              <rect x="9.5" y="10.5" width="5" height="4" rx="1" />
+              <rect x="16" y="10.5" width="5" height="4" rx="1" />
+              <rect x="3" y="16" width="5" height="4" rx="1" />
+              <rect x="9.5" y="16" width="5" height="4" rx="1" />
+              <rect x="16" y="16" width="5" height="4" rx="1" />
             </svg>
           </div>
           <div class="game-title">弹力砖块 · Brick Breaker</div>
         </div>
         <div class="game-links">
           <a href="https://brick.qizhen.xyz/" class="game-link" data-tip="开始游戏" target="_blank" aria-label="开始玩弹力砖块游戏">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M5 3l14 9-14 9V3z" />
             </svg>
           </a>
           <a href="https://github.com/ruanqizhen/brick" class="game-link" data-tip="查看源码" target="_blank"
             aria-label="在 GitHub 查看弹力砖块源码">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path
                 d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" />
             </svg>
@@ -469,12 +486,18 @@
     </div>
 
     <footer>
-      <p>qizhen.xyz · PRESS START TO PLAY</p>
+      <p>qizhen.xyz</p>
     </footer>
   </main>
 
   <script>
-    // 主题切换逻辑
+    (function () {
+      var turbulence = document.getElementById('marble-noise');
+      if (turbulence) {
+        turbulence.setAttribute('seed', Math.floor(Math.random() * 1000));
+      }
+    })();
+
     (function () {
       const toggle = document.getElementById('themeToggle');
       const icon = document.getElementById('themeIcon');
@@ -485,11 +508,17 @@
       };
 
       updateUI(html.classList.contains('dark'));
-
+      
       toggle.addEventListener('click', () => {
-        const isDark = html.classList.toggle('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        updateUI(isDark);
+        icon.style.transform = 'rotate(90deg) scale(0.3)';
+        icon.style.opacity = '0';
+        setTimeout(() => {
+          const isDark = html.classList.toggle('dark');
+          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+          updateUI(isDark);
+          icon.style.transform = 'rotate(0) scale(1)';
+          icon.style.opacity = '1';
+        }, 200);
       });
     })();
   </script>
