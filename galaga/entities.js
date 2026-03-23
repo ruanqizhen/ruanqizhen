@@ -449,8 +449,9 @@ class Enemy {
                 this.x = this.startX + formationOffsetX;
                 this.y = this.startY + Math.sin(gameTime / ENEMY_FORMATION_WAVE_FREQUENCY + this.startX / 100) * ENEMY_FORMATION_WAVE_AMPLITUDE;
 
-                if (Math.random() < this.diveProb) this.isDiving = true;
-                if (Math.random() < this.bombProb) {
+                // Frame-rate independent probability (multiply by dt)
+                if (Math.random() < this.diveProb * dt) this.isDiving = true;
+                if (Math.random() < this.bombProb * dt) {
                     if (this.type === 4) {
                         // Elite fires tracking missiles
                         let missile = getTrackingMissile(this.x + this.width / 2, this.y + this.height);
