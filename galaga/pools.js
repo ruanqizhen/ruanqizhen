@@ -53,7 +53,13 @@ function getTrackingMissile(x, y) {
 
 function recycleEnemyProjectile(ep) {
     ep._remove = false; // reset state to prevent ghost deletion
-    if (ep.isTrackingMissile) {
+    // Fully reset projectile state to prevent stale data
+    ep.speedX = 0;
+    ep.isTrackingMissile = false;
+    if (ep instanceof TrackingMissile) {
+        ep.speed = ENEMY_PROJECTILE_SPEED;
+        ep.width = ENEMY_PROJECTILE_WIDTH;
+        ep.height = ENEMY_PROJECTILE_HEIGHT;
         trackingMissilePool.push(ep);
     } else {
         enemyProjectilePool.push(ep);

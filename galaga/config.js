@@ -184,7 +184,17 @@ const statusShieldEl = document.getElementById('status-shield');
 let score = 0;
 let level = 1;
 let gameTime = 0; // Unified game time in ms, driven by dt
-let highScore = localStorage.getItem('galaga-high-score') || 0;
+
+// Safe localStorage access (handles private browsing mode)
+let highScore = 0;
+try {
+    const stored = localStorage.getItem('galaga-high-score');
+    if (stored !== null) {
+        highScore = parseInt(stored, 10) || 0;
+    }
+} catch (e) {
+    console.warn('localStorage not available, high score will not persist');
+}
 highScoreEl.textContent = highScore;
 
 let gameActive = false;

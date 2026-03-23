@@ -55,7 +55,11 @@ function handleCollisions() {
 
                         if (score > highScore) {
                             highScore = score;
-                            localStorage.setItem('galaga-high-score', highScore);
+                            try {
+                                localStorage.setItem('galaga-high-score', highScore);
+                            } catch (e) {
+                                console.warn('localStorage not available, high score not saved');
+                            }
                             highScoreEl.textContent = highScore;
                         }
                     } else {
