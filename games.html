@@ -86,8 +86,13 @@
     }
 
     @keyframes bgShift {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.1); }
+      0% {
+        transform: scale(1);
+      }
+
+      100% {
+        transform: scale(1.1);
+      }
     }
 
     .container {
@@ -110,6 +115,7 @@
         opacity: 0;
         transform: translateY(20px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -179,7 +185,6 @@
       justify-content: space-between;
       align-items: center;
       position: relative;
-      overflow: hidden;
       text-decoration: none;
       color: inherit;
     }
@@ -201,6 +206,7 @@
       transform: translateY(-3px);
       box-shadow: var(--shadow-hover);
       border-color: var(--text-accent);
+      z-index: 10;
     }
 
     .game-card:hover::before {
@@ -221,7 +227,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--text-accent);
+      color: #fbbf24;
       transition: transform 0.3s;
     }
 
@@ -382,7 +388,7 @@
 
     <header class="header">
       <h1>怀旧游戏存档</h1>
-      <p>探索数据流的艺术 · 从零开始的图形化编程实战。这些是我在学习 Web 开发过程中复刻的一些经典小游戏。</p>
+      <p>复刻这几个游戏，纯粹是为了安放我的怀旧情结，在代码里重温一下童年的电子梦。但我还是悄悄夹带了点私货，把记忆里那慢悠悠的节奏，魔改成了满屏爆炸、极速狂飙的爽快体验。</p>
     </header>
 
     <div class="games-list">
@@ -508,7 +514,7 @@
       };
 
       updateUI(html.classList.contains('dark'));
-      
+
       toggle.addEventListener('click', () => {
         icon.style.transform = 'rotate(90deg) scale(0.3)';
         icon.style.opacity = '0';
