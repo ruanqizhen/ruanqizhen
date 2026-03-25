@@ -231,9 +231,13 @@ function handleCollisions() {
             pu.y < player.y + player.height &&
             pu.y + pu.height > player.y) {
 
-            if (pu.type === 'D') player.dualShotTimer = gameTime + DUAL_SHOT_DURATION;
+            if (pu.type === 'D') {
+                player.dualShotTimer = Math.max(player.dualShotTimer, gameTime) + DUAL_SHOT_DURATION;
+            }
             if (pu.type === 'S') player.shieldLevel++;
-            if (pu.type === 'R') player.rapidFireTimer = gameTime + RAPID_FIRE_DURATION;
+            if (pu.type === 'R') {
+                player.rapidFireTimer = Math.max(player.rapidFireTimer, gameTime) + RAPID_FIRE_DURATION;
+            }
 
             powerUps.splice(i, 1);
             playSound('shoot');
