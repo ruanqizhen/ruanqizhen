@@ -195,7 +195,7 @@ function update(dt) {
     else if (pressedKeys['ArrowRight']) player.dx = player.speed;
     else player.dx = 0;
 
-    if (pressedKeys[' ']) {
+    if (pressedKeys[' '] || isDragging) {
         player.fire(gameTime);
     }
 
@@ -482,7 +482,7 @@ canvas.addEventListener('touchstart', e => {
 
     if (x >= player.x && x <= player.x + player.width &&
         y >= player.y && y <= player.y + player.height) {
-        player.fire(gameTime);
+        // Handled by update loop
     }
 
     touchX = x;
@@ -503,7 +503,7 @@ canvas.addEventListener('touchmove', e => {
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > CANVAS_WIDTH) player.x = CANVAS_WIDTH - player.width;
 
-    player.fire(gameTime);
+    // Handled by update loop
 
     touchX = x;
 }, { passive: false });
@@ -524,7 +524,7 @@ canvas.addEventListener('mousedown', e => {
 
     if (x >= player.x && x <= player.x + player.width &&
         y >= player.y && y <= player.y + player.height) {
-        player.fire(gameTime);
+        // Handled by update loop
     }
 
     touchX = x;
@@ -543,7 +543,7 @@ window.addEventListener('mousemove', e => {
     if (player.x < 0) player.x = 0;
     if (player.x + player.width > CANVAS_WIDTH) player.x = CANVAS_WIDTH - player.width;
 
-    player.fire(gameTime);
+    // Handled by update loop
 
     touchX = x;
 });
