@@ -1,608 +1,989 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
-  <meta charset="UTF-8">
-  <title>阮奇桢 | 个人主页</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="阮奇桢的个人主页：技术教程、文学创作与生活随笔。">
-  <meta name="keywords" content="阮奇桢, LabVIEW, Python, 编程教程, 个人博客, 技术教程, 文学创作">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>阮奇桢 | 個人主頁</title>
+<meta name="description" content="阮奇桢的个人主页：技术教程、文学创作与生活随笔。">
+<meta name="keywords" content="阮奇桢, LabVIEW, Python, 编程教程, 个人博客, 技术教程, 文学创作">
+<meta property="og:title" content="阮奇桢 | 个人主页">
+<meta property="og:description" content="技术教程、文学创作与生活随笔">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://qizhen.xyz">
+<meta property="og:image" content="https://qizhen.xyz/og-image.png">
+<link rel="icon"
+  href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛳</text></svg>">
 
-  <meta property="og:title" content="阮奇桢 | 个人主页">
-  <meta property="og:description" content="技术教程、文学创作与生活随笔">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://qizhen.xyz">
-  <meta property="og:image" content="https://qizhen.xyz/og-image.png">
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛳</text></svg>">
+  :root {
+    /* === 晨霧（默認） === */
+    --sky-top: #e8e4dc;
+    --sky-mid: #ebe7df;
+    --sky-bot: #f0ece4;
+    --paper: #f2ede4;
+    --paper-edge: #d8d0c2;
+    --ink-far: #8a8278;
+    --ink-mid: #6a6258;
+    --ink-near: #4a4438;
+    --ink-deep: #3a352a;
+    --water-top: rgba(120,115,105,0.22);
+    --water-bot: rgba(180,174,164,0.06);
+    --cloud-white: rgba(245,242,236,0.92);
+    --mist-white: rgba(248,245,240,0.80);
+    --bird-color: #3a352a;
+    --seal-red: #a03020;
+    --seal-text-color: rgba(248,235,225,0.92);
+    --inscription-color: #3a3228;
+    --reflection-opacity: 0.12;
+    --sky-glow: transparent;
+    --water-glow: transparent;
+    --transition-dur: 1.8s;
+    /* 文字層 */
+    --text-primary: #2a2418;
+    --text-secondary: #5a5040;
+    --text-link: #3a352a;
+    --text-link-hover: #6a4030;
+    --card-bg: rgba(245,240,232,0.55);
+    --card-border: rgba(160,140,110,0.30);
+    --card-hover-bg: rgba(245,240,232,0.78);
+    --card-hover-border: rgba(140,100,60,0.50);
+    --scroll-track: rgba(160,140,110,0.15);
+    --scroll-thumb: rgba(140,120,90,0.35);
+  }
 
-  <style>
-    :root {
-      --bg-body: #f4f6f5;
-      --bg-card: rgba(255, 255, 255, 0.85);
-      --text-primary: #1a2b25;
-      --text-secondary: #496058;
-      --text-accent: #2d6a5e;
-      --border-line: #e8ece9;
-      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.06);
-      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.1);
-      --gradient-accent: linear-gradient(135deg, #2d6a5e, #3a8a7a);
-      --icon-tech: #2d6a5e;
-      --icon-lit: #8b5e3c;
-      --icon-blog: #4a6580;
-      --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-      --bg-gradient-start: #f2f5f8;
-      --bg-gradient-end: #e7edf2;
+  .night-mode {
+    --sky-top: #4a3828;
+    --sky-mid: #6a4830;
+    --sky-bot: #8a6040;
+    --paper: #c8b898;
+    --paper-edge: #a08868;
+    --ink-far: #5a4a38;
+    --ink-mid: #4a3a28;
+    --ink-near: #3a2e20;
+    --ink-deep: #2a2218;
+    --water-top: rgba(80,60,35,0.30);
+    --water-bot: rgba(140,110,70,0.08);
+    --cloud-white: rgba(200,170,130,0.55);
+    --mist-white: rgba(210,180,140,0.50);
+    --bird-color: #2a2218;
+    --seal-red: #8a2818;
+    --seal-text-color: rgba(240,220,200,0.85);
+    --inscription-color: #2a2218;
+    --reflection-opacity: 0.18;
+    --sky-glow: rgba(200,120,40,0.12);
+    --water-glow: rgba(220,160,60,0.08);
+    --text-primary: #1a1408;
+    --text-secondary: #3a3020;
+    --text-link: #2a2218;
+    --text-link-hover: #4a2818;
+    --card-bg: rgba(200,180,140,0.40);
+    --card-border: rgba(120,90,50,0.35);
+    --card-hover-bg: rgba(200,180,140,0.60);
+    --card-hover-border: rgba(120,80,30,0.55);
+    --scroll-track: rgba(120,90,50,0.20);
+    --scroll-thumb: rgba(100,70,30,0.45);
+  }
+
+  html, body {
+    width:100%; height:100%; overflow:hidden;
+    background: var(--paper);
+    transition: background var(--transition-dur) ease;
+    font-family: 'STSong','SimSun','Songti SC','Noto Serif CJK SC',serif;
+  }
+
+  /* ===== 動畫 ===== */
+  @keyframes drift1 {
+    0%,100% { transform: translateX(0) translateY(0) scaleX(1); }
+    50%     { transform: translateX(30px) translateY(-6px) scaleX(1.08); }
+  }
+  @keyframes drift2 {
+    0%,100% { transform: translateX(0) translateY(0); }
+    50%     { transform: translateX(-25px) translateY(4px) scaleX(0.94); }
+  }
+  @keyframes drift3 {
+    0%,100% { transform: translateX(0) translateY(0); }
+    50%     { transform: translateX(15px) translateY(-8px); }
+  }
+  @keyframes flyBird1 {
+    0%   { transform: translate(0,0);         opacity:0; }
+    4%   { opacity:1; }
+    96%  { opacity:1; }
+    100% { transform: translate(550px,-50px);  opacity:0; }
+  }
+  @keyframes flyBird2 {
+    0%   { transform: translate(0,0);          opacity:0; }
+    4%   { opacity:1; }
+    96%  { opacity:1; }
+    100% { transform: translate(-480px,-35px); opacity:0; }
+  }
+  @keyframes flyBird3 {
+    0%   { transform: translate(0,0);          opacity:0; }
+    5%   { opacity:1; }
+    95%  { opacity:1; }
+    100% { transform: translate(380px,-65px);  opacity:0; }
+  }
+  @keyframes flapWing {
+    0%,100% { transform: scaleY(1) rotate(0deg); }
+    25%     { transform: scaleY(0.6) rotate(-5deg); }
+    50%     { transform: scaleY(1) rotate(0deg); }
+    75%     { transform: scaleY(0.7) rotate(3deg); }
+  }
+  @keyframes ripple {
+    0%,100% { transform: scaleX(1);    opacity:0.18; }
+    50%     { transform: scaleX(1.03); opacity:0.28; }
+  }
+  @keyframes waterfall {
+    0%,100% { opacity:0.35; }
+    50%     { opacity:0.58; }
+  }
+
+  /* ===== 主畫布（背景層） ===== */
+  .canvas {
+    position: fixed;
+    top:0; left:0;
+    width: 100vw; height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(180deg,
+      var(--sky-top) 0%,
+      var(--sky-mid) 30%,
+      var(--sky-bot) 55%,
+      var(--paper) 70%);
+    transition: background var(--transition-dur) ease;
+    z-index: 0;
+  }
+
+  .canvas .sky-glow {
+    position:absolute; top:0; left:0; width:100%; height:60%;
+    background: radial-gradient(ellipse 120% 80% at 70% 80%, var(--sky-glow) 0%, transparent 70%);
+    pointer-events:none; z-index:1;
+    transition: background var(--transition-dur) ease;
+  }
+
+  /* 宣紙紋理 */
+  .canvas::before {
+    content:''; position:absolute; inset:0; pointer-events:none; z-index:100;
+    background:
+      repeating-linear-gradient(90deg,
+        transparent 0, transparent 2px,
+        rgba(160,140,110,0.035) 2px, rgba(160,140,110,0.035) 3px),
+      repeating-linear-gradient(0deg,
+        transparent 0, transparent 4px,
+        rgba(140,120,90,0.028) 4px, rgba(140,120,90,0.028) 5px),
+      repeating-linear-gradient(35deg,
+        transparent 0, transparent 8px,
+        rgba(130,110,80,0.015) 8px, rgba(130,110,80,0.015) 9px),
+      radial-gradient(ellipse 40% 30% at 25% 35%, rgba(160,140,100,0.04) 0%, transparent 100%),
+      radial-gradient(ellipse 35% 25% at 72% 60%, rgba(150,130,90,0.035) 0%, transparent 100%),
+      radial-gradient(ellipse 50% 40% at 50% 80%, rgba(140,120,85,0.03) 0%, transparent 100%);
+  }
+  .canvas::after {
+    content:''; position:absolute; inset:0; pointer-events:none; z-index:99;
+    box-shadow:
+      inset 0 0 120px rgba(120,100,70,0.20),
+      inset 0 0 300px rgba(100,80,55,0.08),
+      inset 80px 0 60px -40px rgba(110,90,60,0.12),
+      inset -80px 0 60px -40px rgba(110,90,60,0.12);
+  }
+
+  .scene-svg {
+    position:absolute; top:0; left:0;
+    width:100%; height:100%;
+  }
+
+  /* ===== 雲霧 ===== */
+  .cloud { position:absolute; border-radius:50%; pointer-events:none; transition: background var(--transition-dur) ease; }
+  .cloud-sea-1 {
+    bottom:22%; left:-8%; width:65%; height:5%;
+    background: radial-gradient(ellipse 85% 70% at 45% 55%, var(--cloud-white) 0%, transparent 100%);
+    filter:blur(22px); animation: drift1 14s ease-in-out infinite;
+  }
+  .cloud-sea-2 {
+    bottom:23%; right:-8%; width:58%; height:4.5%;
+    background: radial-gradient(ellipse 80% 65% at 55% 50%, var(--cloud-white) 0%, transparent 100%);
+    filter:blur(20px); animation: drift2 16s ease-in-out infinite;
+  }
+  .cloud-sea-3 {
+    bottom:25%; left:15%; width:70%; height:4%;
+    background: radial-gradient(ellipse 75% 55% at 50% 50%, var(--mist-white) 0%, transparent 100%);
+    filter:blur(25px); animation: drift3 11s ease-in-out infinite; animation-delay:2s;
+  }
+  .cloud-mid-1 {
+    bottom:32%; left:5%; width:40%; height:3.5%;
+    background: radial-gradient(ellipse 80% 60% at 40% 55%, var(--cloud-white) 0%, transparent 100%);
+    filter:blur(16px); opacity:0.85; animation: drift1 18s ease-in-out infinite; animation-delay:3s;
+  }
+  .cloud-mid-2 {
+    bottom:34%; right:3%; width:35%; height:3%;
+    background: radial-gradient(ellipse 75% 55% at 55% 50%, var(--cloud-white) 0%, transparent 100%);
+    filter:blur(14px); opacity:0.75; animation: drift2 20s ease-in-out infinite; animation-delay:1s;
+  }
+  .cloud-mid-3 {
+    bottom:38%; left:30%; width:32%; height:2.5%;
+    background: radial-gradient(ellipse 70% 50% at 50% 50%, var(--mist-white) 0%, transparent 100%);
+    filter:blur(12px); opacity:0.70; animation: drift3 15s ease-in-out infinite; animation-delay:5s;
+  }
+  .cloud-hi-1 {
+    bottom:44%; left:0%; width:28%; height:2%;
+    background: radial-gradient(ellipse, var(--mist-white) 0%, transparent 100%);
+    filter:blur(10px); opacity:0.55; animation: drift2 24s ease-in-out infinite; animation-delay:4s;
+  }
+  .cloud-hi-2 {
+    bottom:48%; right:8%; width:24%; height:1.8%;
+    background: radial-gradient(ellipse, var(--mist-white) 0%, transparent 100%);
+    filter:blur(8px); opacity:0.45; animation: drift1 22s ease-in-out infinite; animation-delay:6s;
+  }
+  .cloud-mountain-1 {
+    bottom:30%; left:-5%; width:50%; height:3%;
+    background: radial-gradient(ellipse 90% 80% at 40% 50%, var(--cloud-white) 0%, transparent 100%);
+    filter:blur(18px); opacity:0.90; animation: drift1 12s ease-in-out infinite; animation-delay:1s;
+  }
+  .cloud-mountain-2 {
+    bottom:28%; right:-3%; width:45%; height:2.5%;
+    background: radial-gradient(ellipse 85% 70% at 60% 50%, var(--cloud-white) 0%, transparent 100%);
+    filter:blur(16px); opacity:0.80; animation: drift2 14s ease-in-out infinite; animation-delay:3s;
+  }
+
+  /* ===== 飛鳥 ===== */
+  .birds-group { position:absolute; pointer-events:none; }
+  .birds-1 { top:18%; left:3%;  animation: flyBird1 28s linear infinite; }
+  .birds-2 { top:22%; right:5%; animation: flyBird2 34s linear infinite; animation-delay:10s; }
+  .birds-3 { top:15%; left:25%; animation: flyBird3 22s linear infinite; animation-delay:5s; }
+  .bird { position:absolute; width:16px; height:6px; animation: flapWing 0.8s ease-in-out infinite; }
+  .bird::before, .bird::after {
+    content:''; position:absolute; top:0;
+    width:8px; height:6px;
+    border-top: 1.5px solid var(--bird-color);
+    border-radius: 50% 50% 0 0;
+    transition: border-color var(--transition-dur) ease;
+  }
+  .bird::before { left:0;  transform:rotate(-10deg); }
+  .bird::after  { right:0; transform:rotate(10deg); }
+  .bird-sm { width:12px; height:5px; }
+  .bird-sm::before, .bird-sm::after { width:6px; height:5px; border-top-width:1.2px; }
+  .bird-xs { width:9px; height:4px; }
+  .bird-xs::before, .bird-xs::after { width:4.5px; height:4px; border-top-width:1px; }
+
+  .wfall-anim  { animation: waterfall 4s ease-in-out infinite; }
+  .wfall-anim2 { animation: waterfall 4s ease-in-out infinite; animation-delay:1.5s; }
+  .ripple-anim { animation: ripple 7s ease-in-out infinite; }
+
+  .water-glow {
+    position:absolute; bottom:0; left:0; width:100%; height:15%;
+    background: radial-gradient(ellipse 100% 60% at 60% 20%, var(--water-glow) 0%, transparent 70%);
+    pointer-events:none; z-index:2;
+    transition: background var(--transition-dur) ease;
+  }
+
+  /* ============================
+     卷軸內容層 — 竪排右至左
+     ============================ */
+  .scroll-layer {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  .scroll-content {
+    position: absolute;
+    top: 0; right: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: stretch;
+    justify-content: center;
+    padding: 40px 30px 30px 30px;
+    gap: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    pointer-events: auto;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    direction: ltr;
+    width: 100%;
+    /* 自定義卷軸滾動條 */
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+  }
+  .scroll-content::-webkit-scrollbar {
+    height: 6px;
+  }
+  .scroll-content::-webkit-scrollbar-track {
+    background: var(--scroll-track);
+    border-radius: 3px;
+  }
+  .scroll-content::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border-radius: 3px;
+  }
+
+  /* 標題區 */
+  .title-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 12px;
+    flex-shrink: 0;
+  }
+  .main-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 12px;
+    color: var(--text-primary);
+    transition: color var(--transition-dur) ease;
+    text-shadow: 0 1px 3px rgba(245,240,232,0.5);
+  }
+
+  /* 印章 */
+  .seal {
+    margin-top: 20px;
+    width: 48px; height: 48px;
+    background: var(--seal-red);
+    border-radius: 1px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background-image:
+      radial-gradient(circle 1.5px at 10px 7px, rgba(248,240,230,0.45) 0%, transparent 100%),
+      radial-gradient(circle 1px at 32px 13px, rgba(248,240,230,0.35) 0%, transparent 100%),
+      radial-gradient(circle 1.5px at 7px 35px, rgba(248,240,230,0.40) 0%, transparent 100%),
+      radial-gradient(circle 1px at 38px 38px, rgba(248,240,230,0.30) 0%, transparent 100%),
+      radial-gradient(circle 1px at 22px 24px, rgba(248,240,230,0.25) 0%, transparent 100%);
+    box-shadow: 1px 1px 5px rgba(80,20,15,0.22);
+    transition: background var(--transition-dur) ease;
+    position: relative;
+  }
+  .seal::before {
+    content:''; position:absolute; inset:3px;
+    border:1.5px solid rgba(240,200,180,0.28); border-radius:0;
+  }
+  .seal-text {
+    display: grid;
+    grid-template-columns: repeat(2, 14px);
+    grid-template-rows: repeat(2, 14px);
+    width: 28px;
+    height: 28px;
+    z-index: 1;
+  }
+  .seal-char {
+    color: var(--seal-text-color);
+    font-family:'STSong','SimSun','Songti SC',serif;
+    font-size:13px; font-weight:900; line-height:1.1;
+    width:14px; text-align:center;
+    transition: color var(--transition-dur) ease;
+  }
+
+  /* 卡片列 */
+  .card-column {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    padding: 20px 8px;
+    flex-shrink: 0;
+    gap: 12px;
+  }
+
+  .card {
+    text-decoration: none;
+    color: var(--text-primary);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 14px 12px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: all 0.4s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    min-height: 0;
+  }
+  .card:hover {
+    background: var(--card-hover-bg);
+    border-color: var(--card-hover-border);
+    box-shadow: 0 4px 18px rgba(80,60,30,0.12);
+    transform: translateX(-2px);
+  }
+
+  .card-header {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--text-primary);
+    transition: color var(--transition-dur) ease;
+    line-height: 1.6;
+  }
+  .card:hover .card-title {
+    color: var(--text-link-hover);
+  }
+
+  .card-tag {
+    font-size: 10px;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    display: inline-block;
+    writing-mode: vertical-rl;
+  }
+  .card-tag.book {
+    background: rgba(160,120,60,0.12);
+    color: var(--text-link-hover);
+  }
+  .card-tag.web {
+    background: rgba(100,120,140,0.12);
+    color: var(--text-secondary);
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 2px;
+    line-height: 1.8;
+    opacity: 0.75;
+    transition: color var(--transition-dur) ease;
+  }
+
+
+  /* 引首章 */
+  .seal-intro {
+    margin-bottom: 12px;
+    width: 24px; height: 36px;
+    background: var(--seal-red);
+    border-radius: 12px / 18px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background-image:
+      radial-gradient(circle 0.8px at 6px 8px, rgba(248,240,230,0.40) 0%, transparent 100%),
+      radial-gradient(circle 0.6px at 18px 26px, rgba(248,240,230,0.35) 0%, transparent 100%);
+    box-shadow: 1px 1px 3px rgba(80,20,15,0.18);
+    transition: background var(--transition-dur) ease;
+  }
+  .seal-intro-char {
+    color: var(--seal-text-color);
+    font-family:'STSong','SimSun','Songti SC',serif;
+    font-size:10px; font-weight:900; line-height:1.2;
+    transition: color var(--transition-dur) ease;
+  }
+
+  /* ===== 晝夜切換按鈕 ===== */
+  .toggle-btn {
+    position: fixed;
+    top: 12px; right: 12px;
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(120,100,70,0.25);
+    background: rgba(245,240,232,0.60);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    cursor: pointer; z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; line-height: 1;
+    transition: all 0.4s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .toggle-btn:hover {
+    background: rgba(245,240,232,0.88);
+    transform: scale(1.08);
+  }
+  .toggle-btn .icon-sun,
+  .toggle-btn .icon-moon { transition: opacity 0.4s ease; position:absolute; }
+  .toggle-btn .icon-moon { opacity:0; }
+  .night-mode .toggle-btn .icon-sun  { opacity:0; }
+  .night-mode .toggle-btn .icon-moon { opacity:1; }
+  .night-mode .toggle-btn {
+    border-color: rgba(200,160,100,0.30);
+    background: rgba(80,60,35,0.50);
+  }
+
+  .title-bg {
+    position: absolute;
+    top: 60px;
+    left: 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    z-index: 10;
+    pointer-events: none;
+    writing-mode: vertical-rl;
+  }
+
+  /* ===== 響應式 ===== */
+  @media (max-width: 900px) {
+    .scroll-content {
+      padding: 30px 15px 25px 15px;
     }
-
-    /* Dark Mode Variables */
-    html.dark {
-      --bg-body: #0f1714;
-      --bg-card: rgba(22, 32, 28, 0.9);
-      --text-primary: #e0e8e4;
-      --text-secondary: #8a9b95;
-      --text-accent: #5ec4b0;
-      --border-line: #243530;
-      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
-      --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
-      --icon-tech: #5ec4b0;
-      --icon-lit: #d4a574;
-      --icon-blog: #7aaccc;
-      --bg-gradient-start: #0f1714;
-      --bg-gradient-end: #16201c;
+    .main-title {
+      font-size: 22px;
+      letter-spacing: 8px;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text-primary);
-      line-height: 1.6;
-      background: var(--bg-body);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      transition: background 0.3s ease;
-      position: relative;
-    }
-
-    /* Marble Texture Background Layer */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-      filter: url(#marble);
-      opacity: 0.10;
-      pointer-events: none;
-    }
-
-    /* Animated background pattern layer */
-    .bg-pattern {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      opacity: 0.4;
-      background:
-        radial-gradient(ellipse 600px 400px at 20% 30%, rgba(45, 106, 94, 0.08), transparent),
-        radial-gradient(ellipse 500px 500px at 80% 70%, rgba(58, 138, 122, 0.06), transparent),
-        radial-gradient(ellipse 400px 300px at 50% 50%, rgba(74, 101, 128, 0.05), transparent);
-      animation: bgShift 20s ease-in-out infinite alternate;
-      pointer-events: none;
-    }
-
-    @keyframes bgShift {
-      0% {
-        transform: scale(1);
-      }
-
-      100% {
-        transform: scale(1.1);
-      }
-    }
-
-    .container {
-      width: 100%;
-      max-width: 680px;
-      margin: 80px 20px;
-      padding: 60px 50px;
-      background: var(--bg-card);
-      box-shadow: var(--shadow-card), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      animation: fadeIn 0.8s ease-out;
-      display: flex;
-      flex-direction: column;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Header */
-    .profile {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    .profile h1 {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: var(--text-primary);
-    }
-
-
-    /* Cards */
-    .cards {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 40px;
-    }
-
-    .card {
-      text-decoration: none;
-      color: inherit;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 12px;
-      padding: 16px 20px;
-      border: 1px solid var(--border-line);
-      transition: all 0.3s var(--transition-smooth);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-hover);
-      border-color: var(--text-accent);
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--gradient-accent);
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform 0.4s var(--transition-smooth);
-    }
-
-    .card:hover::before {
-      transform: scaleX(1);
-    }
-
-    .card-inner {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-    }
-
-    .card-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: transform 0.3s;
-    }
-
-    .card:hover .card-icon {
-      transform: scale(1.1) rotate(-3deg);
-    }
-
-    .card-icon.tech {
-      background: rgba(45, 106, 94, 0.1);
-      color: var(--icon-tech);
-    }
-
-    .card-icon.lit {
-      background: rgba(139, 94, 60, 0.1);
-      color: var(--icon-lit);
-    }
-
-    .card-icon.forum {
-      background: rgba(74, 101, 128, 0.1);
-      color: var(--icon-blog);
-    }
-
-    .card-icon.game {
-      background: rgba(217, 119, 6, 0.1);
-      color: #d97706;
-    }
-
-    html.dark .card-icon.game {
-      background: rgba(251, 191, 36, 0.15);
-      color: #fbbf24;
-    }
-
-    .card-icon.blog {
-      background: rgba(74, 101, 128, 0.1);
-      color: var(--icon-blog);
-    }
-
-    .card-content {
-      flex: 1;
-      min-width: 0;
-    }
-
     .card-title {
-      font-size: 17px;
-      font-weight: 600;
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .card:hover .card-title {
-      color: var(--text-accent);
-    }
-
-    .card-tag {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 500;
-    }
-
-    .card-tag.book {
-      background: rgba(45, 106, 94, 0.1);
-      color: var(--text-accent);
-    }
-
-    .card-tag.web {
-      background: rgba(139, 94, 60, 0.1);
-      color: var(--icon-lit);
-    }
-
-    .card-desc {
       font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.5;
+      letter-spacing: 3px;
     }
-
-    .card-arrow {
-      position: absolute;
-      right: 24px;
-      top: 50%;
-      transform: translateY(-50%) translateX(-10px);
-      opacity: 0;
-      transition: all 0.3s;
-      color: var(--text-accent);
+    .card-desc {
+      font-size: 11px;
     }
-
-    .card:hover .card-arrow {
-      opacity: 1;
-      transform: translateY(-50%) translateX(0);
+    .title-bg {
+      top: 55px;
+      left: 25px;
+      right: auto;
     }
+  }
 
-    /* Footer */
-    footer {
-      margin-top: auto;
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-secondary);
-      opacity: 0.6;
+  @media (max-width: 500px) {
+    .scroll-content {
+      padding: 20px 8px 18px 8px;
     }
-
-    .footer-divider {
-      width: 40px;
-      height: 1px;
-      background: var(--border-line);
-      margin: 0 auto 20px;
-    }
-
-    /* Theme Toggle */
-    .theme-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: 1px solid var(--border-line);
-      background: var(--bg-card);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .main-title {
       font-size: 18px;
-      transition: all 0.3s;
-      z-index: 100;
-      backdrop-filter: blur(8px);
+      letter-spacing: 6px;
     }
-
-    #themeIcon {
-      display: inline-block;
-      transition: transform 0.35s ease, opacity 0.25s ease;
+    .card {
+      padding: 10px 8px;
     }
-
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    .card-title {
+      font-size: 13px;
+      letter-spacing: 2px;
     }
-
-    /* Noscript fallback */
-    noscript .theme-toggle-hidden {
-      display: none;
+    .card-desc {
+      font-size: 10px;
+      letter-spacing: 1px;
     }
-
-    /* Responsive */
-    @media (max-width: 600px) {
-      .container {
-        margin: 20px 10px;
-        padding: 40px 20px;
-      }
-
-      .card-arrow {
-        display: none;
-      }
-
-      .theme-toggle {
-        top: 10px;
-        right: 10px;
-      }
+    .card-column { padding: 15px 5px; gap: 8px; }
+    .title-bg {
+      top: 50px;
+      left: 15px;
+      right: auto;
     }
-  </style>
-
-  <noscript>
-    <style>
-      .theme-toggle {
-        display: none !important;
-      }
-    </style>
-  </noscript>
-
-  <script>
-    (function () {
-      const savedTheme = localStorage.getItem('theme');
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-      if (savedTheme === 'dark' || (!savedTheme && systemDark)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    })();
-  </script>
-  <script type="text/javascript">
-    (function (c, l, a, r, i, t, y) {
-      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
-      t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
-      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
-    })(window, document, "clarity", "script", "jxmn1qjx88");
-  </script>
+  }
+</style>
+<script>
+  (function () {
+    const savedTheme = localStorage.getItem('theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (savedTheme === 'dark' || (!savedTheme && systemDark)) {
+      // will apply night-mode class after DOM ready
+      document.documentElement.dataset.nightMode = 'true';
+    }
+  })();
+</script>
+<script type="text/javascript">
+  (function (c, l, a, r, i, t, y) {
+    c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+    t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+    y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+  })(window, document, "clarity", "script", "jxmn1qjx88");
+</script>
 </head>
-
 <body>
-  <svg width="0" height="0" style="position: absolute;">
-    <filter id="marble">
-      <feTurbulence id="marble-noise" type="fractalNoise" baseFrequency="0.0016 0.016" numOctaves="2" seed="123"
-        result="noise" />
-      <feColorMatrix type="saturate" values="0.1" result="mono" />
-      <feColorMatrix in="mono" type="matrix" values="9 0 0 0 -4 0 9 0 0 -4 0 0 9 0 -4 0 0 0 1 0" result="veins" />
-      <feDisplacementMap in="veins" in2="noise" scale="95" xChannelSelector="R" yChannelSelector="G" />
-    </filter>
+
+<!-- ============================
+     背景層：水墨山水
+     ============================ -->
+<div class="canvas" id="canvas">
+  <div class="sky-glow"></div>
+
+  <svg class="scene-svg" viewBox="0 0 1600 600" preserveAspectRatio="xMidYMid slice"
+       xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gFar" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--ink-far)" stop-opacity="0.35"/>
+        <stop offset="100%" stop-color="var(--ink-far)" stop-opacity="0.15"/>
+      </linearGradient>
+      <linearGradient id="gMid" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--ink-mid)" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="var(--ink-mid)" stop-opacity="0.25"/>
+      </linearGradient>
+      <linearGradient id="gNear" x1="0" y1="0" x2="0.15" y2="1">
+        <stop offset="0%" stop-color="var(--ink-near)" stop-opacity="0.75"/>
+        <stop offset="100%" stop-color="var(--ink-near)" stop-opacity="0.40"/>
+      </linearGradient>
+      <linearGradient id="gPeak" x1="0" y1="0" x2="0.2" y2="1">
+        <stop offset="0%" stop-color="var(--ink-deep)" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="var(--ink-near)" stop-opacity="0.50"/>
+      </linearGradient>
+      <linearGradient id="gWater" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="var(--ink-mid)" stop-opacity="0.18"/>
+        <stop offset="50%"  stop-color="var(--ink-far)" stop-opacity="0.10"/>
+        <stop offset="100%" stop-color="var(--ink-far)" stop-opacity="0.03"/>
+      </linearGradient>
+      <linearGradient id="gFall" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#9ab4c8" stop-opacity="0"/>
+        <stop offset="15%" stop-color="#b8ceda" stop-opacity="0.65"/>
+        <stop offset="80%" stop-color="#ccdce8" stop-opacity="0.40"/>
+        <stop offset="100%" stop-color="#ddeaf4" stop-opacity="0.08"/>
+      </linearGradient>
+      <linearGradient id="gReflect" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--ink-near)" stop-opacity="var(--reflection-opacity)"/>
+        <stop offset="100%" stop-color="var(--ink-near)" stop-opacity="0.02"/>
+      </linearGradient>
+
+      <filter id="fFar">  <feGaussianBlur stdDeviation="6"/></filter>
+      <filter id="fMid">  <feGaussianBlur stdDeviation="3"/></filter>
+      <filter id="fNear"> <feGaussianBlur stdDeviation="1.2"/></filter>
+      <filter id="fInk">  <feGaussianBlur stdDeviation="0.6"/></filter>
+      <filter id="fFall"> <feGaussianBlur stdDeviation="1.5"/></filter>
+      <filter id="fMist"> <feGaussianBlur stdDeviation="14"/></filter>
+      <filter id="fSoft"> <feGaussianBlur stdDeviation="2"/></filter>
+      <filter id="fTree"> <feGaussianBlur stdDeviation="0.8"/></filter>
+
+      <pattern id="cunPiMa" x="0" y="0" width="40" height="30" patternUnits="userSpaceOnUse">
+        <line x1="2" y1="0" x2="8" y2="28" stroke="var(--ink-near)" stroke-width="0.6" opacity="0.3"/>
+        <line x1="10" y1="2" x2="15" y2="26" stroke="var(--ink-near)" stroke-width="0.5" opacity="0.25"/>
+        <line x1="20" y1="1" x2="24" y2="29" stroke="var(--ink-near)" stroke-width="0.7" opacity="0.2"/>
+        <line x1="30" y1="3" x2="35" y2="27" stroke="var(--ink-near)" stroke-width="0.5" opacity="0.28"/>
+        <line x1="38" y1="0" x2="40" y2="25" stroke="var(--ink-near)" stroke-width="0.4" opacity="0.22"/>
+        <line x1="5" y1="14" x2="9" y2="15" stroke="var(--ink-near)" stroke-width="0.5" opacity="0.20"/>
+        <line x1="25" y1="10" x2="29" y2="11" stroke="var(--ink-near)" stroke-width="0.4" opacity="0.18"/>
+      </pattern>
+      <pattern id="cunFuPi" x="0" y="0" width="30" height="25" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="5" x2="12" y2="8" stroke="var(--ink-deep)" stroke-width="1.2" opacity="0.18" stroke-linecap="round"/>
+        <line x1="15" y1="2" x2="28" y2="6" stroke="var(--ink-deep)" stroke-width="0.8" opacity="0.15" stroke-linecap="round"/>
+        <line x1="5" y1="15" x2="18" y2="18" stroke="var(--ink-deep)" stroke-width="1.0" opacity="0.20" stroke-linecap="round"/>
+        <line x1="20" y1="20" x2="30" y2="22" stroke="var(--ink-deep)" stroke-width="0.7" opacity="0.14" stroke-linecap="round"/>
+      </pattern>
+    </defs>
+
+    <rect width="1600" height="600" fill="none"/>
+
+    <!-- 最遠山脈 -->
+    <g filter="url(#fFar)" opacity="0.20">
+      <path d="M0,600 L0,380 C80,370 160,355 250,340 C340,325 400,335 480,318 C560,301 620,312 700,295 C780,278 840,290 920,275 C1000,260 1060,270 1140,258 C1220,246 1280,255 1360,242 C1440,230 1520,240 1600,235 L1600,600 Z" fill="url(#gFar)"/>
+    </g>
+    <g filter="url(#fFar)" opacity="0.14">
+      <path d="M0,600 L0,400 C100,388 200,370 310,358 C420,346 500,360 600,345 C700,330 780,342 880,328 C980,314 1060,325 1160,312 C1260,299 1340,310 1440,298 C1520,290 1570,295 1600,292 L1600,600 Z" fill="url(#gFar)"/>
+    </g>
+
+    <!-- 中景：左段平遠 -->
+    <g filter="url(#fMid)" opacity="0.40">
+      <path d="M0,600 L0,440 C40,435 80,420 130,405 C180,390 220,398 270,385 C320,372 360,380 420,395 C480,410 520,425 560,440 C600,450 640,458 700,470 C760,478 800,482 850,480 L850,600 Z" fill="url(#gMid)"/>
+      <path d="M0,600 L0,440 C40,435 80,420 130,405 C180,390 220,398 270,385 C320,372 360,380 420,395 C480,410 520,425 560,440 C600,450 640,458 700,470 C760,478 800,482 850,480 L850,600 Z" fill="url(#cunPiMa)" opacity="0.60"/>
+    </g>
+
+    <!-- 中段：高遠主峰 -->
+    <g filter="url(#fNear)" opacity="0.55">
+      <path d="M500,600 L500,470 C540,455 570,420 610,370 C650,320 680,275 720,230 C745,205 765,190 785,185 C805,180 820,190 835,215 C855,245 870,285 890,330 C910,375 930,410 960,440 C990,465 1020,478 1060,488 L1060,600 Z" fill="url(#gNear)"/>
+      <path d="M500,600 L500,470 C540,455 570,420 610,370 C650,320 680,275 720,230 C745,205 765,190 785,185 C805,180 820,190 835,215 C855,245 870,285 890,330 C910,375 930,410 960,440 C990,465 1020,478 1060,488 L1060,600 Z" fill="url(#cunFuPi)" opacity="0.55"/>
+    </g>
+    <!-- 主峰皴法 -->
+    <g opacity="0.30" filter="url(#fInk)">
+      <line x1="740" y1="220" x2="735" y2="280" stroke="var(--ink-near)" stroke-width="0.8" stroke-linecap="round"/>
+      <line x1="755" y1="210" x2="750" y2="265" stroke="var(--ink-near)" stroke-width="0.6" stroke-linecap="round"/>
+      <line x1="770" y1="200" x2="768" y2="260" stroke="var(--ink-near)" stroke-width="0.7" stroke-linecap="round"/>
+      <line x1="785" y1="195" x2="790" y2="255" stroke="var(--ink-near)" stroke-width="0.6" stroke-linecap="round"/>
+      <line x1="800" y1="200" x2="808" y2="265" stroke="var(--ink-near)" stroke-width="0.8" stroke-linecap="round"/>
+      <line x1="725" y1="250" x2="745" y2="248" stroke="var(--ink-near)" stroke-width="0.7" stroke-linecap="round"/>
+      <line x1="760" y1="240" x2="782" y2="237" stroke="var(--ink-near)" stroke-width="0.5" stroke-linecap="round"/>
+      <line x1="795" y1="245" x2="818" y2="242" stroke="var(--ink-near)" stroke-width="0.6" stroke-linecap="round"/>
+      <circle cx="735" cy="260" r="1.5" fill="var(--ink-near)" opacity="0.4"/>
+      <circle cx="758" cy="248" r="1.2" fill="var(--ink-near)" opacity="0.35"/>
+      <circle cx="780" cy="235" r="1.8" fill="var(--ink-near)" opacity="0.38"/>
+      <circle cx="805" cy="250" r="1.3" fill="var(--ink-near)" opacity="0.32"/>
+    </g>
+
+    <!-- 左輔峰 -->
+    <g filter="url(#fMid)" opacity="0.42">
+      <path d="M420,600 L420,450 C460,435 490,400 530,360 C555,335 575,318 590,310 C605,305 615,312 625,330 C640,355 660,395 685,435 C710,470 730,490 760,500 L760,600 Z" fill="url(#gMid)"/>
+      <path d="M420,600 L420,450 C460,435 490,400 530,360 C555,335 575,318 590,310 C605,305 615,312 625,330 C640,355 660,395 685,435 C710,470 730,490 760,500 L760,600 Z" fill="url(#cunPiMa)" opacity="0.50"/>
+    </g>
+
+    <!-- 右段：深遠 -->
+    <g filter="url(#fMid)" opacity="0.45">
+      <path d="M1000,600 L1000,440 C1050,425 1090,395 1140,360 C1180,335 1210,318 1240,308 C1270,298 1290,305 1310,325 C1340,355 1365,390 1400,420 C1440,450 1480,468 1530,478 C1560,484 1580,488 1600,490 L1600,600 Z" fill="url(#gMid)"/>
+      <path d="M1000,600 L1000,440 C1050,425 1090,395 1140,360 C1180,335 1210,318 1240,308 C1270,298 1290,305 1310,325 C1340,355 1365,390 1400,420 C1440,450 1480,468 1530,478 C1560,484 1580,488 1600,490 L1600,600 Z" fill="url(#cunPiMa)" opacity="0.48"/>
+    </g>
+    <g filter="url(#fNear)" opacity="0.38">
+      <path d="M1100,600 L1100,430 C1130,415 1155,390 1185,365 C1205,348 1225,335 1245,328 C1265,322 1280,330 1295,348 C1315,372 1335,405 1360,435 C1390,465 1420,485 1460,498 L1460,600 Z" fill="url(#gNear)"/>
+      <path d="M1100,600 L1100,430 C1130,415 1155,390 1185,365 C1205,348 1225,335 1245,328 C1265,322 1280,330 1295,348 C1315,372 1335,405 1360,435 C1390,465 1420,485 1460,498 L1460,600 Z" fill="url(#cunFuPi)" opacity="0.42"/>
+    </g>
+
+    <!-- 近景丘陵 -->
+    <g filter="url(#fInk)" opacity="0.65">
+      <path d="M0,600 L0,480 C30,472 60,458 100,445 C140,432 170,440 210,450 C260,462 300,475 350,490 L350,600 Z" fill="url(#gPeak)"/>
+      <path d="M0,600 L0,480 C30,472 60,458 100,445 C140,432 170,440 210,450 C260,462 300,475 350,490 L350,600 Z" fill="url(#cunPiMa)" opacity="0.65"/>
+    </g>
+    <g filter="url(#fInk)" opacity="0.60">
+      <path d="M1350,600 L1350,475 C1390,465 1420,455 1460,448 C1500,442 1530,450 1560,458 C1580,464 1590,470 1600,475 L1600,600 Z" fill="url(#gPeak)"/>
+      <path d="M1350,600 L1350,475 C1390,465 1420,455 1460,448 C1500,442 1530,450 1560,458 C1580,464 1590,470 1600,475 L1600,600 Z" fill="url(#cunFuPi)" opacity="0.55"/>
+    </g>
+
+    <!-- 瀑布 -->
+    <g class="wfall-anim">
+      <rect x="770" y="280" width="7" height="100" rx="3" fill="url(#gFall)" filter="url(#fFall)"/>
+      <rect x="772" y="295" width="3" height="75" rx="1.5" fill="rgba(225,240,250,0.45)" filter="url(#fFall)"/>
+      <ellipse cx="773" cy="385" rx="18" ry="5" fill="rgba(168,200,220,0.25)" filter="url(#fMist)"/>
+    </g>
+    <g class="wfall-anim2">
+      <rect x="588" y="335" width="5" height="60" rx="2.5" fill="url(#gFall)" filter="url(#fFall)" opacity="0.65"/>
+      <ellipse cx="590" cy="398" rx="12" ry="3.5" fill="rgba(168,200,220,0.18)" filter="url(#fMist)"/>
+    </g>
+
+    <!-- 淡墨樹林 -->
+    <g filter="url(#fMid)" opacity="0.20">
+      <line x1="150" y1="398" x2="150" y2="378" stroke="var(--ink-mid)" stroke-width="1" stroke-linecap="round"/>
+      <ellipse cx="150" cy="375" rx="5" ry="3.5" fill="var(--ink-mid)"/>
+      <line x1="170" y1="392" x2="170" y2="374" stroke="var(--ink-mid)" stroke-width="1" stroke-linecap="round"/>
+      <ellipse cx="170" cy="371" rx="4.5" ry="3" fill="var(--ink-mid)"/>
+      <line x1="188" y1="388" x2="188" y2="370" stroke="var(--ink-mid)" stroke-width="0.8" stroke-linecap="round"/>
+      <ellipse cx="188" cy="367" rx="4" ry="3" fill="var(--ink-mid)"/>
+      <line x1="205" y1="385" x2="205" y2="368" stroke="var(--ink-mid)" stroke-width="0.8" stroke-linecap="round"/>
+      <ellipse cx="205" cy="365" rx="4.5" ry="3.2" fill="var(--ink-mid)"/>
+    </g>
+    <g filter="url(#fTree)" opacity="0.35">
+      <line x1="680" y1="470" x2="680" y2="442" stroke="var(--ink-near)" stroke-width="1.5" stroke-linecap="round"/>
+      <ellipse cx="680" cy="438" rx="6" ry="4" fill="var(--ink-near)"/>
+      <line x1="700" y1="465" x2="700" y2="440" stroke="var(--ink-near)" stroke-width="1.2" stroke-linecap="round"/>
+      <ellipse cx="700" cy="436" rx="5.5" ry="3.8" fill="var(--ink-near)"/>
+      <line x1="715" y1="460" x2="715" y2="436" stroke="var(--ink-near)" stroke-width="1.3" stroke-linecap="round"/>
+      <ellipse cx="715" cy="432" rx="6" ry="4.2" fill="var(--ink-near)"/>
+    </g>
+    <g filter="url(#fTree)" opacity="0.28">
+      <line x1="1160" y1="385" x2="1160" y2="362" stroke="var(--ink-mid)" stroke-width="1.2" stroke-linecap="round"/>
+      <ellipse cx="1160" cy="359" rx="5" ry="3.5" fill="var(--ink-mid)"/>
+      <line x1="1178" y1="378" x2="1178" y2="358" stroke="var(--ink-mid)" stroke-width="1" stroke-linecap="round"/>
+      <ellipse cx="1178" cy="355" rx="4.5" ry="3" fill="var(--ink-mid)"/>
+      <line x1="1195" y1="372" x2="1195" y2="354" stroke="var(--ink-mid)" stroke-width="1.1" stroke-linecap="round"/>
+      <ellipse cx="1195" cy="351" rx="5" ry="3.2" fill="var(--ink-mid)"/>
+    </g>
+
+    <!-- 松樹 -->
+    <g transform="translate(760,380)" filter="url(#fInk)" opacity="0.72">
+      <line x1="0" y1="0" x2="-2" y2="-42" stroke="var(--ink-deep)" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M-2,-16 C-14,-20 -22,-18 -28,-14 M-2,-16 C10,-20 18,-18 24,-13" stroke="var(--ink-deep)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M-2,-26 C-12,-30 -19,-28 -24,-24 M-2,-26 C8,-30 16,-28 20,-23" stroke="var(--ink-deep)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M-2,-36 C-9,-40 -14,-38 -18,-34 M-2,-36 C6,-40 11,-38 15,-33" stroke="var(--ink-deep)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <ellipse cx="-26" cy="-15" rx="7" ry="4" fill="var(--ink-deep)" opacity="0.7" transform="rotate(-15,-26,-15)"/>
+      <ellipse cx="22" cy="-14" rx="7" ry="4" fill="var(--ink-deep)" opacity="0.7" transform="rotate(15,22,-14)"/>
+      <ellipse cx="-2" cy="-44" rx="5" ry="3.5" fill="var(--ink-deep)" opacity="0.6"/>
+    </g>
+
+    <!-- 枯樹 -->
+    <g transform="translate(280,488)" filter="url(#fInk)" opacity="0.65">
+      <path d="M0,0 C-2,-12 -1,-25 -3,-42 C-4,-52 -2,-60 0,-68" stroke="var(--ink-deep)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M-1,-30 C8,-38 18,-42 28,-40" stroke="var(--ink-deep)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M22,-41 C28,-48 32,-52 30,-56" stroke="var(--ink-deep)" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+      <path d="M-2,-45 C-12,-52 -22,-54 -30,-50" stroke="var(--ink-deep)" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      <path d="M-25,-51 C-30,-58 -28,-64 -24,-68" stroke="var(--ink-deep)" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+      <path d="M0,-68 C4,-76 10,-80 16,-78" stroke="var(--ink-deep)" stroke-width="1" fill="none" stroke-linecap="round"/>
+      <path d="M0,-68 C-5,-78 -10,-82 -14,-80" stroke="var(--ink-deep)" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(1380,472)" filter="url(#fInk)" opacity="0.55">
+      <path d="M0,0 C1,-10 2,-22 0,-38 C-1,-48 1,-55 2,-62" stroke="var(--ink-deep)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M1,-25 C10,-32 18,-34 24,-30" stroke="var(--ink-deep)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M0,-42 C-10,-48 -18,-46 -22,-42" stroke="var(--ink-deep)" stroke-width="1" fill="none" stroke-linecap="round"/>
+      <path d="M2,-62 C6,-70 4,-74 0,-76" stroke="var(--ink-deep)" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- 蘆葦 -->
+    <g opacity="0.50" filter="url(#fInk)">
+      <line x1="310" y1="500" x2="308" y2="468" stroke="var(--ink-near)" stroke-width="0.8" stroke-linecap="round"/>
+      <line x1="318" y1="498" x2="315" y2="465" stroke="var(--ink-near)" stroke-width="0.7" stroke-linecap="round"/>
+      <line x1="325" y1="500" x2="322" y2="470" stroke="var(--ink-near)" stroke-width="0.8" stroke-linecap="round"/>
+      <line x1="332" y1="498" x2="330" y2="472" stroke="var(--ink-near)" stroke-width="0.6" stroke-linecap="round"/>
+      <ellipse cx="307" cy="465" rx="2.5" ry="4" fill="var(--ink-near)" opacity="0.3" transform="rotate(-8,307,465)"/>
+      <ellipse cx="314" cy="462" rx="2" ry="3.5" fill="var(--ink-near)" opacity="0.28" transform="rotate(-5,314,462)"/>
+      <ellipse cx="321" cy="467" rx="2.5" ry="4" fill="var(--ink-near)" opacity="0.32" transform="rotate(3,321,467)"/>
+      <ellipse cx="329" cy="469" rx="2" ry="3.5" fill="var(--ink-near)" opacity="0.25" transform="rotate(5,329,469)"/>
+    </g>
+
+    <!-- 小橋 -->
+    <g transform="translate(380,498)" filter="url(#fInk)" opacity="0.58">
+      <path d="M-35,5 C-25,-12 -10,-22 0,-24 C10,-22 25,-12 35,5" stroke="var(--ink-deep)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M-35,5 C-25,-8 -10,-16 0,-18 C10,-16 25,-8 35,5" stroke="var(--ink-near)" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.5"/>
+      <line x1="-20" y1="-5" x2="-20" y2="8" stroke="var(--ink-deep)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="0" y1="-18" x2="0" y2="8" stroke="var(--ink-deep)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="20" y1="-5" x2="20" y2="8" stroke="var(--ink-deep)" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
+
+    <!-- 水面 -->
+    <path d="M0,525 C100,518 200,515 350,510 C500,505 650,500 800,498 C950,496 1100,500 1250,505 C1400,510 1500,515 1600,520 L1600,600 L0,600 Z" fill="url(#gWater)"/>
+    <ellipse cx="800" cy="520" rx="600" ry="30" fill="var(--mist-white)" filter="url(#fMist)" opacity="0.45"/>
+    <ellipse cx="400" cy="525" rx="350" ry="22" fill="var(--mist-white)" filter="url(#fMist)" opacity="0.35"/>
+
+    <!-- 倒影 -->
+    <g opacity="0.10" filter="url(#fSoft)">
+      <path d="M620,520 C660,525 700,535 740,545 C760,548 775,550 785,552 C795,550 810,548 830,545 C870,535 910,525 950,520 L950,560 C910,555 870,555 830,558 C795,562 760,562 740,558 C700,555 660,555 620,560 Z" fill="url(#gReflect)"/>
+    </g>
+    <g opacity="0.08" filter="url(#fSoft)">
+      <path d="M50,525 C100,522 150,520 200,518 C250,520 300,524 350,528 L350,555 C300,552 250,550 200,552 C150,550 100,548 50,555 Z" fill="url(#gReflect)"/>
+    </g>
+
+    <!-- 水紋 -->
+    <g class="ripple-anim">
+      <path d="M50,520 C200,515 450,512 700,510 C950,508 1200,512 1500,518" stroke="var(--ink-far)" stroke-width="0.6" fill="none" stroke-opacity="0.12"/>
+      <path d="M80,532 C250,528 480,525 720,523 C960,521 1200,525 1480,530" stroke="var(--ink-far)" stroke-width="0.5" fill="none" stroke-opacity="0.08"/>
+      <path d="M120,544 C300,540 500,538 750,536 C1000,535 1250,538 1450,542" stroke="var(--ink-far)" stroke-width="0.4" fill="none" stroke-opacity="0.06"/>
+      <path d="M60,555 C220,552 460,548 730,546 C1000,544 1280,548 1520,554" stroke="var(--ink-far)" stroke-width="0.4" fill="none" stroke-opacity="0.05"/>
+    </g>
+
+    <!-- 孤舟垂釣 -->
+    <g transform="translate(650,548)" filter="url(#fInk)">
+      <path d="M-55,2 C-48,7 -30,10 0,11 C30,10 48,7 55,2" stroke="var(--ink-deep)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M-55,2 C-58,-1 -62,-6 -60,-12 C-58,-8 -56,-4 -55,2" fill="var(--ink-deep)"/>
+      <path d="M55,2 C58,-1 62,-6 60,-12 C58,-8 56,-4 55,2" fill="var(--ink-deep)"/>
+      <path d="M-60,-12 C-56,-12 -46,-10 -30,-8 C-15,-6 -4,-5 0,-5 C4,-5 15,-6 30,-8 C46,-10 56,-12 60,-12 C56,-8 46,-7 30,-6 C15,-4 4,-4 0,-4 C-4,-4 -15,-4 -30,-6 C-46,-7 -56,-8 -60,-12 Z" fill="var(--ink-deep)" opacity="0.8"/>
+      <path d="M-48,-10 C-34,-8 -18,-6 0,-5.5 C18,-6 34,-8 48,-10 C48,-4 34,-2 0,-1 C-34,-2 -48,-4 -48,-10 Z" fill="var(--ink-near)" opacity="0.6"/>
+      <ellipse cx="24" cy="-11" rx="9" ry="4.5" fill="var(--ink-deep)" opacity="0.8"/>
+      <path d="M19,-11 C17,-18 19,-24 22,-26 C25,-28 29,-26 31,-20 C33,-15 31,-12 26,-10" fill="var(--ink-deep)" opacity="0.8"/>
+      <circle cx="24" cy="-29" r="4.5" fill="var(--ink-deep)" opacity="0.8"/>
+      <ellipse cx="24" cy="-32" rx="11" ry="3.5" fill="var(--ink-deep)" opacity="0.75"/>
+      <path d="M15,-32 C19,-39 29,-39 33,-32" fill="var(--ink-deep)" opacity="0.75"/>
+      <line x1="18" y1="-19" x2="-48" y2="-40" stroke="var(--ink-deep)" stroke-width="1.5" stroke-linecap="round" opacity="0.75"/>
+      <path d="M-48,-40 C-50,-28 -48,-12 -46,6" stroke="var(--ink-deep)" stroke-width="0.7" fill="none" stroke-dasharray="3,2" opacity="0.40"/>
+      <circle cx="-46" cy="8" r="1.8" fill="var(--ink-near)" opacity="0.45"/>
+    </g>
+
+    <!-- 遠景小船 -->
+    <g transform="translate(1050,515)" opacity="0.18" filter="url(#fMid)">
+      <path d="M-22,0 C-18,-5 -10,-7 0,-8 C10,-7 18,-5 22,0 C15,3 8,5 0,5 C-8,5 -15,3 -22,0 Z" fill="var(--ink-mid)"/>
+      <path d="M-22,0 C-24,-2 -26,-5 -24,-8 C-23,-5 -22,-2 -22,0 Z" fill="var(--ink-mid)"/>
+      <path d="M22,0 C24,-2 26,-5 24,-8 C23,-5 22,-2 22,0 Z" fill="var(--ink-mid)"/>
+      <path d="M0,-8 C2,-18 1,-22 0,-22 C-1,-22 -2,-18 0,-8 Z" fill="var(--ink-mid)" opacity="0.4"/>
+    </g>
+
+    <!-- 山腰雲海 -->
+    <g filter="url(#fMist)" opacity="0.65">
+      <ellipse cx="780" cy="390" rx="180" ry="18" fill="var(--mist-white)"/>
+    </g>
+    <g filter="url(#fMist)" opacity="0.50">
+      <ellipse cx="580" cy="420" rx="140" ry="14" fill="var(--mist-white)"/>
+    </g>
+    <g filter="url(#fMist)" opacity="0.45">
+      <ellipse cx="1240" cy="400" rx="150" ry="15" fill="var(--mist-white)"/>
+    </g>
+    <g filter="url(#fMist)" opacity="0.40">
+      <ellipse cx="200" cy="430" rx="120" ry="12" fill="var(--mist-white)"/>
+    </g>
   </svg>
 
-  <div class="bg-pattern"></div>
+  <!-- 雲霧 CSS 層 -->
+  <div class="cloud cloud-sea-1"></div>
+  <div class="cloud cloud-sea-2"></div>
+  <div class="cloud cloud-sea-3"></div>
+  <div class="cloud cloud-mid-1"></div>
+  <div class="cloud cloud-mid-2"></div>
+  <div class="cloud cloud-mid-3"></div>
+  <div class="cloud cloud-hi-1"></div>
+  <div class="cloud cloud-hi-2"></div>
+  <div class="cloud cloud-mountain-1"></div>
+  <div class="cloud cloud-mountain-2"></div>
 
-  <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
-    <span id="themeIcon">🌙</span>
-  </button>
-
-  <div class="container">
-    <header class="profile">
-      <h1>花开花落，云卷云舒</h1>
-    </header>
-
-    <div class="cards">
-      <a href="https://cocode.qizhen.xyz/" class="card" target="_blank" rel="noopener" aria-label="重构程序员 - 写给 AI 时代的自己">
-        <div class="card-inner">
-          <div class="card-icon tech"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-              <path d="M7 14l2-6 2 6 M8 11.5h2" />
-              <path d="M13 8h3 M14.5 8v6 M13 14h3" />
-            </svg></div>
-          <div class="card-content">
-            <div class="card-title">重构程序员 <span class="card-tag book">在线书籍</span></div>
-            <div class="card-desc">写给 AI 时代的自己 · 变革浪潮中普通程序员的震荡与思考</div>
-          </div>
-        </div>
-        <div class="card-arrow" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14" />
-            <path d="M12 5l7 7-7 7" />
-          </svg></div>
-      </a>
-
-      <a href="https://lv.qizhen.xyz" class="card" target="_blank" rel="noopener"
-        aria-label="LabVIEW 编程教程 - 图形编程从入门到精通的完整指南">
-        <div class="card-inner">
-          <div class="card-icon tech"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 3 22 12 3 21 3 3" />
-              <path d="M6 12h6M9 9v6" />
-            </svg></div>
-          <div class="card-content">
-            <div class="card-title">LabVIEW 编程教程 <span class="card-tag book">在线书籍</span></div>
-            <div class="card-desc">探索数据流的艺术 · 从零开始的图形化编程实战</div>
-          </div>
-        </div>
-        <div class="card-arrow" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14" />
-            <path d="M12 5l7 7-7 7" />
-          </svg></div>
-      </a>
-
-      <a href="https://py.qizhen.xyz" class="card" target="_blank" rel="noopener" aria-label="Python 编程教程 - 严谨而实用的编程秘籍">
-        <div class="card-inner">
-          <div class="card-icon tech"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5z" />
-              <path d="M2 17l10 5 10-5" />
-              <path d="M2 12l10 5 10-5" />
-            </svg></div>
-          <div class="card-content">
-            <div class="card-title">Python 编程教程 <span class="card-tag book">在线书籍</span></div>
-            <div class="card-desc">赛博修仙指南 · 严谨、实用且富有逻辑的编程秘籍</div>
-          </div>
-        </div>
-        <div class="card-arrow" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14" />
-            <path d="M12 5l7 7-7 7" />
-          </svg></div>
-      </a>
-
-      <a href="https://anachron.qizhen.xyz" class="card" target="_blank" rel="noopener"
-        aria-label="回音堂 Anachron - 历史人物论坛">
-        <div class="card-inner">
-          <div class="card-icon forum">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
-          </div>
-          <div class="card-content">
-            <div class="card-title">回音堂 Anachron <span class="card-tag web">网络论坛</span></div>
-            <div class="card-desc">跨越时空的对话 · 通过互动来讲述历史故事</div>
-          </div>
-        </div>
-        <div class="card-arrow" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14" />
-            <path d="M12 5l7 7-7 7" />
-          </svg></div>
-      </a>
-
-      <a href="https://glimmer.qizhen.xyz" class="card" target="_blank" rel="noopener"
-        aria-label="尘世微光 - 上个世纪普通人的生命痕迹与故事">
-        <div class="card-inner">
-          <div class="card-icon lit"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M8 1 Q8.5 7.5 15 8 Q8.5 8.5 8 15 Q7.5 8.5 1 8 Q7.5 7.5 8 1 Z" />
-              <path d="M18 14 Q18.2 17.8 22 18 Q18.2 18.2 18 22 Q17.8 18.2 14 18 Q17.8 17.8 18 14 Z" />
-            </svg></div>
-          <div class="card-content">
-            <div class="card-title">尘世微光 <span class="card-tag web">网文收录</span></div>
-            <div class="card-desc">打捞时间的碎片 · 记录上世纪普通人的生命痕迹</div>
-          </div>
-        </div>
-        <div class="card-arrow" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14" />
-            <path d="M12 5l7 7-7 7" />
-          </svg></div>
-      </a>
-
-      <a href="games.html" class="card" aria-label="怀旧游戏">
-        <div class="card-inner">
-          <div class="card-icon game">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 7h12a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z" />
-              <path d="M6 12h4M8 10v4" />
-              <circle cx="15" cy="11" r="1" fill="currentColor" />
-              <circle cx="18" cy="13" r="1" fill="currentColor" />
-              <path d="M7 7V6a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v1" />
-            </svg>
-          </div>
-          <div class="card-content">
-            <div class="card-title">怀旧游戏</div>
-            <div class="card-desc">旧梦重温 · 练习编程时趁机构建的快乐时光</div>
-          </div>
-        </div>
-        <div class="card-arrow" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14" />
-            <path d="M12 5l7 7-7 7" />
-          </svg></div>
-      </a>
-
-      <a href="https://blog.qizhen.xyz" class="card" target="_blank" rel="noopener" aria-label="个人博客 - 技术思考以及生活中的片刻随笔">
-        <div class="card-inner">
-          <div class="card-icon blog"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-            </svg></div>
-          <div class="card-content">
-            <div class="card-title">个人博客</div>
-            <div class="card-desc">凡人琐忆 · 技术思考以及生活中的片刻随笔</div>
-          </div>
-        </div>
-        <div class="card-arrow" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14" />
-            <path d="M12 5l7 7-7 7" />
-          </svg></div>
-      </a>
-    </div>
-
-    <footer>
-      <div class="footer-divider"></div>
-      <p>qizhen.xyz</p>
-    </footer>
+  <!-- 飛鳥 -->
+  <div class="birds-group birds-1">
+    <div class="bird" style="top:0;left:0"></div>
+    <div class="bird" style="top:-6px;left:24px;animation-delay:0.1s"></div>
+    <div class="bird bird-sm" style="top:5px;left:48px;animation-delay:0.2s"></div>
+    <div class="bird bird-sm" style="top:-3px;left:66px;animation-delay:0.15s"></div>
+    <div class="bird bird-xs" style="top:2px;left:82px;animation-delay:0.25s"></div>
+  </div>
+  <div class="birds-group birds-2">
+    <div class="bird" style="top:0;left:0"></div>
+    <div class="bird bird-sm" style="top:5px;left:-22px;animation-delay:0.12s"></div>
+    <div class="bird bird-sm" style="top:-4px;left:-42px;animation-delay:0.22s"></div>
+    <div class="bird bird-xs" style="top:3px;left:-58px;animation-delay:0.08s"></div>
+  </div>
+  <div class="birds-group birds-3">
+    <div class="bird bird-sm" style="top:0;left:0;animation-delay:0.18s"></div>
+    <div class="bird bird-xs" style="top:-4px;left:18px;animation-delay:0.28s"></div>
+    <div class="bird bird-xs" style="top:3px;left:34px;animation-delay:0.05s"></div>
   </div>
 
-  <script>
-    (function () {
-      var turbulence = document.getElementById('marble-noise');
-      if (turbulence) {
-        turbulence.setAttribute('seed', Math.floor(Math.random() * 1000));
-      }
-    })();
+  <div class="water-glow"></div>
+  <div class="title-bg">
+    <h1 class="main-title">花開花落　雲卷雲舒</h1>    <!-- 標題 + 全部卡片：同一行 -->
+    <div class="card-column">
+      <a href="https://cocode.qizhen.xyz/" class="card" target="_blank" rel="noopener" id="card-cocode">
+        <div class="card-header">
+          <div class="card-title">重構程序員</div>
+          <span class="card-tag book">線上書籍</span>
+        </div>
+        <div class="card-desc">寫給AI時代的自己·變革浪潮中普通程序員的震盪與思考</div>
+      </a>
+      <a href="https://lv.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-labview">
+        <div class="card-header">
+          <div class="card-title">LabVIEW編程</div>
+          <span class="card-tag book">線上書籍</span>
+        </div>
+        <div class="card-desc">探索數據流的藝術·從零開始的圖形化編程實戰</div>
+      </a>
+      <a href="https://py.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-python">
+        <div class="card-header">
+          <div class="card-title">Python教程</div>
+          <span class="card-tag book">線上書籍</span>
+        </div>
+        <div class="card-desc">賽博修仙指南·嚴謹實用且富有邏輯的編程秘籍</div>
+      </a>
+      <a href="https://anachron.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-anachron">
+        <div class="card-header">
+          <div class="card-title">回音堂</div>
+          <span class="card-tag web">網絡論壇</span>
+        </div>
+        <div class="card-desc">跨越時空的對話·通過互動來講述歷史故事</div>
+      </a>
+      <a href="https://glimmer.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-glimmer">
+        <div class="card-header">
+          <div class="card-title">塵世微光</div>
+          <span class="card-tag web">網文收錄</span>
+        </div>
+        <div class="card-desc">打撈時間的碎片·記錄上世紀普通人的生命痕跡</div>
+      </a>
+      <a href="games.html" class="card" id="card-games">
+        <div class="card-header">
+          <div class="card-title">懷舊遊戲</div>
+        </div>
+        <div class="card-desc">舊夢重溫·練習編程時趁機構建的快樂時光</div>
+      </a>
+      <a href="https://blog.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-blog">
+        <div class="card-header">
+          <div class="card-title">個人博客</div>
+        </div>
+        <div class="card-desc">凡人瑣憶·技術思考以及生活中的片刻隨筆</div>
+      </a>
 
-    (function () {
-      const toggle = document.getElementById('themeToggle');
-      const icon = document.getElementById('themeIcon');
-      const html = document.documentElement;
 
-      if (html.classList.contains('dark')) {
-        icon.textContent = '☀️';
-      } else {
-        icon.textContent = '🌙';
-      }
 
-      toggle.addEventListener('click', () => {
-        icon.style.transform = 'rotate(90deg) scale(0.3)';
-        icon.style.opacity = '0';
-        setTimeout(() => {
-          const isDark = html.classList.toggle('dark');
-          localStorage.setItem('theme', isDark ? 'dark' : 'light');
-          icon.textContent = isDark ? '☀️' : '🌙';
-          icon.style.transform = 'rotate(0) scale(1)';
-          icon.style.opacity = '1';
-        }, 200);
-      });
-    })();
-  </script>
-  <script async src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
+
+  </div>
+</div>
+
+<!-- 晝夜切換 -->
+<button class="toggle-btn" id="toggleBtn" aria-label="切換晝夜模式">
+  <span class="icon-sun">☀</span>
+  <span class="icon-moon">☾</span>
+</button>
+
+<script>
+  // 晝夜切換
+  (function() {
+    const canvas = document.getElementById('canvas');
+    const btn = document.getElementById('toggleBtn');
+
+    // 應用初始狀態
+    if (document.documentElement.dataset.nightMode === 'true') {
+      canvas.classList.add('night-mode');
+    }
+
+    btn.addEventListener('click', function() {
+      const isNight = canvas.classList.toggle('night-mode');
+      localStorage.setItem('theme', isNight ? 'dark' : 'light');
+    });
+  })();
+</script>
+<script async src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
 </body>
-
 </html>
