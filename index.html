@@ -336,12 +336,13 @@
     color: var(--text-primary);
     transition: color var(--transition-dur) ease;
     text-shadow: 0 1px 3px rgba(245,240,232,0.5);
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
+    position: fixed;
+    top: 60px;
+    left: 40px;
+    z-index: 2;
     opacity: 0.12;
     pointer-events: none;
+    writing-mode: vertical-rl;
   }
 
   /* 印章 */
@@ -518,7 +519,8 @@
   .title-bg {
     position: absolute;
     top: 60px;
-    left: 40px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -536,6 +538,8 @@
     .main-title {
       font-size: 22px;
       letter-spacing: 8px;
+      top: 55px;
+      left: 25px;
     }
     .card-title {
       font-size: 14px;
@@ -546,7 +550,8 @@
     }
     .title-bg {
       top: 55px;
-      left: 25px;
+      left: 50%;
+      transform: translateX(-50%);
       right: auto;
     }
   }
@@ -558,6 +563,8 @@
     .main-title {
       font-size: 18px;
       letter-spacing: 6px;
+      top: 50px;
+      left: 15px;
     }
     .card {
       padding: 10px 8px;
@@ -573,7 +580,8 @@
     .card-column { padding: 15px 5px; gap: 8px; }
     .title-bg {
       top: 50px;
-      left: 15px;
+      left: 50%;
+      transform: translateX(-50%);
       right: auto;
     }
   }
@@ -910,8 +918,8 @@
   </div>
 
   <div class="water-glow"></div>
+  <h1 class="main-title">花開花落　雲卷雲舒</h1>    <!-- 標題 + 全部卡片：同一行 -->
   <div class="title-bg">
-    <h1 class="main-title">花開花落　雲卷雲舒</h1>    <!-- 標題 + 全部卡片：同一行 -->
     <div class="card-column">
       <a href="https://cocode.qizhen.xyz/" class="card" target="_blank" rel="noopener" id="card-cocode">
         <div class="card-header">
