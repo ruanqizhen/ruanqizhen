@@ -687,6 +687,26 @@
       flex-shrink: 0;
       gap: 12px;
       pointer-events: auto;
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100vw;
+      -webkit-overflow-scrolling: touch;
+      cursor: grab;
+      user-select: none;
+    }
+    .card-column:active {
+      cursor: grabbing;
+    }
+    .card-column::-webkit-scrollbar {
+      height: 4px;
+    }
+    .card-column::-webkit-scrollbar-track {
+      background: var(--scroll-track);
+      border-radius: 2px;
+    }
+    .card-column::-webkit-scrollbar-thumb {
+      background: var(--scroll-thumb);
+      border-radius: 2px;
     }
 
     .card {
@@ -705,6 +725,7 @@
       gap: 6px;
       cursor: pointer;
       min-height: 0;
+      flex-shrink: 0;
     }
 
     .card:hover {
@@ -854,6 +875,7 @@
       z-index: 10;
       pointer-events: none;
       writing-mode: vertical-rl;
+      max-width: 100vw;
     }
 
     /* ===== 響應式 ===== */
@@ -1230,14 +1252,35 @@
       </g>
 
       <!-- 小橋 -->
-      <g transform="translate(380,498)" filter="url(#fInk)" opacity="0.58">
-        <path d="M-35,5 C-25,-12 -10,-22 0,-24 C10,-22 25,-12 35,5" stroke="var(--ink-deep)" stroke-width="2"
-          fill="none" stroke-linecap="round" />
-        <path d="M-35,5 C-25,-8 -10,-16 0,-18 C10,-16 25,-8 35,5" stroke="var(--ink-near)" stroke-width="1" fill="none"
-          stroke-linecap="round" opacity="0.5" />
-        <line x1="-20" y1="-5" x2="-20" y2="8" stroke="var(--ink-deep)" stroke-width="1.5" stroke-linecap="round" />
-        <line x1="0" y1="-18" x2="0" y2="8" stroke="var(--ink-deep)" stroke-width="1.5" stroke-linecap="round" />
-        <line x1="20" y1="-5" x2="20" y2="8" stroke="var(--ink-deep)" stroke-width="1.5" stroke-linecap="round" />
+      <g transform="translate(380,498)" filter="url(#fInk)" opacity="0.65">
+        <!-- 橋身石造陰影 -->
+        <path d="M-40,5 C-30,-14 -20,-22 0,-22 C20,-22 30,-14 40,5 L18,5 A18,18 0 0,0 -18,5 Z" fill="var(--ink-mid)" opacity="0.25" />
+        <!-- 拱券（拱洞邊緣石塊線） -->
+        <path d="M-20,5 A20,20 0 0,1 20,5" fill="none" stroke="var(--ink-near)" stroke-width="1" opacity="0.6" />
+        <path d="M-18,5 A18,18 0 0,1 18,5" fill="none" stroke="var(--ink-deep)" stroke-width="1.2" />
+        <!-- 橋面線 -->
+        <path d="M-40,5 C-30,-14 -20,-22 0,-22 C20,-22 30,-14 40,5" fill="none" stroke="var(--ink-deep)" stroke-width="2.5" stroke-linecap="round" />
+        <!-- 石階紋理 -->
+        <line x1="-32" y1="-3" x2="-28" y2="-5" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
+        <line x1="-24" y1="-9" x2="-20" y2="-11" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
+        <line x1="-14" y1="-15" x2="-10" y2="-17" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
+        <line x1="-5" y1="-21" x2="5" y2="-21" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
+        <line x1="10" y1="-17" x2="14" y2="-15" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
+        <line x1="20" y1="-11" x2="24" y2="-9" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
+        <line x1="28" y1="-5" x2="32" y2="-3" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
+        <!-- 欄杆/扶手 -->
+        <path d="M-38,0 C-29,-18 -19,-26 0,-26 C19,-26 29,-18 38,0" fill="none" stroke="var(--ink-deep)" stroke-width="1" stroke-linecap="round" />
+        <!-- 欄杆立柱 -->
+        <line x1="-35" y1="2" x2="-35" y2="-4" stroke="var(--ink-deep)" stroke-width="1.2" />
+        <line x1="-25" y1="-9" x2="-25" y2="-14" stroke="var(--ink-deep)" stroke-width="1.2" />
+        <line x1="-13" y1="-17" x2="-13" y2="-22" stroke="var(--ink-deep)" stroke-width="1.2" />
+        <line x1="0" y1="-21" x2="0" y2="-26" stroke="var(--ink-deep)" stroke-width="1.2" />
+        <line x1="13" y1="-17" x2="13" y2="-22" stroke="var(--ink-deep)" stroke-width="1.2" />
+        <line x1="25" y1="-9" x2="25" y2="-14" stroke="var(--ink-deep)" stroke-width="1.2" />
+        <line x1="35" y1="2" x2="35" y2="-4" stroke="var(--ink-deep)" stroke-width="1.2" />
+        <!-- 拱洞倒影（水面下方） -->
+        <path d="M-17,6 C-12,18 12,18 17,6" fill="var(--ink-far)" opacity="0.25" />
+        <path d="M-17,6 C-12,18 12,18 17,6" fill="none" stroke="var(--ink-far)" stroke-width="0.8" stroke-dasharray="2,2" opacity="0.5" />
       </g>
 
       <!-- 水面 -->
@@ -1440,6 +1483,57 @@
         btn.addEventListener('click', function () {
           const isNight = canvas.classList.toggle('night-mode');
           localStorage.setItem('theme', isNight ? 'dark' : 'light');
+        });
+      })();
+
+      // 拖拽卡片左右移動
+      (function () {
+        const slider = document.querySelector('.card-column');
+        if (!slider) return;
+
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        let moved = false;
+
+        slider.addEventListener('mousedown', (e) => {
+          isDown = true;
+          moved = false;
+          // Calculate offset relative to slider container
+          startX = e.pageX - slider.offsetLeft;
+          scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+          isDown = false;
+        });
+
+        slider.addEventListener('mouseup', () => {
+          isDown = false;
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+          if (!isDown) return;
+          const x = e.pageX - slider.offsetLeft;
+          const walk = (x - startX) * 1.5; // Drag sensitivity
+          if (Math.abs(walk) > 5) {
+            moved = true;
+          }
+          slider.scrollLeft = scrollLeft - walk;
+        });
+
+        // 防止拖拽卡片鏈接時觸發 HTML5 默認拖放行為
+        slider.querySelectorAll('.card').forEach(card => {
+          card.addEventListener('dragstart', (e) => {
+            e.preventDefault();
+          });
+
+          // 如果發生了滑動拖拽，阻止卡片點擊跳轉事件
+          card.addEventListener('click', (e) => {
+            if (moved) {
+              e.preventDefault();
+            }
+          });
         });
       })();
     </script>
