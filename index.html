@@ -769,13 +769,33 @@
       animation: cardEnter 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
     }
 
-    .card:nth-child(1) { animation-delay: 0.18s; }
-    .card:nth-child(2) { animation-delay: 0.30s; }
-    .card:nth-child(3) { animation-delay: 0.42s; }
-    .card:nth-child(4) { animation-delay: 0.54s; }
-    .card:nth-child(5) { animation-delay: 0.66s; }
-    .card:nth-child(6) { animation-delay: 0.78s; }
-    .card:nth-child(7) { animation-delay: 0.90s; }
+    .card:nth-child(1) {
+      animation-delay: 0.18s;
+    }
+
+    .card:nth-child(2) {
+      animation-delay: 0.30s;
+    }
+
+    .card:nth-child(3) {
+      animation-delay: 0.42s;
+    }
+
+    .card:nth-child(4) {
+      animation-delay: 0.54s;
+    }
+
+    .card:nth-child(5) {
+      animation-delay: 0.66s;
+    }
+
+    .card:nth-child(6) {
+      animation-delay: 0.78s;
+    }
+
+    .card:nth-child(7) {
+      animation-delay: 0.90s;
+    }
 
     .card:hover {
       background: var(--card-hover-bg);
@@ -806,7 +826,7 @@
     .card-header {
       display: flex;
       flex-direction: row;
-      align-items: flex-start;
+      align-items: center;
       gap: 6px;
     }
 
@@ -816,7 +836,7 @@
       letter-spacing: 4px;
       color: var(--text-primary);
       transition: color var(--transition-dur) ease;
-      line-height: 1.6;
+      line-height: 1.4;
     }
 
     .card:hover .card-title {
@@ -825,12 +845,12 @@
 
     .card-tag {
       font-size: 12px;
-      padding: 2px 4px;
+      padding: 2px 5px;
       border-radius: 3px;
       font-weight: 500;
       letter-spacing: 2px;
       display: inline-block;
-      writing-mode: vertical-rl;
+      line-height: 1.4;
     }
 
     .card-tag.book {
@@ -1306,9 +1326,11 @@
 
       <!-- 近景丘陵 -->
       <g filter="url(#fInk)" opacity="0.65">
-        <path d="M150,600 L150,480 C180,472 210,458 250,445 C290,432 320,440 360,450 C410,462 450,475 500,490 L500,600 Z"
+        <path
+          d="M150,600 L150,480 C180,472 210,458 250,445 C290,432 320,440 360,450 C410,462 450,475 500,490 L500,600 Z"
           fill="url(#gPeak)" />
-        <path d="M150,600 L150,480 C180,472 210,458 250,445 C290,432 320,440 360,450 C410,462 450,475 500,490 L500,600 Z"
+        <path
+          d="M150,600 L150,480 C180,472 210,458 250,445 C290,432 320,440 360,450 C410,462 450,475 500,490 L500,600 Z"
           fill="url(#cunPiMa)" opacity="0.65" />
       </g>
       <g filter="url(#fInk)" opacity="0.60">
@@ -1405,31 +1427,35 @@
         <path d="M-1,-8 C1,-10 2,-12 0,-14 M-2,-20 C0,-22 1,-24 -1,-26 M-1,-32 C2,-34 3,-36 0,-38"
           stroke="var(--ink-deep)" stroke-width="0.5" fill="none" opacity="0.5" />
         <!-- 第一層枝（最下） -->
-        <path d="M-2,-18 C-16,-22 -26,-20 -32,-16 M-2,-18 C12,-22 22,-20 28,-15"
-          stroke="var(--ink-deep)" stroke-width="2" fill="none" stroke-linecap="round" />
+        <path d="M-2,-18 C-16,-22 -26,-20 -32,-16 M-2,-18 C12,-22 22,-20 28,-15" stroke="var(--ink-deep)"
+          stroke-width="2" fill="none" stroke-linecap="round" />
         <!-- 第二層枝 -->
-        <path d="M-2,-28 C-14,-33 -22,-31 -28,-26 M-2,-28 C10,-33 18,-31 24,-25"
-          stroke="var(--ink-deep)" stroke-width="1.6" fill="none" stroke-linecap="round" />
+        <path d="M-2,-28 C-14,-33 -22,-31 -28,-26 M-2,-28 C10,-33 18,-31 24,-25" stroke="var(--ink-deep)"
+          stroke-width="1.6" fill="none" stroke-linecap="round" />
         <!-- 第三層枝 -->
-        <path d="M-1,-38 C-10,-43 -16,-41 -20,-36 M-1,-38 C7,-43 13,-41 18,-35"
-          stroke="var(--ink-deep)" stroke-width="1.2" fill="none" stroke-linecap="round" />
+        <path d="M-1,-38 C-10,-43 -16,-41 -20,-36 M-1,-38 C7,-43 13,-41 18,-35" stroke="var(--ink-deep)"
+          stroke-width="1.2" fill="none" stroke-linecap="round" />
         <!-- 頂枝 -->
-        <path d="M0,-50 C-5,-55 -8,-58 -6,-62 M0,-50 C4,-55 7,-58 5,-62"
-          stroke="var(--ink-deep)" stroke-width="0.9" fill="none" stroke-linecap="round" />
+        <path d="M0,-50 C-5,-55 -8,-58 -6,-62 M0,-50 C4,-55 7,-58 5,-62" stroke="var(--ink-deep)" stroke-width="0.9"
+          fill="none" stroke-linecap="round" />
         <!-- 松針簇 — 左下 -->
-        <ellipse cx="-33" cy="-18" rx="10" ry="5" fill="var(--ink-deep)" opacity="0.6" transform="rotate(-20,-33,-18)" />
+        <ellipse cx="-33" cy="-18" rx="10" ry="5" fill="var(--ink-deep)" opacity="0.6"
+          transform="rotate(-20,-33,-18)" />
         <ellipse cx="-34" cy="-14" rx="8" ry="4" fill="var(--ink-deep)" opacity="0.5" transform="rotate(-35,-34,-14)" />
         <!-- 松針簇 — 右下 -->
         <ellipse cx="29" cy="-17" rx="10" ry="5" fill="var(--ink-deep)" opacity="0.6" transform="rotate(20,29,-17)" />
         <ellipse cx="30" cy="-13" rx="8" ry="4" fill="var(--ink-deep)" opacity="0.5" transform="rotate(35,30,-13)" />
         <!-- 松針簇 — 左中 -->
-        <ellipse cx="-29" cy="-28" rx="8" ry="4" fill="var(--ink-deep)" opacity="0.55" transform="rotate(-15,-29,-28)" />
-        <ellipse cx="-30" cy="-24" rx="7" ry="3.5" fill="var(--ink-deep)" opacity="0.45" transform="rotate(-30,-30,-24)" />
+        <ellipse cx="-29" cy="-28" rx="8" ry="4" fill="var(--ink-deep)" opacity="0.55"
+          transform="rotate(-15,-29,-28)" />
+        <ellipse cx="-30" cy="-24" rx="7" ry="3.5" fill="var(--ink-deep)" opacity="0.45"
+          transform="rotate(-30,-30,-24)" />
         <!-- 松針簇 — 右中 -->
         <ellipse cx="25" cy="-27" rx="8" ry="4" fill="var(--ink-deep)" opacity="0.55" transform="rotate(15,25,-27)" />
         <ellipse cx="26" cy="-23" rx="7" ry="3.5" fill="var(--ink-deep)" opacity="0.45" transform="rotate(30,26,-23)" />
         <!-- 松針簇 — 左上 -->
-        <ellipse cx="-21" cy="-38" rx="7" ry="3.5" fill="var(--ink-deep)" opacity="0.5" transform="rotate(-10,-21,-38)" />
+        <ellipse cx="-21" cy="-38" rx="7" ry="3.5" fill="var(--ink-deep)" opacity="0.5"
+          transform="rotate(-10,-21,-38)" />
         <!-- 松針簇 — 右上 -->
         <ellipse cx="19" cy="-37" rx="7" ry="3.5" fill="var(--ink-deep)" opacity="0.5" transform="rotate(10,19,-37)" />
         <!-- 松針簇 — 頂 -->
@@ -1437,61 +1463,61 @@
         <ellipse cx="6" cy="-61" rx="5" ry="2.8" fill="var(--ink-deep)" opacity="0.4" transform="rotate(8,6,-61)" />
         <ellipse cx="0" cy="-66" rx="4" ry="2.5" fill="var(--ink-deep)" opacity="0.35" />
         <!-- 垂藤 -->
-        <path d="M-24,-20 C-26,-15 -22,-8 -24,-4" stroke="var(--ink-deep)" stroke-width="0.5"
-          fill="none" opacity="0.35" stroke-linecap="round" />
-        <path d="M22,-18 C24,-12 20,-6 22,-2" stroke="var(--ink-deep)" stroke-width="0.5"
-          fill="none" opacity="0.3" stroke-linecap="round" />
+        <path d="M-24,-20 C-26,-15 -22,-8 -24,-4" stroke="var(--ink-deep)" stroke-width="0.5" fill="none" opacity="0.35"
+          stroke-linecap="round" />
+        <path d="M22,-18 C24,-12 20,-6 22,-2" stroke="var(--ink-deep)" stroke-width="0.5" fill="none" opacity="0.3"
+          stroke-linecap="round" />
       </g>
 
       <!-- 枯樹（左） -->
       <g transform="translate(480,488)" filter="url(#fInk)" opacity="0.65">
         <!-- 主幹 — 蒼勁虬曲 -->
-        <path d="M0,0 C-2,-10 -3,-20 -2,-32 C-1,-45 0,-55 2,-65" stroke="var(--ink-deep)" stroke-width="2.8"
-          fill="none" stroke-linecap="round" />
+        <path d="M0,0 C-2,-10 -3,-20 -2,-32 C-1,-45 0,-55 2,-65" stroke="var(--ink-deep)" stroke-width="2.8" fill="none"
+          stroke-linecap="round" />
         <!-- 樹幹紋理 -->
         <path d="M-1,-8 C1,-10 2,-14 0,-16 M-2,-24 C1,-26 3,-28 0,-30 M-1,-40 C2,-42 3,-44 1,-46"
           stroke="var(--ink-deep)" stroke-width="0.5" fill="none" opacity="0.4" />
         <!-- 右大枝 -->
-        <path d="M-1,-30 C8,-36 18,-38 26,-36 C30,-35 34,-33 36,-30"
-          stroke="var(--ink-deep)" stroke-width="1.8" fill="none" stroke-linecap="round" />
+        <path d="M-1,-30 C8,-36 18,-38 26,-36 C30,-35 34,-33 36,-30" stroke="var(--ink-deep)" stroke-width="1.8"
+          fill="none" stroke-linecap="round" />
         <!-- 右枝細梢 -->
-        <path d="M26,-36 C28,-40 30,-44 28,-48 M30,-34 C33,-37 36,-38 38,-40"
-          stroke="var(--ink-deep)" stroke-width="0.7" fill="none" stroke-linecap="round" />
+        <path d="M26,-36 C28,-40 30,-44 28,-48 M30,-34 C33,-37 36,-38 38,-40" stroke="var(--ink-deep)"
+          stroke-width="0.7" fill="none" stroke-linecap="round" />
         <!-- 左大枝 -->
-        <path d="M-2,-48 C-12,-54 -22,-52 -30,-48 C-34,-46 -37,-42 -38,-38"
-          stroke="var(--ink-deep)" stroke-width="1.5" fill="none" stroke-linecap="round" />
+        <path d="M-2,-48 C-12,-54 -22,-52 -30,-48 C-34,-46 -37,-42 -38,-38" stroke="var(--ink-deep)" stroke-width="1.5"
+          fill="none" stroke-linecap="round" />
         <!-- 左枝細梢 -->
-        <path d="M-30,-48 C-34,-51 -36,-56 -33,-60 M-28,-47 C-31,-44 -34,-42 -35,-40"
-          stroke="var(--ink-deep)" stroke-width="0.7" fill="none" stroke-linecap="round" />
+        <path d="M-30,-48 C-34,-51 -36,-56 -33,-60 M-28,-47 C-31,-44 -34,-42 -35,-40" stroke="var(--ink-deep)"
+          stroke-width="0.7" fill="none" stroke-linecap="round" />
         <!-- 頂梢 -->
-        <path d="M1,-58 C4,-64 8,-68 12,-70 M1,-60 C-3,-66 -7,-70 -10,-72"
-          stroke="var(--ink-deep)" stroke-width="0.9" fill="none" stroke-linecap="round" />
+        <path d="M1,-58 C4,-64 8,-68 12,-70 M1,-60 C-3,-66 -7,-70 -10,-72" stroke="var(--ink-deep)" stroke-width="0.9"
+          fill="none" stroke-linecap="round" />
         <!-- 逆枝（鹿角枝） -->
-        <path d="M12,-70 C14,-74 12,-76 10,-78 M12,-70 C16,-72 18,-71 20,-69"
-          stroke="var(--ink-deep)" stroke-width="0.5" fill="none" stroke-linecap="round" />
-        <path d="M-10,-72 C-12,-76 -10,-78 -8,-80 M-10,-72 C-14,-74 -16,-73 -18,-71"
-          stroke="var(--ink-deep)" stroke-width="0.5" fill="none" stroke-linecap="round" />
+        <path d="M12,-70 C14,-74 12,-76 10,-78 M12,-70 C16,-72 18,-71 20,-69" stroke="var(--ink-deep)"
+          stroke-width="0.5" fill="none" stroke-linecap="round" />
+        <path d="M-10,-72 C-12,-76 -10,-78 -8,-80 M-10,-72 C-14,-74 -16,-73 -18,-71" stroke="var(--ink-deep)"
+          stroke-width="0.5" fill="none" stroke-linecap="round" />
       </g>
       <!-- 枯樹（右） -->
       <g transform="translate(950,472)" filter="url(#fInk)" opacity="0.55">
         <!-- 主幹 — 微傾斜 -->
-        <path d="M0,0 C2,-8 4,-18 3,-30 C2,-42 1,-52 0,-60" stroke="var(--ink-deep)" stroke-width="2.2"
-          fill="none" stroke-linecap="round" />
+        <path d="M0,0 C2,-8 4,-18 3,-30 C2,-42 1,-52 0,-60" stroke="var(--ink-deep)" stroke-width="2.2" fill="none"
+          stroke-linecap="round" />
         <!-- 右伸枝 -->
-        <path d="M3,-22 C12,-28 22,-30 30,-28 C34,-27 38,-24 40,-20"
-          stroke="var(--ink-deep)" stroke-width="1.4" fill="none" stroke-linecap="round" />
+        <path d="M3,-22 C12,-28 22,-30 30,-28 C34,-27 38,-24 40,-20" stroke="var(--ink-deep)" stroke-width="1.4"
+          fill="none" stroke-linecap="round" />
         <!-- 右枝梢 -->
-        <path d="M30,-28 C33,-32 35,-36 32,-40 M34,-26 C38,-28 40,-30 42,-28"
-          stroke="var(--ink-deep)" stroke-width="0.6" fill="none" stroke-linecap="round" />
+        <path d="M30,-28 C33,-32 35,-36 32,-40 M34,-26 C38,-28 40,-30 42,-28" stroke="var(--ink-deep)"
+          stroke-width="0.6" fill="none" stroke-linecap="round" />
         <!-- 左伸枝 -->
-        <path d="M2,-35 C-10,-42 -20,-40 -28,-36 C-32,-33 -35,-28 -36,-24"
-          stroke="var(--ink-deep)" stroke-width="1.2" fill="none" stroke-linecap="round" />
+        <path d="M2,-35 C-10,-42 -20,-40 -28,-36 C-32,-33 -35,-28 -36,-24" stroke="var(--ink-deep)" stroke-width="1.2"
+          fill="none" stroke-linecap="round" />
         <!-- 左枝梢 -->
-        <path d="M-28,-36 C-32,-39 -34,-43 -31,-46 M-26,-35 C-28,-31 -30,-28 -32,-26"
-          stroke="var(--ink-deep)" stroke-width="0.6" fill="none" stroke-linecap="round" />
+        <path d="M-28,-36 C-32,-39 -34,-43 -31,-46 M-26,-35 C-28,-31 -30,-28 -32,-26" stroke="var(--ink-deep)"
+          stroke-width="0.6" fill="none" stroke-linecap="round" />
         <!-- 頂梢 -->
-        <path d="M0,-53 C3,-57 6,-60 8,-64 M0,-55 C-3,-59 -5,-62 -7,-65"
-          stroke="var(--ink-deep)" stroke-width="0.8" fill="none" stroke-linecap="round" />
+        <path d="M0,-53 C3,-57 6,-60 8,-64 M0,-55 C-3,-59 -5,-62 -7,-65" stroke="var(--ink-deep)" stroke-width="0.8"
+          fill="none" stroke-linecap="round" />
       </g>
 
       <!-- 蘆葦 -->
@@ -1515,8 +1541,7 @@
           transform="rotate(-3,494,448)" />
         <ellipse cx="498" cy="466" rx="2.5" ry="4" fill="var(--ink-near)" opacity="0.30"
           transform="rotate(4,498,466)" />
-        <ellipse cx="503" cy="454" rx="3" ry="5" fill="var(--ink-near)" opacity="0.33"
-          transform="rotate(2,503,454)" />
+        <ellipse cx="503" cy="454" rx="3" ry="5" fill="var(--ink-near)" opacity="0.33" transform="rotate(2,503,454)" />
         <ellipse cx="509" cy="472" rx="2.5" ry="4" fill="var(--ink-near)" opacity="0.28"
           transform="rotate(6,509,472)" />
         <ellipse cx="515" cy="464" rx="2.8" ry="4.5" fill="var(--ink-near)" opacity="0.30"
@@ -1524,14 +1549,14 @@
         <ellipse cx="519" cy="468" rx="2.2" ry="3.5" fill="var(--ink-near)" opacity="0.26"
           transform="rotate(8,519,468)" />
         <!-- 葦葉（細長彎葉） -->
-        <path d="M490,480 C486,474 480,472 476,474" stroke="var(--ink-near)" stroke-width="0.5"
-          fill="none" opacity="0.4" />
-        <path d="M500,478 C504,472 510,470 514,472" stroke="var(--ink-near)" stroke-width="0.5"
-          fill="none" opacity="0.4" />
-        <path d="M510,485 C515,480 520,478 524,480" stroke="var(--ink-near)" stroke-width="0.4"
-          fill="none" opacity="0.35" />
-        <path d="M485,490 C480,485 475,483 472,485" stroke="var(--ink-near)" stroke-width="0.4"
-          fill="none" opacity="0.35" />
+        <path d="M490,480 C486,474 480,472 476,474" stroke="var(--ink-near)" stroke-width="0.5" fill="none"
+          opacity="0.4" />
+        <path d="M500,478 C504,472 510,470 514,472" stroke="var(--ink-near)" stroke-width="0.5" fill="none"
+          opacity="0.4" />
+        <path d="M510,485 C515,480 520,478 524,480" stroke="var(--ink-near)" stroke-width="0.4" fill="none"
+          opacity="0.35" />
+        <path d="M485,490 C480,485 475,483 472,485" stroke="var(--ink-near)" stroke-width="0.4" fill="none"
+          opacity="0.35" />
       </g>
 
       <!-- 小橋 -->
@@ -1709,14 +1734,14 @@
         </a>
         <a href="https://lv.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-labview">
           <div class="card-header">
-            <div class="card-title">LabVIEW編程</div>
+            <div class="card-title">LabVIEW 編程</div>
             <span class="card-tag book">墨卷</span>
           </div>
           <div class="card-desc">探索數據流的藝術·從零開始的圖形化編程之道</div>
         </a>
         <a href="https://py.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-python">
           <div class="card-header">
-            <div class="card-title">Python教程</div>
+            <div class="card-title">Python 教程</div>
             <span class="card-tag book">墨卷</span>
           </div>
           <div class="card-desc">賽博修仙指南·以代碼為劍，以邏輯為道</div>
