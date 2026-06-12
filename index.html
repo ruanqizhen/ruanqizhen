@@ -246,6 +246,22 @@
       }
     }
 
+    /* 孤舟漂動動畫 */
+    .fishing-boat {
+      transform: translate(650px, 548px);
+      transform-origin: 650px 548px;
+      animation: driftBoat 22s ease-in-out infinite;
+    }
+
+    @keyframes driftBoat {
+      0%, 100% {
+        transform: translate(650px, 548px) rotate(0deg);
+      }
+      50% {
+        transform: translate(675px, 549px) rotate(1.5deg);
+      }
+    }
+
     /* ===== 主畫布（背景層） ===== */
     .canvas {
       position: fixed;
@@ -682,7 +698,7 @@
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      justify-content: center;
+      justify-content: flex-start;
       padding: 20px 8px;
       flex-shrink: 0;
       gap: 12px;
@@ -1315,7 +1331,7 @@
       </g>
 
       <!-- 孤舟垂釣 -->
-      <g transform="translate(650,548)" filter="url(#fInk)">
+      <g class="fishing-boat" filter="url(#fInk)">
         <path d="M-55,2 C-48,7 -30,10 0,11 C30,10 48,7 55,2" stroke="var(--ink-deep)" stroke-width="2" fill="none"
           stroke-linecap="round" />
         <path d="M-55,2 C-58,-1 -62,-6 -60,-12 C-58,-8 -56,-4 -55,2" fill="var(--ink-deep)" />
