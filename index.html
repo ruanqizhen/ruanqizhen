@@ -52,6 +52,7 @@
       --text-secondary: #5a5040;
       --text-link: #3a352a;
       --text-link-hover: #6a4030;
+      --text-shadow: 0 1px 3px rgba(245, 240, 232, 0.5);
       --card-bg: rgba(245, 240, 232, 0.55);
       --card-border: rgba(160, 140, 110, 0.30);
       --card-hover-bg: rgba(245, 240, 232, 0.78);
@@ -74,23 +75,24 @@
       --water-bot: rgba(140, 110, 70, 0.08);
       --cloud-white: rgba(200, 170, 130, 0.55);
       --mist-white: rgba(210, 180, 140, 0.50);
-      --bird-color: #2a2218;
+      --bird-color: #c8b8a0;
       --seal-red: #8a2818;
       --seal-text-color: rgba(240, 220, 200, 0.85);
       --inscription-color: #2a2218;
       --reflection-opacity: 0.18;
       --sky-glow: rgba(200, 120, 40, 0.12);
       --water-glow: rgba(220, 160, 60, 0.08);
-      --text-primary: #1a1408;
-      --text-secondary: #3a3020;
-      --text-link: #2a2218;
-      --text-link-hover: #4a2818;
-      --card-bg: rgba(200, 180, 140, 0.40);
-      --card-border: rgba(120, 90, 50, 0.35);
-      --card-hover-bg: rgba(200, 180, 140, 0.60);
-      --card-hover-border: rgba(120, 80, 30, 0.55);
-      --scroll-track: rgba(120, 90, 50, 0.20);
-      --scroll-thumb: rgba(100, 70, 30, 0.45);
+      --text-primary: #f2e8d4;
+      --text-secondary: #d8c8a8;
+      --text-link: #e8dcc0;
+      --text-link-hover: #f0c878;
+      --text-shadow: 0 1px 4px rgba(15, 8, 0, 0.55);
+      --card-bg: rgba(35, 22, 12, 0.45);
+      --card-border: rgba(150, 115, 70, 0.45);
+      --card-hover-bg: rgba(45, 30, 18, 0.60);
+      --card-hover-border: rgba(200, 150, 80, 0.55);
+      --scroll-track: rgba(80, 55, 30, 0.25);
+      --scroll-thumb: rgba(140, 110, 70, 0.45);
     }
 
     html,
@@ -655,7 +657,7 @@
       letter-spacing: 12px;
       color: var(--text-primary);
       transition: color var(--transition-dur) ease;
-      text-shadow: 0 1px 3px rgba(245, 240, 232, 0.5);
+      text-shadow: var(--text-shadow);
       writing-mode: vertical-rl;
     }
 
@@ -897,6 +899,7 @@
       justify-content: center;
       font-size: 18px;
       line-height: 1;
+      color: var(--text-primary);
       transition: all 0.4s ease;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
@@ -904,6 +907,10 @@
     .toggle-btn:hover {
       background: rgba(245, 240, 232, 0.88);
       transform: scale(1.08);
+    }
+
+    .night-mode .toggle-btn:hover {
+      background: rgba(60, 38, 20, 0.70);
     }
 
     .toggle-btn .icon-sun,
@@ -941,6 +948,26 @@
     .night-mode .toggle-btn {
       border-color: rgba(200, 160, 100, 0.30);
       background: rgba(80, 60, 35, 0.50);
+    }
+
+    /* 夜間文字可讀性提升 */
+    .night-mode .card-desc {
+      opacity: 0.88;
+    }
+
+    .night-mode .card:hover {
+      box-shadow:
+        0 6px 24px rgba(20, 10, 0, 0.20),
+        0 0 40px rgba(200, 150, 80, 0.12),
+        0 0 80px rgba(220, 170, 100, 0.08);
+    }
+
+    .night-mode .card-tag.book {
+      background: rgba(200, 150, 80, 0.18);
+    }
+
+    .night-mode .card-tag.web {
+      background: rgba(160, 175, 195, 0.18);
     }
 
     .title-bg {
