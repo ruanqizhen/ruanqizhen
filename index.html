@@ -248,7 +248,6 @@
 
     /* 孤舟漂動動畫 */
     .fishing-boat {
-      transform: translate(500px, 548px);
       transform-origin: 500px 548px;
       animation: driftBoat 140s ease-in-out infinite;
     }
@@ -1531,11 +1530,7 @@
           scrollLeft = slider.scrollLeft;
         });
 
-        slider.addEventListener('mouseleave', () => {
-          isDown = false;
-        });
-
-        slider.addEventListener('mouseup', () => {
+        document.addEventListener('mouseup', () => {
           isDown = false;
         });
 
