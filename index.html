@@ -13,7 +13,7 @@
   <meta property="og:url" content="https://qizhen.xyz">
   <meta property="og:image" content="https://qizhen.xyz/og-image.png">
   <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛳</text></svg>">
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='2' fill='%23a03020'/><rect x='6' y='6' width='88' height='88' rx='1' fill='none' stroke='rgba(240,200,180,0.28)' stroke-width='3'/><text x='50' y='68' font-size='58' font-weight='900' fill='rgba(248,235,225,0.92)' text-anchor='middle' font-family='serif'>桢</text></svg>">
 
   <style>
     *,
@@ -233,6 +233,34 @@
       50% {
         transform: scaleX(1.03);
         opacity: 0.28;
+      }
+    }
+
+    @keyframes ripple2 {
+
+      0%,
+      100% {
+        transform: scaleX(1) translateY(0);
+        opacity: 0.12;
+      }
+
+      50% {
+        transform: scaleX(1.02) translateY(-2px);
+        opacity: 0.22;
+      }
+    }
+
+    @keyframes ripple3 {
+
+      0%,
+      100% {
+        transform: scaleX(1);
+        opacity: 0.08;
+      }
+
+      50% {
+        transform: scaleX(1.025);
+        opacity: 0.16;
       }
     }
 
@@ -566,6 +594,23 @@
       animation: ripple 7s ease-in-out infinite;
     }
 
+    @keyframes mistFloat {
+
+      0%,
+      100% {
+        transform: translateX(0);
+        opacity: inherit;
+      }
+
+      50% {
+        transform: translateX(15px);
+      }
+    }
+
+    .mist-drift {
+      animation: mistFloat 12s ease-in-out infinite;
+    }
+
     .water-glow {
       position: absolute;
       bottom: 0;
@@ -639,6 +684,23 @@
       flex-shrink: 0;
     }
 
+    @keyframes titleReveal {
+      0% {
+        opacity: 0;
+        filter: blur(8px);
+      }
+
+      40% {
+        opacity: 0;
+        filter: blur(8px);
+      }
+
+      100% {
+        opacity: 0.12;
+        filter: blur(0);
+      }
+    }
+
     .title-container {
       position: fixed;
       top: 60px;
@@ -649,6 +711,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      animation: titleReveal 4s ease-out;
     }
 
     .main-title {
@@ -821,6 +884,14 @@
 
     .card:hover::after {
       opacity: 1;
+    }
+
+    .card:visited {
+      border-left: 3px solid rgba(160, 120, 60, 0.25);
+    }
+
+    .night-mode .card:visited {
+      border-left: 3px solid rgba(200, 150, 80, 0.30);
     }
 
     .card-header {
@@ -1025,6 +1096,49 @@
       max-width: 100vw;
     }
 
+    /* ===== 橫向滾動提示 ===== */
+    .scroll-hint {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 180;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.7;
+      transition: opacity 1.5s ease;
+      animation: hintPulse 2.5s ease-in-out infinite;
+      writing-mode: horizontal-tb;
+    }
+
+    .scroll-hint.fading {
+      opacity: 0;
+    }
+
+    @keyframes hintPulse {
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      50% {
+        transform: translateX(12px);
+      }
+    }
+
+    .scroll-hint-arrow {
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1;
+    }
+
+    .scroll-hint-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      letter-spacing: 2px;
+    }
+
     /* ===== 響應式 ===== */
     @media (max-width: 900px) {
       .scroll-content {
@@ -1032,8 +1146,8 @@
       }
 
       .title-container {
-        top: 55px;
-        left: 25px;
+        top: 50px;
+        left: 20px;
       }
 
       .main-title {
@@ -1050,6 +1164,20 @@
         font-size: 15px;
       }
 
+      .card-tag {
+        font-size: 11px;
+        padding: 2px 4px;
+      }
+
+      .scroll-hint {
+        bottom: 20px;
+        right: 16px;
+      }
+
+      .scroll-hint-text {
+        font-size: 12px;
+      }
+
       .title-bg {
         top: 46%;
         left: 50%;
@@ -1060,12 +1188,12 @@
 
     @media (max-width: 500px) {
       .scroll-content {
-        padding: 20px 8px 18px 8px;
+        padding: 16px 6px 14px 6px;
       }
 
       .title-container {
-        top: 50px;
-        left: 15px;
+        top: 40px;
+        left: 10px;
       }
 
       .main-title {
@@ -1074,7 +1202,8 @@
       }
 
       .card {
-        padding: 10px 8px;
+        padding: 12px 10px;
+        gap: 4px;
       }
 
       .card-title {
@@ -1087,9 +1216,29 @@
         letter-spacing: 1px;
       }
 
+      .card-tag {
+        font-size: 10px;
+        padding: 2px 3px;
+        letter-spacing: 1px;
+      }
+
       .card-column {
-        padding: 15px 5px;
+        padding: 12px 4px;
         gap: 8px;
+      }
+
+      .scroll-hint {
+        bottom: 16px;
+        right: 10px;
+      }
+
+      .scroll-hint-arrow {
+        font-size: 14px;
+      }
+
+      .scroll-hint-text {
+        font-size: 11px;
+        letter-spacing: 1px;
       }
 
       .title-bg {
@@ -1625,6 +1774,18 @@
         <path d="M60,555 C220,552 460,548 730,546 C1000,544 1280,548 1520,554" stroke="var(--ink-far)"
           stroke-width="0.4" fill="none" stroke-opacity="0.05" />
       </g>
+      <!-- 水紋二層（中頻） -->
+      <g style="animation: ripple2 9s ease-in-out infinite; animation-delay: 3s;">
+        <path d="M120,528 C280,522 500,519 730,517 C960,515 1250,519 1480,524" stroke="var(--ink-far)" stroke-width="0.5"
+          fill="none" stroke-opacity="0.09" />
+        <path d="M40,548 C200,544 450,540 720,538 C990,537 1240,541 1460,546" stroke="var(--ink-far)" stroke-width="0.35"
+          fill="none" stroke-opacity="0.05" />
+      </g>
+      <!-- 水紋三層（慢頻） -->
+      <g style="animation: ripple3 13s ease-in-out infinite; animation-delay: 6s;">
+        <path d="M80,560 C220,556 480,551 740,549 C1000,547 1260,552 1500,558" stroke="var(--ink-far)" stroke-width="0.4"
+          fill="none" stroke-opacity="0.06" />
+      </g>
 
       <!-- 孤舟垂釣 -->
       <g class="fishing-boat" filter="url(#fInk)">
@@ -1660,16 +1821,16 @@
       </g>
 
       <!-- 山腰雲海 -->
-      <g filter="url(#fMist)" opacity="0.65">
+      <g filter="url(#fMist)" opacity="0.65" class="mist-drift">
         <ellipse cx="780" cy="390" rx="180" ry="18" fill="var(--mist-white)" />
       </g>
-      <g filter="url(#fMist)" opacity="0.50">
+      <g filter="url(#fMist)" opacity="0.50" class="mist-drift" style="animation-delay: -3s;">
         <ellipse cx="640" cy="420" rx="140" ry="14" fill="var(--mist-white)" />
       </g>
-      <g filter="url(#fMist)" opacity="0.45">
+      <g filter="url(#fMist)" opacity="0.45" class="mist-drift" style="animation-delay: -6s;">
         <ellipse cx="960" cy="400" rx="150" ry="15" fill="var(--mist-white)" />
       </g>
-      <g filter="url(#fMist)" opacity="0.40">
+      <g filter="url(#fMist)" opacity="0.40" class="mist-drift" style="animation-delay: -9s;">
         <ellipse cx="380" cy="430" rx="120" ry="12" fill="var(--mist-white)" />
       </g>
     </svg>
@@ -1782,6 +1943,11 @@
     </div>
 
     <!-- 晝夜切換 -->
+    <div class="scroll-hint" id="scrollHint">
+      <span class="scroll-hint-arrow">◁</span>
+      <span class="scroll-hint-text">滑動瀏覽</span>
+    </div>
+
     <button class="toggle-btn" id="toggleBtn" aria-label="切換晝夜模式">
       <span class="icon-sun">☀</span>
       <span class="icon-moon">☾</span>
@@ -1932,6 +2098,27 @@
             }
           });
         });
+
+        // ---- 滾動提示自動消失 ----
+        const hint = document.getElementById('scrollHint');
+        if (hint) {
+          let hintTimer = setTimeout(() => hint.classList.add('fading'), 5000);
+
+          slider.addEventListener('scroll', () => {
+            hint.classList.add('fading');
+            clearTimeout(hintTimer);
+          }, { once: true });
+
+          slider.addEventListener('mousedown', () => {
+            hint.classList.add('fading');
+            clearTimeout(hintTimer);
+          }, { once: true });
+
+          slider.addEventListener('touchstart', () => {
+            hint.classList.add('fading');
+            clearTimeout(hintTimer);
+          }, { once: true });
+        }
       })();
     </script>
     <script async src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
