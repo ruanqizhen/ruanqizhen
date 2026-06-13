@@ -308,9 +308,9 @@
       text-decoration: none;
       color: var(--text-primary);
       background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-      padding: 14px 12px;
+      border: 2px solid var(--card-border);
+      border-radius: 3px;
+      padding: 16px 14px;
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
       transition: all 0.4s ease;
@@ -324,6 +324,122 @@
       opacity: 0;
       transform: translateY(12px);
       animation: cardEnter 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+    }
+
+    /* 内框线：中式木牌里层的细线框 */
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border: 1px solid var(--card-border);
+      opacity: 0.45;
+      pointer-events: none;
+      transition: all 0.4s ease;
+      z-index: 1;
+    }
+
+    .card:hover::before {
+      opacity: 0.8;
+      border-color: var(--card-hover-border);
+    }
+
+    /* 中式木牌角花（双L型回纹角） */
+    .card-corner {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border: 1.2px solid var(--card-border);
+      pointer-events: none;
+      opacity: 0.6;
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 2;
+    }
+
+    /* 内层嵌套的第二个 L 型，构成回纹 */
+    .card-corner::before {
+      content: '';
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border: 1px solid var(--card-border);
+    }
+
+    .card-corner.tl {
+      top: 8px;
+      left: 8px;
+      border-right: none;
+      border-bottom: none;
+    }
+    .card-corner.tl::before {
+      top: 2px;
+      left: 2px;
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .card-corner.tr {
+      top: 8px;
+      right: 8px;
+      border-left: none;
+      border-bottom: none;
+    }
+    .card-corner.tr::before {
+      top: 2px;
+      right: 2px;
+      border-left: none;
+      border-bottom: none;
+    }
+
+    .card-corner.bl {
+      bottom: 8px;
+      left: 8px;
+      border-right: none;
+      border-top: none;
+    }
+    .card-corner.bl::before {
+      bottom: 2px;
+      left: 2px;
+      border-right: none;
+      border-top: none;
+    }
+
+    .card-corner.br {
+      bottom: 8px;
+      right: 8px;
+      border-left: none;
+      border-top: none;
+    }
+    .card-corner.br::before {
+      bottom: 2px;
+      right: 2px;
+      border-left: none;
+      border-top: none;
+    }
+
+    /* 悬停时：角花向外微移并变红，呈现卯榫紧扣的动态机械感 */
+    .card:hover .card-corner {
+      opacity: 0.95;
+      border-color: var(--seal-red);
+    }
+    .card:hover .card-corner::before {
+      border-color: var(--seal-red);
+    }
+
+    .card:hover .card-corner.tl {
+      top: 5px;
+      left: 5px;
+    }
+    .card:hover .card-corner.tr {
+      top: 5px;
+      right: 5px;
+    }
+    .card:hover .card-corner.bl {
+      bottom: 5px;
+      left: 5px;
+    }
+    .card:hover .card-corner.br {
+      bottom: 5px;
+      right: 5px;
     }
 
     .card:nth-child(1) {
@@ -766,6 +882,7 @@
     <div class="title-bg">
       <div class="card-column">
         <a href="https://cocode.qizhen.xyz/" class="card" target="_blank" rel="noopener" id="card-cocode">
+          <span class="card-corner tl"></span><span class="card-corner tr"></span><span class="card-corner bl"></span><span class="card-corner br"></span>
           <div class="card-header">
             <div class="card-title">重構程序員</div>
             <span class="card-tag book">墨卷</span>
@@ -773,6 +890,7 @@
           <div class="card-desc">寫給 AI 時代的自己·浪潮之下，一個程序員的困思與頓悟</div>
         </a>
         <a href="https://lv.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-labview">
+          <span class="card-corner tl"></span><span class="card-corner tr"></span><span class="card-corner bl"></span><span class="card-corner br"></span>
           <div class="card-header">
             <div class="card-title">LabVIEW 編程</div>
             <span class="card-tag book">墨卷</span>
@@ -780,6 +898,7 @@
           <div class="card-desc">探索數據流的藝術·從零開始的圖形化編程之道</div>
         </a>
         <a href="https://py.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-python">
+          <span class="card-corner tl"></span><span class="card-corner tr"></span><span class="card-corner bl"></span><span class="card-corner br"></span>
           <div class="card-header">
             <div class="card-title">Python 教程</div>
             <span class="card-tag book">墨卷</span>
@@ -787,6 +906,7 @@
           <div class="card-desc">賽博修仙指南·以代碼為劍，以邏輯為道</div>
         </a>
         <a href="https://anachron.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-anachron">
+          <span class="card-corner tl"></span><span class="card-corner tr"></span><span class="card-corner bl"></span><span class="card-corner br"></span>
           <div class="card-header">
             <div class="card-title">回音堂</div>
             <span class="card-tag web">雅集</span>
@@ -794,6 +914,7 @@
           <div class="card-desc">跨越時空的對話·以問答重現被歲月湮沒的往事</div>
         </a>
         <a href="https://glimmer.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-glimmer">
+          <span class="card-corner tl"></span><span class="card-corner tr"></span><span class="card-corner bl"></span><span class="card-corner br"></span>
           <div class="card-header">
             <div class="card-title">塵世微光</div>
             <span class="card-tag web">拾遺</span>
@@ -801,6 +922,7 @@
           <div class="card-desc">打撈時間的碎片·為上世紀的平凡人生留下註腳</div>
         </a>
         <a href="games.html" class="card" id="card-games">
+          <span class="card-corner tl"></span><span class="card-corner tr"></span><span class="card-corner bl"></span><span class="card-corner br"></span>
           <div class="card-header">
             <div class="card-title">懷舊遊戲</div>
             <span class="card-tag game">閑趣</span>
@@ -808,6 +930,7 @@
           <div class="card-desc">舊夢重溫·編程途中，信手拾回的少年歡愉</div>
         </a>
         <a href="https://blog.qizhen.xyz" class="card" target="_blank" rel="noopener" id="card-blog">
+          <span class="card-corner tl"></span><span class="card-corner tr"></span><span class="card-corner bl"></span><span class="card-corner br"></span>
           <div class="card-header">
             <div class="card-title">個人博客</div>
             <span class="card-tag blog">隨筆</span>
