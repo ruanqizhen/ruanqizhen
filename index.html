@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Zhi+Mang+Xing&display=swap"
+    href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@300;400;700&family=Zhi+Mang+Xing&family=Long+Cang&family=Ma+Shan+Zheng&display=swap"
     rel="stylesheet">
 
   <style>
@@ -30,28 +30,11 @@
     }
 
     :root {
-      /* === 晨霧（默認） === */
-      --sky-top: #e8e4dc;
-      --sky-mid: #ebe7df;
-      --sky-bot: #f0ece4;
-      --paper: #f2ede4;
+      --paper: #f4f1e8;
       --paper-edge: #d8d0c2;
-      --ink-far: #8a8278;
-      --ink-mid: #6a6258;
-      --ink-near: #4a4438;
-      --ink-deep: #3a352a;
-      --water-top: rgba(120, 115, 105, 0.22);
-      --water-bot: rgba(180, 174, 164, 0.06);
-      --cloud-white: rgba(245, 242, 236, 0.92);
-      --mist-white: rgba(248, 245, 240, 0.80);
-      --bird-color: #3a352a;
       --seal-red: #a03020;
       --seal-text-color: rgba(248, 235, 225, 0.92);
-      --inscription-color: #3a3228;
-      --reflection-opacity: 0.12;
-      --sky-glow: transparent;
-      --water-glow: transparent;
-      --transition-dur: 1.8s;
+      --transition-dur: 2.2s;
       /* 文字層 */
       --text-primary: #2a2418;
       --text-secondary: #5a5040;
@@ -67,26 +50,10 @@
     }
 
     .night-mode {
-      --sky-top: #4a3828;
-      --sky-mid: #6a4830;
-      --sky-bot: #8a6040;
-      --paper: #c8b898;
+      --paper: #2b2018;
       --paper-edge: #a08868;
-      --ink-far: #5a4a38;
-      --ink-mid: #4a3a28;
-      --ink-near: #3a2e20;
-      --ink-deep: #2a2218;
-      --water-top: rgba(80, 60, 35, 0.30);
-      --water-bot: rgba(140, 110, 70, 0.08);
-      --cloud-white: rgba(200, 170, 130, 0.55);
-      --mist-white: rgba(210, 180, 140, 0.50);
-      --bird-color: #c8b8a0;
       --seal-red: #8a2818;
       --seal-text-color: rgba(240, 220, 200, 0.85);
-      --inscription-color: #2a2218;
-      --reflection-opacity: 0.18;
-      --sky-glow: rgba(200, 120, 40, 0.12);
-      --water-glow: rgba(220, 160, 60, 0.08);
       --text-primary: #f2e8d4;
       --text-secondary: #d8c8a8;
       --text-link: #e8dcc0;
@@ -110,193 +77,114 @@
       font-family: 'LXGW WenKai TC', 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', 'STSong', 'SimSun', 'Songti SC', 'Noto Serif CJK SC', serif;
     }
 
-    /* ===== 動畫 ===== */
-    @keyframes drift1 {
+    /* ==========================================================
+       背景层 —— AI 水墨长卷 双图交叉淡入
+       ========================================================== */
+    .scene {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
 
-      0%,
-      100% {
-        transform: translateX(0) translateY(0) scaleX(1);
+    .scene-img {
+      position: absolute;
+      inset: -2.5%;
+      width: 105%;
+      height: 105%;
+      background-size: cover;
+      background-position: center 38%;
+      transition: opacity var(--transition-dur) ease, transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+      will-change: transform, opacity;
+    }
+
+    .scene-day {
+      background-image: url('assets/bg-day.jpg');
+      opacity: 1;
+    }
+
+    .scene-night {
+      background-image: url('assets/bg-night.jpg');
+      opacity: 0;
+    }
+
+    .night-mode .scene-day {
+      opacity: 0;
+    }
+
+    .night-mode .scene-night {
+      opacity: 1;
+    }
+
+    /* 宣纸纤维纹理 + 四周暗角（裱边感） */
+    .scene::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      background:
+        repeating-linear-gradient(90deg, transparent 0, transparent 3px, rgba(120, 110, 90, 0.018) 3px, rgba(120, 110, 90, 0.018) 4px),
+        repeating-linear-gradient(0deg, transparent 0, transparent 5px, rgba(110, 100, 80, 0.015) 5px, rgba(110, 100, 80, 0.015) 6px);
+      box-shadow:
+        inset 0 0 110px rgba(60, 55, 40, 0.22),
+        inset 0 0 320px rgba(60, 55, 40, 0.10);
+    }
+
+    /* ==========================================================
+       漂移雾霭 —— 两条横向雾带增添动感
+       ========================================================== */
+    @keyframes mistDrift1 {
+      0%, 100% {
+        transform: translateX(-2%);
+        opacity: 0.55;
       }
-
       50% {
-        transform: translateX(30px) translateY(-6px) scaleX(1.08);
+        transform: translateX(3%);
+        opacity: 0.75;
       }
     }
 
-    @keyframes drift2 {
-
-      0%,
-      100% {
-        transform: translateX(0) translateY(0);
+    @keyframes mistDrift2 {
+      0%, 100% {
+        transform: translateX(2%);
+        opacity: 0.40;
       }
-
       50% {
-        transform: translateX(-25px) translateY(4px) scaleX(0.94);
+        transform: translateX(-3%);
+        opacity: 0.60;
       }
     }
 
-    @keyframes drift3 {
-
-      0%,
-      100% {
-        transform: translateX(0) translateY(0);
-      }
-
-      50% {
-        transform: translateX(15px) translateY(-8px);
-      }
+    .mist {
+      position: absolute;
+      pointer-events: none;
+      border-radius: 50%;
+      filter: blur(34px);
+      z-index: 3;
     }
 
-    @keyframes flyBird1 {
-      0% {
-        transform: translate(0, 0);
-        opacity: 0;
-      }
-
-      4% {
-        opacity: 1;
-      }
-
-      96% {
-        opacity: 1;
-      }
-
-      100% {
-        transform: translate(550px, -50px);
-        opacity: 0;
-      }
+    .mist-1 {
+      left: -5%;
+      bottom: 30%;
+      width: 75%;
+      height: 9%;
+      background: radial-gradient(ellipse 80% 60% at 45% 50%, rgba(250, 248, 242, 0.85) 0%, transparent 100%);
+      animation: mistDrift1 26s ease-in-out infinite;
     }
 
-    @keyframes flyBird2 {
-      0% {
-        transform: translate(0, 0);
-        opacity: 0;
-      }
-
-      4% {
-        opacity: 1;
-      }
-
-      96% {
-        opacity: 1;
-      }
-
-      100% {
-        transform: translate(-480px, -35px);
-        opacity: 0;
-      }
+    .mist-2 {
+      right: -8%;
+      bottom: 38%;
+      width: 60%;
+      height: 7%;
+      background: radial-gradient(ellipse 75% 55% at 55% 50%, rgba(250, 248, 242, 0.70) 0%, transparent 100%);
+      animation: mistDrift2 32s ease-in-out infinite;
     }
 
-    @keyframes flyBird3 {
-      0% {
-        transform: translate(0, 0);
-        opacity: 0;
-      }
-
-      5% {
-        opacity: 1;
-      }
-
-      95% {
-        opacity: 1;
-      }
-
-      100% {
-        transform: translate(380px, -65px);
-        opacity: 0;
-      }
-    }
-
-    @keyframes flapWing {
-
-      0%,
-      100% {
-        transform: scaleY(1) rotate(0deg);
-      }
-
-      25% {
-        transform: scaleY(0.6) rotate(-5deg);
-      }
-
-      50% {
-        transform: scaleY(1) rotate(0deg);
-      }
-
-      75% {
-        transform: scaleY(0.7) rotate(3deg);
-      }
-    }
-
-    @keyframes ripple {
-
-      0%,
-      100% {
-        transform: scaleX(1);
-        opacity: 0.18;
-      }
-
-      50% {
-        transform: scaleX(1.03);
-        opacity: 0.28;
-      }
-    }
-
-    @keyframes ripple2 {
-
-      0%,
-      100% {
-        transform: scaleX(1) translateY(0);
-        opacity: 0.12;
-      }
-
-      50% {
-        transform: scaleX(1.02) translateY(-2px);
-        opacity: 0.22;
-      }
-    }
-
-    @keyframes ripple3 {
-
-      0%,
-      100% {
-        transform: scaleX(1);
-        opacity: 0.08;
-      }
-
-      50% {
-        transform: scaleX(1.025);
-        opacity: 0.16;
-      }
-    }
-
-    @keyframes waterfall {
-
-      0%,
-      100% {
-        opacity: 0.35;
-      }
-
-      50% {
-        opacity: 0.58;
-      }
-    }
-
-    /* 孤舟漂動動畫 */
-    .fishing-boat {
-      transform-origin: 610px 548px;
-      animation: driftBoat 140s ease-in-out infinite;
-    }
-
-    @keyframes driftBoat {
-
-      0%,
-      100% {
-        transform: translate(610px, 548px) rotate(-1deg);
-      }
-
-      50% {
-        transform: translate(860px, 550px) rotate(1.5deg);
-      }
+    .night-mode .mist-1,
+    .night-mode .mist-2 {
+      background: radial-gradient(ellipse 78% 58% at 50% 50%, rgba(120, 90, 55, 0.35) 0%, transparent 100%);
     }
 
     @keyframes cardEnter {
@@ -304,14 +192,13 @@
         opacity: 0;
         transform: translateY(12px);
       }
-
       100% {
         opacity: 1;
         transform: translateY(0);
       }
     }
 
-    /* ===== 主畫布（背景層） ===== */
+    /* ===== 主畫布（內容層包装） ===== */
     .canvas {
       position: fixed;
       top: 0;
@@ -320,373 +207,8 @@
       height: 100vh;
       height: 100dvh;
       overflow: hidden;
-      background: linear-gradient(180deg,
-          var(--sky-top) 0%,
-          var(--sky-mid) 30%,
-          var(--sky-bot) 55%,
-          var(--paper) 70%);
-      transition: background var(--transition-dur) ease;
-      z-index: 0;
-    }
-
-    .canvas .sky-glow {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 60%;
-      background: radial-gradient(ellipse 120% 80% at 70% 80%, var(--sky-glow) 0%, transparent 70%);
+      z-index: 10;
       pointer-events: none;
-      z-index: 1;
-      transition: background var(--transition-dur) ease;
-    }
-
-    /* 宣紙紋理 */
-    .canvas::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 100;
-      background:
-        repeating-linear-gradient(90deg,
-          transparent 0, transparent 2px,
-          rgba(160, 140, 110, 0.035) 2px, rgba(160, 140, 110, 0.035) 3px),
-        repeating-linear-gradient(0deg,
-          transparent 0, transparent 4px,
-          rgba(140, 120, 90, 0.028) 4px, rgba(140, 120, 90, 0.028) 5px),
-        repeating-linear-gradient(35deg,
-          transparent 0, transparent 8px,
-          rgba(130, 110, 80, 0.015) 8px, rgba(130, 110, 80, 0.015) 9px),
-        radial-gradient(ellipse 40% 30% at 25% 35%, rgba(160, 140, 100, 0.04) 0%, transparent 100%),
-        radial-gradient(ellipse 35% 25% at 72% 60%, rgba(150, 130, 90, 0.035) 0%, transparent 100%),
-        radial-gradient(ellipse 50% 40% at 50% 80%, rgba(140, 120, 85, 0.03) 0%, transparent 100%);
-    }
-
-    .canvas::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 99;
-      box-shadow:
-        inset 0 0 120px rgba(120, 100, 70, 0.20),
-        inset 0 0 300px rgba(100, 80, 55, 0.08),
-        inset 80px 0 60px -40px rgba(110, 90, 60, 0.12),
-        inset -80px 0 60px -40px rgba(110, 90, 60, 0.12);
-    }
-
-    .scene-svg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* ===== 雲霧 ===== */
-    .cloud {
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-      transition: background var(--transition-dur) ease;
-    }
-
-    .cloud-sea-1 {
-      bottom: 22%;
-      left: -3%;
-      width: 65%;
-      height: 5%;
-      background: radial-gradient(ellipse 85% 70% at 45% 55%, var(--cloud-white) 0%, transparent 100%);
-      filter: blur(22px);
-      animation: drift1 14s ease-in-out infinite;
-    }
-
-    .cloud-sea-2 {
-      bottom: 23%;
-      right: -13%;
-      width: 58%;
-      height: 4.5%;
-      background: radial-gradient(ellipse 80% 65% at 55% 50%, var(--cloud-white) 0%, transparent 100%);
-      filter: blur(20px);
-      animation: drift2 16s ease-in-out infinite;
-    }
-
-    .cloud-sea-3 {
-      bottom: 25%;
-      left: 20%;
-      width: 70%;
-      height: 4%;
-      background: radial-gradient(ellipse 75% 55% at 50% 50%, var(--mist-white) 0%, transparent 100%);
-      filter: blur(25px);
-      animation: drift3 11s ease-in-out infinite;
-      animation-delay: 2s;
-    }
-
-    .cloud-mid-1 {
-      bottom: 32%;
-      left: 10%;
-      width: 40%;
-      height: 3.5%;
-      background: radial-gradient(ellipse 80% 60% at 40% 55%, var(--cloud-white) 0%, transparent 100%);
-      filter: blur(16px);
-      opacity: 0.85;
-      animation: drift1 18s ease-in-out infinite;
-      animation-delay: 3s;
-    }
-
-    .cloud-mid-2 {
-      bottom: 34%;
-      right: -2%;
-      width: 35%;
-      height: 3%;
-      background: radial-gradient(ellipse 75% 55% at 55% 50%, var(--cloud-white) 0%, transparent 100%);
-      filter: blur(14px);
-      opacity: 0.75;
-      animation: drift2 20s ease-in-out infinite;
-      animation-delay: 1s;
-    }
-
-    .cloud-mid-3 {
-      bottom: 38%;
-      left: 35%;
-      width: 32%;
-      height: 2.5%;
-      background: radial-gradient(ellipse 70% 50% at 50% 50%, var(--mist-white) 0%, transparent 100%);
-      filter: blur(12px);
-      opacity: 0.70;
-      animation: drift3 15s ease-in-out infinite;
-      animation-delay: 5s;
-    }
-
-    .cloud-hi-1 {
-      bottom: 44%;
-      left: 5%;
-      width: 28%;
-      height: 2%;
-      background: radial-gradient(ellipse, var(--mist-white) 0%, transparent 100%);
-      filter: blur(10px);
-      opacity: 0.55;
-      animation: drift2 24s ease-in-out infinite;
-      animation-delay: 4s;
-    }
-
-    .cloud-hi-2 {
-      bottom: 48%;
-      right: 3%;
-      width: 24%;
-      height: 1.8%;
-      background: radial-gradient(ellipse, var(--mist-white) 0%, transparent 100%);
-      filter: blur(8px);
-      opacity: 0.45;
-      animation: drift1 22s ease-in-out infinite;
-      animation-delay: 6s;
-    }
-
-    .cloud-mountain-1 {
-      bottom: 30%;
-      left: 0%;
-      width: 50%;
-      height: 3%;
-      background: radial-gradient(ellipse 90% 80% at 40% 50%, var(--cloud-white) 0%, transparent 100%);
-      filter: blur(18px);
-      opacity: 0.90;
-      animation: drift1 12s ease-in-out infinite;
-      animation-delay: 1s;
-    }
-
-    .cloud-mountain-2 {
-      bottom: 28%;
-      right: -8%;
-      width: 45%;
-      height: 2.5%;
-      background: radial-gradient(ellipse 85% 70% at 60% 50%, var(--cloud-white) 0%, transparent 100%);
-      filter: blur(16px);
-      opacity: 0.80;
-      animation: drift2 14s ease-in-out infinite;
-      animation-delay: 3s;
-    }
-
-    /* ===== 飛鳥 ===== */
-    .birds-group {
-      position: absolute;
-      pointer-events: none;
-    }
-
-    .birds-1 {
-      top: 18%;
-      left: 8%;
-      animation: flyBird1 28s linear infinite;
-    }
-
-    .birds-2 {
-      top: 22%;
-      right: 0%;
-      animation: flyBird2 34s linear infinite;
-      animation-delay: 10s;
-    }
-
-    .birds-3 {
-      top: 15%;
-      left: 30%;
-      animation: flyBird3 22s linear infinite;
-      animation-delay: 5s;
-    }
-
-    .bird {
-      position: absolute;
-      width: 16px;
-      height: 6px;
-      animation: flapWing 0.8s ease-in-out infinite;
-    }
-
-    .bird::before,
-    .bird::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      width: 8px;
-      height: 6px;
-      border-top: 1.5px solid var(--bird-color);
-      border-radius: 50% 50% 0 0;
-      transition: border-color var(--transition-dur) ease;
-    }
-
-    .bird::before {
-      left: 0;
-      transform: rotate(-10deg);
-    }
-
-    .bird::after {
-      right: 0;
-      transform: rotate(10deg);
-    }
-
-    .bird-sm {
-      width: 12px;
-      height: 5px;
-    }
-
-    .bird-sm::before,
-    .bird-sm::after {
-      width: 6px;
-      height: 5px;
-      border-top-width: 1.2px;
-    }
-
-    .bird-xs {
-      width: 9px;
-      height: 4px;
-    }
-
-    .bird-xs::before,
-    .bird-xs::after {
-      width: 4.5px;
-      height: 4px;
-      border-top-width: 1px;
-    }
-
-    .wfall-anim {
-      animation: waterfall 4s ease-in-out infinite;
-    }
-
-    .wfall-anim2 {
-      animation: waterfall 4s ease-in-out infinite;
-      animation-delay: 1.5s;
-    }
-
-    .ripple-anim {
-      animation: ripple 7s ease-in-out infinite;
-    }
-
-    @keyframes mistFloat {
-
-      0%,
-      100% {
-        transform: translateX(0);
-        opacity: inherit;
-      }
-
-      50% {
-        transform: translateX(15px);
-      }
-    }
-
-    .mist-drift {
-      animation: mistFloat 12s ease-in-out infinite;
-    }
-
-    .water-glow {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 15%;
-      background: radial-gradient(ellipse 100% 60% at 60% 20%, var(--water-glow) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 2;
-      transition: background var(--transition-dur) ease;
-    }
-
-    /* ============================
-     卷軸內容層 — 竪排右至左
-     ============================ */
-    .scroll-layer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      height: 100dvh;
-      z-index: 50;
-      pointer-events: none;
-    }
-
-    .scroll-content {
-      position: absolute;
-      top: 0;
-      right: 0;
-      height: 100%;
-      display: flex;
-      flex-direction: row-reverse;
-      align-items: stretch;
-      justify-content: center;
-      padding: 40px 30px 30px 30px;
-      gap: 0;
-      overflow-x: auto;
-      overflow-y: hidden;
-      pointer-events: auto;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      direction: ltr;
-      width: 100%;
-      /* 自定義卷軸滾動條 */
-      scrollbar-width: thin;
-      scrollbar-color: var(--scroll-thumb) var(--scroll-track);
-    }
-
-    .scroll-content::-webkit-scrollbar {
-      height: 6px;
-    }
-
-    .scroll-content::-webkit-scrollbar-track {
-      background: var(--scroll-track);
-      border-radius: 3px;
-    }
-
-    .scroll-content::-webkit-scrollbar-thumb {
-      background: var(--scroll-thumb);
-      border-radius: 3px;
-    }
-
-    /* 標題區 */
-    .title-column {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px 12px;
-      flex-shrink: 0;
     }
 
     @keyframes titleReveal {
@@ -694,12 +216,10 @@
         opacity: 0;
         filter: blur(8px);
       }
-
       40% {
         opacity: 0;
         filter: blur(8px);
       }
-
       100% {
         opacity: 0.12;
         filter: blur(0);
@@ -721,7 +241,7 @@
 
     .main-title {
       font-family: 'Zhi Mang Xing', 'Long Cang', 'Ma Shan Zheng', cursive;
-      font-size: 36px;
+      font-size: 72px;
       font-weight: 700;
       letter-spacing: 12px;
       color: var(--text-primary);
@@ -731,53 +251,12 @@
     }
 
     /* 印章 */
-    .seal {
+    .seal-img {
       margin-top: 20px;
-      width: 48px;
-      height: 48px;
-      background: var(--seal-red);
-      border-radius: 1px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      background-image:
-        radial-gradient(circle 1.5px at 10px 7px, rgba(248, 240, 230, 0.45) 0%, transparent 100%),
-        radial-gradient(circle 1px at 32px 13px, rgba(248, 240, 230, 0.35) 0%, transparent 100%),
-        radial-gradient(circle 1.5px at 7px 35px, rgba(248, 240, 230, 0.40) 0%, transparent 100%),
-        radial-gradient(circle 1px at 38px 38px, rgba(248, 240, 230, 0.30) 0%, transparent 100%),
-        radial-gradient(circle 1px at 22px 24px, rgba(248, 240, 230, 0.25) 0%, transparent 100%);
-      box-shadow: 1px 1px 5px rgba(80, 20, 15, 0.22);
-      transition: background var(--transition-dur) ease;
-      position: relative;
-    }
-
-    .seal::before {
-      content: '';
-      position: absolute;
-      inset: 3px;
-      border: 1.5px solid rgba(240, 200, 180, 0.28);
-      border-radius: 0;
-    }
-
-    .seal-text {
-      display: grid;
-      grid-template-columns: repeat(2, 14px);
-      grid-template-rows: repeat(2, 14px);
-      width: 28px;
-      height: 28px;
-      z-index: 1;
-    }
-
-    .seal-char {
-      color: var(--seal-text-color);
-      font-family: 'LXGW WenKai TC', 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', 'STSong', 'SimSun', 'Songti SC', serif;
-      font-size: 13px;
-      font-weight: 900;
-      line-height: 1.1;
-      width: 14px;
-      text-align: center;
-      transition: color var(--transition-dur) ease;
+      width: 58px;
+      height: auto;
+      filter: drop-shadow(1px 2px 4px rgba(80, 20, 15, 0.25));
+      opacity: 0.95;
     }
 
     /* 卡片列 */
@@ -838,33 +317,13 @@
       animation: cardEnter 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
     }
 
-    .card:nth-child(1) {
-      animation-delay: 0.18s;
-    }
-
-    .card:nth-child(2) {
-      animation-delay: 0.30s;
-    }
-
-    .card:nth-child(3) {
-      animation-delay: 0.42s;
-    }
-
-    .card:nth-child(4) {
-      animation-delay: 0.54s;
-    }
-
-    .card:nth-child(5) {
-      animation-delay: 0.66s;
-    }
-
-    .card:nth-child(6) {
-      animation-delay: 0.78s;
-    }
-
-    .card:nth-child(7) {
-      animation-delay: 0.90s;
-    }
+    .card:nth-child(1) { animation-delay: 0.18s; }
+    .card:nth-child(2) { animation-delay: 0.30s; }
+    .card:nth-child(3) { animation-delay: 0.42s; }
+    .card:nth-child(4) { animation-delay: 0.54s; }
+    .card:nth-child(5) { animation-delay: 0.66s; }
+    .card:nth-child(6) { animation-delay: 0.78s; }
+    .card:nth-child(7) { animation-delay: 0.90s; }
 
     .card:hover {
       background: var(--card-hover-bg);
@@ -970,34 +429,6 @@
       transition: color var(--transition-dur) ease;
     }
 
-
-    /* 引首章 */
-    .seal-intro {
-      margin-bottom: 12px;
-      width: 24px;
-      height: 36px;
-      background: var(--seal-red);
-      border-radius: 12px / 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      background-image:
-        radial-gradient(circle 0.8px at 6px 8px, rgba(248, 240, 230, 0.40) 0%, transparent 100%),
-        radial-gradient(circle 0.6px at 18px 26px, rgba(248, 240, 230, 0.35) 0%, transparent 100%);
-      box-shadow: 1px 1px 3px rgba(80, 20, 15, 0.18);
-      transition: background var(--transition-dur) ease;
-    }
-
-    .seal-intro-char {
-      color: var(--seal-text-color);
-      font-family: 'LXGW WenKai TC', 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', 'STSong', 'SimSun', 'Songti SC', serif;
-      font-size: 10px;
-      font-weight: 900;
-      line-height: 1.2;
-      transition: color var(--transition-dur) ease;
-    }
-
     /* ===== 晝夜切換按鈕 ===== */
     .toggle-btn {
       position: fixed;
@@ -1020,6 +451,7 @@
       color: var(--text-primary);
       transition: all 0.4s ease;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      pointer-events: auto;
     }
 
     .toggle-btn:hover {
@@ -1050,13 +482,8 @@
     }
 
     @keyframes toggleSpin {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .toggle-btn.spinning {
@@ -1124,15 +551,8 @@
     }
 
     @keyframes hintPulse {
-
-      0%,
-      100% {
-        transform: translateX(0);
-      }
-
-      50% {
-        transform: translateX(12px);
-      }
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(12px); }
     }
 
     .scroll-hint-arrow {
@@ -1149,17 +569,13 @@
 
     /* ===== 響應式 ===== */
     @media (max-width: 900px) {
-      .scroll-content {
-        padding: 30px 15px 25px 15px;
-      }
-
       .title-container {
         top: 50px;
         left: 20px;
       }
 
       .main-title {
-        font-size: 22px;
+        font-size: 44px;
         letter-spacing: 8px;
       }
 
@@ -1195,17 +611,13 @@
     }
 
     @media (max-width: 500px) {
-      .scroll-content {
-        padding: 16px 6px 14px 6px;
-      }
-
       .title-container {
         top: 40px;
         left: 10px;
       }
 
       .main-title {
-        font-size: 18px;
+        font-size: 36px;
         letter-spacing: 6px;
       }
 
@@ -1256,13 +668,24 @@
         right: auto;
       }
     }
+
+    /* 减少动态偏好 */
+    @media (prefers-reduced-motion: reduce) {
+      .mist-1,
+      .mist-2,
+      .scroll-hint {
+        animation: none;
+      }
+      .card {
+        animation-duration: 0.01s;
+      }
+    }
   </style>
   <script>
     (function () {
       const savedTheme = localStorage.getItem('theme');
       const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       if (savedTheme === 'dark' || (!savedTheme && systemDark)) {
-        // will apply night-mode class after DOM ready
         document.documentElement.dataset.nightMode = 'true';
       }
     })();
@@ -1278,620 +701,21 @@
 
 <body>
 
-  <!-- ============================
-     背景層：水墨山水
-     ============================ -->
   <div class="canvas" id="canvas">
-    <div class="sky-glow"></div>
-
-    <svg class="scene-svg" viewBox="-80 0 1600 600" preserveAspectRatio="xMidYMid slice"
-      xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="gFar" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="var(--ink-far)" stop-opacity="0.35" />
-          <stop offset="100%" stop-color="var(--ink-far)" stop-opacity="0.15" />
-        </linearGradient>
-        <linearGradient id="gMid" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="var(--ink-mid)" stop-opacity="0.55" />
-          <stop offset="100%" stop-color="var(--ink-mid)" stop-opacity="0.25" />
-        </linearGradient>
-        <linearGradient id="gNear" x1="0" y1="0" x2="0.15" y2="1">
-          <stop offset="0%" stop-color="var(--ink-near)" stop-opacity="0.75" />
-          <stop offset="100%" stop-color="var(--ink-near)" stop-opacity="0.40" />
-        </linearGradient>
-        <linearGradient id="gPeak" x1="0" y1="0" x2="0.2" y2="1">
-          <stop offset="0%" stop-color="var(--ink-deep)" stop-opacity="0.85" />
-          <stop offset="100%" stop-color="var(--ink-near)" stop-opacity="0.50" />
-        </linearGradient>
-        <linearGradient id="gWater" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="var(--ink-mid)" stop-opacity="0.18" />
-          <stop offset="50%" stop-color="var(--ink-far)" stop-opacity="0.10" />
-          <stop offset="100%" stop-color="var(--ink-far)" stop-opacity="0.03" />
-        </linearGradient>
-        <linearGradient id="gFall" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#9ab4c8" stop-opacity="0" />
-          <stop offset="15%" stop-color="#b8ceda" stop-opacity="0.65" />
-          <stop offset="80%" stop-color="#ccdce8" stop-opacity="0.40" />
-          <stop offset="100%" stop-color="#ddeaf4" stop-opacity="0.08" />
-        </linearGradient>
-        <linearGradient id="gReflect" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="var(--ink-near)" stop-opacity="var(--reflection-opacity)" />
-          <stop offset="100%" stop-color="var(--ink-near)" stop-opacity="0.02" />
-        </linearGradient>
-
-        <filter id="fFar">
-          <feGaussianBlur stdDeviation="6" />
-        </filter>
-        <filter id="fMid">
-          <feGaussianBlur stdDeviation="3" />
-        </filter>
-        <filter id="fNear">
-          <feGaussianBlur stdDeviation="1.2" />
-        </filter>
-        <filter id="fInk">
-          <feGaussianBlur stdDeviation="0.6" />
-        </filter>
-        <filter id="fFall">
-          <feGaussianBlur stdDeviation="1.5" />
-        </filter>
-        <filter id="fMist">
-          <feGaussianBlur stdDeviation="14" />
-        </filter>
-        <filter id="fSoft">
-          <feGaussianBlur stdDeviation="2" />
-        </filter>
-        <filter id="fTree">
-          <feGaussianBlur stdDeviation="0.8" />
-        </filter>
-
-        <pattern id="cunPiMa" x="0" y="0" width="40" height="30" patternUnits="userSpaceOnUse">
-          <line x1="2" y1="0" x2="8" y2="28" stroke="var(--ink-near)" stroke-width="0.6" opacity="0.3" />
-          <line x1="10" y1="2" x2="15" y2="26" stroke="var(--ink-near)" stroke-width="0.5" opacity="0.25" />
-          <line x1="20" y1="1" x2="24" y2="29" stroke="var(--ink-near)" stroke-width="0.7" opacity="0.2" />
-          <line x1="30" y1="3" x2="35" y2="27" stroke="var(--ink-near)" stroke-width="0.5" opacity="0.28" />
-          <line x1="38" y1="0" x2="40" y2="25" stroke="var(--ink-near)" stroke-width="0.4" opacity="0.22" />
-          <line x1="5" y1="14" x2="9" y2="15" stroke="var(--ink-near)" stroke-width="0.5" opacity="0.20" />
-          <line x1="25" y1="10" x2="29" y2="11" stroke="var(--ink-near)" stroke-width="0.4" opacity="0.18" />
-        </pattern>
-        <pattern id="cunFuPi" x="0" y="0" width="30" height="25" patternUnits="userSpaceOnUse">
-          <line x1="0" y1="5" x2="12" y2="8" stroke="var(--ink-deep)" stroke-width="1.2" opacity="0.18"
-            stroke-linecap="round" />
-          <line x1="15" y1="2" x2="28" y2="6" stroke="var(--ink-deep)" stroke-width="0.8" opacity="0.15"
-            stroke-linecap="round" />
-          <line x1="5" y1="15" x2="18" y2="18" stroke="var(--ink-deep)" stroke-width="1.0" opacity="0.20"
-            stroke-linecap="round" />
-          <line x1="20" y1="20" x2="30" y2="22" stroke="var(--ink-deep)" stroke-width="0.7" opacity="0.14"
-            stroke-linecap="round" />
-        </pattern>
-      </defs>
-
-      <rect x="-80" width="1600" height="600" fill="none" />
-
-      <!-- 最遠山脈 -->
-      <g filter="url(#fFar)" opacity="0.20">
-        <path
-          d="M0,600 L0,380 C80,370 160,355 250,340 C340,325 400,335 480,318 C560,301 620,312 700,295 C780,278 840,290 920,275 C1000,260 1060,270 1140,258 C1220,246 1280,255 1360,242 C1440,230 1520,240 1600,235 L1600,600 Z"
-          fill="url(#gFar)" />
-      </g>
-      <g filter="url(#fFar)" opacity="0.14">
-        <path
-          d="M0,600 L0,400 C100,388 200,370 310,358 C420,346 500,360 600,345 C700,330 780,342 880,328 C980,314 1060,325 1160,312 C1260,299 1340,310 1440,298 C1520,290 1570,295 1600,292 L1600,600 Z"
-          fill="url(#gFar)" />
-      </g>
-
-      <!-- 中景：左段平遠 -->
-      <g filter="url(#fMid)" opacity="0.40">
-        <path
-          d="M0,600 L0,440 C40,435 80,420 130,405 C180,390 220,398 270,385 C320,372 360,380 420,395 C480,410 520,425 560,440 C600,450 640,458 700,470 C760,478 800,482 850,480 L850,600 Z"
-          fill="url(#gMid)" />
-        <path
-          d="M0,600 L0,440 C40,435 80,420 130,405 C180,390 220,398 270,385 C320,372 360,380 420,395 C480,410 520,425 560,440 C600,450 640,458 700,470 C760,478 800,482 850,480 L850,600 Z"
-          fill="url(#cunPiMa)" opacity="0.60" />
-      </g>
-
-      <!-- 中段：高遠主峰 -->
-      <g filter="url(#fNear)" opacity="0.55">
-        <path
-          d="M500,600 L500,470 C540,455 570,420 610,370 C650,320 680,275 720,230 C745,205 765,190 785,185 C805,180 820,190 835,215 C855,245 870,285 890,330 C910,375 930,410 960,440 C990,465 1020,478 1060,488 L1060,600 Z"
-          fill="url(#gNear)" />
-        <path
-          d="M500,600 L500,470 C540,455 570,420 610,370 C650,320 680,275 720,230 C745,205 765,190 785,185 C805,180 820,190 835,215 C855,245 870,285 890,330 C910,375 930,410 960,440 C990,465 1020,478 1060,488 L1060,600 Z"
-          fill="url(#cunFuPi)" opacity="0.55" />
-      </g>
-      <!-- 主峰皴法 -->
-      <g opacity="0.30" filter="url(#fInk)">
-        <line x1="740" y1="220" x2="735" y2="280" stroke="var(--ink-near)" stroke-width="0.8" stroke-linecap="round" />
-        <line x1="755" y1="210" x2="750" y2="265" stroke="var(--ink-near)" stroke-width="0.6" stroke-linecap="round" />
-        <line x1="770" y1="200" x2="768" y2="260" stroke="var(--ink-near)" stroke-width="0.7" stroke-linecap="round" />
-        <line x1="785" y1="195" x2="790" y2="255" stroke="var(--ink-near)" stroke-width="0.6" stroke-linecap="round" />
-        <line x1="800" y1="200" x2="808" y2="265" stroke="var(--ink-near)" stroke-width="0.8" stroke-linecap="round" />
-        <line x1="725" y1="250" x2="745" y2="248" stroke="var(--ink-near)" stroke-width="0.7" stroke-linecap="round" />
-        <line x1="760" y1="240" x2="782" y2="237" stroke="var(--ink-near)" stroke-width="0.5" stroke-linecap="round" />
-        <line x1="795" y1="245" x2="818" y2="242" stroke="var(--ink-near)" stroke-width="0.6" stroke-linecap="round" />
-        <circle cx="735" cy="260" r="1.5" fill="var(--ink-near)" opacity="0.4" />
-        <circle cx="758" cy="248" r="1.2" fill="var(--ink-near)" opacity="0.35" />
-        <circle cx="780" cy="235" r="1.8" fill="var(--ink-near)" opacity="0.38" />
-        <circle cx="805" cy="250" r="1.3" fill="var(--ink-near)" opacity="0.32" />
-      </g>
-
-      <!-- 苔點（點苔法） — 主峰 -->
-      <g opacity="0.38" filter="url(#fInk)">
-        <!-- 峰頂苔點 -->
-        <circle cx="720" cy="232" r="2.2" fill="var(--ink-deep)" />
-        <circle cx="735" cy="225" r="1.8" fill="var(--ink-deep)" />
-        <circle cx="745" cy="218" r="2.5" fill="var(--ink-deep)" />
-        <circle cx="758" cy="215" r="1.6" fill="var(--ink-deep)" />
-        <circle cx="770" cy="200" r="2" fill="var(--ink-deep)" />
-        <circle cx="782" cy="198" r="2.2" fill="var(--ink-deep)" />
-        <circle cx="795" cy="205" r="1.5" fill="var(--ink-deep)" />
-        <!-- 山脊苔點 -->
-        <circle cx="700" cy="260" r="1.8" fill="var(--ink-deep)" />
-        <circle cx="715" cy="250" r="2" fill="var(--ink-deep)" />
-        <circle cx="730" cy="245" r="1.5" fill="var(--ink-deep)" />
-        <circle cx="750" cy="235" r="2.2" fill="var(--ink-deep)" />
-        <circle cx="768" cy="230" r="1.8" fill="var(--ink-deep)" />
-        <circle cx="790" cy="238" r="2" fill="var(--ink-deep)" />
-        <circle cx="810" cy="248" r="1.6" fill="var(--ink-deep)" />
-        <circle cx="830" cy="260" r="2" fill="var(--ink-deep)" />
-        <circle cx="850" cy="275" r="1.8" fill="var(--ink-deep)" />
-        <!-- 山腰散點 -->
-        <circle cx="690" cy="295" r="1.5" fill="var(--ink-deep)" opacity="0.7" />
-        <circle cx="710" cy="280" r="1.8" fill="var(--ink-deep)" opacity="0.65" />
-        <circle cx="760" cy="265" r="1.6" fill="var(--ink-deep)" opacity="0.7" />
-        <circle cx="820" cy="285" r="1.5" fill="var(--ink-deep)" opacity="0.65" />
-        <circle cx="845" cy="300" r="1.8" fill="var(--ink-deep)" opacity="0.6" />
-        <circle cx="870" cy="315" r="1.4" fill="var(--ink-deep)" opacity="0.55" />
-        <circle cx="890" cy="340" r="1.6" fill="var(--ink-deep)" opacity="0.5" />
-      </g>
-
-      <!-- 苔點 — 左輔峰 -->
-      <g opacity="0.30" filter="url(#fInk)">
-        <circle cx="580" cy="320" r="1.8" fill="var(--ink-deep)" />
-        <circle cx="600" cy="312" r="1.5" fill="var(--ink-deep)" />
-        <circle cx="615" cy="318" r="2" fill="var(--ink-deep)" />
-        <circle cx="635" cy="335" r="1.6" fill="var(--ink-deep)" />
-        <circle cx="660" cy="358" r="1.5" fill="var(--ink-deep)" />
-      </g>
-
-      <!-- 左輔峰 -->
-      <g filter="url(#fMid)" opacity="0.42">
-        <path
-          d="M520,600 L520,450 C560,435 590,400 630,360 C655,335 675,318 690,310 C705,305 715,312 725,330 C740,355 760,395 785,435 C810,470 830,490 860,500 L860,600 Z"
-          fill="url(#gMid)" />
-        <path
-          d="M520,600 L520,450 C560,435 590,400 630,360 C655,335 675,318 690,310 C705,305 715,312 725,330 C740,355 760,395 785,435 C810,470 830,490 860,500 L860,600 Z"
-          fill="url(#cunPiMa)" opacity="0.50" />
-      </g>
-
-      <!-- 右段：深遠 -->
-      <g filter="url(#fMid)" opacity="0.45">
-        <path
-          d="M1000,600 L1000,440 C1050,425 1090,395 1140,360 C1180,335 1210,318 1240,308 C1270,298 1290,305 1310,325 C1340,355 1365,390 1400,420 C1440,450 1480,468 1530,478 C1560,484 1580,488 1600,490 L1600,600 Z"
-          fill="url(#gMid)" />
-        <path
-          d="M1000,600 L1000,440 C1050,425 1090,395 1140,360 C1180,335 1210,318 1240,308 C1270,298 1290,305 1310,325 C1340,355 1365,390 1400,420 C1440,450 1480,468 1530,478 C1560,484 1580,488 1600,490 L1600,600 Z"
-          fill="url(#cunPiMa)" opacity="0.48" />
-      </g>
-      <g filter="url(#fNear)" opacity="0.38">
-        <path
-          d="M1100,600 L1100,430 C1130,415 1155,390 1185,365 C1205,348 1225,335 1245,328 C1265,322 1280,330 1295,348 C1315,372 1335,405 1360,435 C1390,465 1420,485 1460,498 L1460,600 Z"
-          fill="url(#gNear)" />
-        <path
-          d="M1100,600 L1100,430 C1130,415 1155,390 1185,365 C1205,348 1225,335 1245,328 C1265,322 1280,330 1295,348 C1315,372 1335,405 1360,435 C1390,465 1420,485 1460,498 L1460,600 Z"
-          fill="url(#cunFuPi)" opacity="0.42" />
-      </g>
-
-      <!-- 近景丘陵 -->
-      <g filter="url(#fInk)" opacity="0.65">
-        <path
-          d="M150,600 L150,480 C180,472 210,458 250,445 C290,432 320,440 360,450 C410,462 450,475 500,490 L500,600 Z"
-          fill="url(#gPeak)" />
-        <path
-          d="M150,600 L150,480 C180,472 210,458 250,445 C290,432 320,440 360,450 C410,462 450,475 500,490 L500,600 Z"
-          fill="url(#cunPiMa)" opacity="0.65" />
-      </g>
-      <g filter="url(#fInk)" opacity="0.60">
-        <path
-          d="M950,600 L950,475 C990,465 1020,455 1060,448 C1100,442 1130,450 1160,458 C1180,464 1190,470 1200,475 L1200,600 Z"
-          fill="url(#gPeak)" />
-        <path
-          d="M950,600 L950,475 C990,465 1020,455 1060,448 C1100,442 1130,450 1160,458 C1180,464 1190,470 1200,475 L1200,600 Z"
-          fill="url(#cunFuPi)" opacity="0.55" />
-      </g>
-
-      <!-- 瀑布（主） -->
-      <g class="wfall-anim">
-        <!-- 水流主體 -->
-        <rect x="769" y="280" width="8" height="105" rx="4" fill="url(#gFall)" filter="url(#fFall)" />
-        <!-- 水流高光 -->
-        <rect x="771" y="290" width="3" height="85" rx="1.5" fill="rgba(225,240,250,0.50)" filter="url(#fFall)" />
-        <rect x="774" y="300" width="1.5" height="60" rx="1" fill="rgba(240,248,255,0.40)" filter="url(#fFall)" />
-        <!-- 瀑底水霧 -->
-        <ellipse cx="773" cy="388" rx="22" ry="6" fill="rgba(168,200,220,0.28)" filter="url(#fMist)" />
-        <ellipse cx="773" cy="392" rx="30" ry="4" fill="rgba(180,210,230,0.15)" filter="url(#fMist)" />
-        <!-- 飛濺水珠 -->
-        <circle cx="768" cy="385" r="1.2" fill="rgba(200,225,245,0.35)" filter="url(#fSoft)" />
-        <circle cx="778" cy="387" r="0.8" fill="rgba(210,235,250,0.30)" filter="url(#fSoft)" />
-        <circle cx="773" cy="382" r="1" fill="rgba(200,225,245,0.35)" filter="url(#fSoft)" />
-      </g>
-      <!-- 瀑布（副） -->
-      <g class="wfall-anim2">
-        <rect x="587" y="335" width="5" height="65" rx="2.5" fill="url(#gFall)" filter="url(#fFall)" opacity="0.65" />
-        <rect x="588" y="342" width="2" height="45" rx="1" fill="rgba(225,240,250,0.40)" filter="url(#fFall)" />
-        <ellipse cx="590" cy="402" rx="16" ry="4.5" fill="rgba(168,200,220,0.22)" filter="url(#fMist)" />
-        <ellipse cx="590" cy="405" rx="22" ry="3.5" fill="rgba(180,210,230,0.12)" filter="url(#fMist)" />
-      </g>
-
-      <!-- 淡墨樹林（左） -->
-      <g filter="url(#fMid)" opacity="0.22">
-        <!-- 高樹 -->
-        <line x1="388" y1="398" x2="388" y2="368" stroke="var(--ink-mid)" stroke-width="1.2" stroke-linecap="round" />
-        <ellipse cx="388" cy="364" rx="6" ry="4.5" fill="var(--ink-mid)" />
-        <line x1="398" y1="398" x2="398" y2="375" stroke="var(--ink-mid)" stroke-width="1" stroke-linecap="round" />
-        <ellipse cx="398" cy="372" rx="5.5" ry="3.8" fill="var(--ink-mid)" />
-        <!-- 中樹 -->
-        <line x1="410" y1="396" x2="410" y2="378" stroke="var(--ink-mid)" stroke-width="0.9" stroke-linecap="round" />
-        <ellipse cx="410" cy="375" rx="5" ry="3.5" fill="var(--ink-mid)" />
-        <line x1="420" y1="394" x2="420" y2="380" stroke="var(--ink-mid)" stroke-width="0.8" stroke-linecap="round" />
-        <ellipse cx="420" cy="377" rx="4.5" ry="3" fill="var(--ink-mid)" />
-        <!-- 矮樹 -->
-        <line x1="433" y1="392" x2="433" y2="380" stroke="var(--ink-mid)" stroke-width="0.7" stroke-linecap="round" />
-        <ellipse cx="433" cy="378" rx="4" ry="3" fill="var(--ink-mid)" />
-        <line x1="442" y1="390" x2="442" y2="379" stroke="var(--ink-mid)" stroke-width="0.7" stroke-linecap="round" />
-        <ellipse cx="442" cy="377" rx="4" ry="2.8" fill="var(--ink-mid)" />
-        <line x1="450" y1="388" x2="450" y2="378" stroke="var(--ink-mid)" stroke-width="0.6" stroke-linecap="round" />
-        <ellipse cx="450" cy="376" rx="3.5" ry="2.5" fill="var(--ink-mid)" />
-        <line x1="458" y1="386" x2="458" y2="376" stroke="var(--ink-mid)" stroke-width="0.6" stroke-linecap="round" />
-        <ellipse cx="458" cy="374" rx="3.5" ry="2.5" fill="var(--ink-mid)" />
-      </g>
-      <!-- 中景樹林 -->
-      <g filter="url(#fTree)" opacity="0.35">
-        <line x1="672" y1="470" x2="670" y2="440" stroke="var(--ink-near)" stroke-width="1.6" stroke-linecap="round" />
-        <ellipse cx="670" cy="436" rx="7" ry="4.5" fill="var(--ink-near)" />
-        <line x1="682" y1="468" x2="682" y2="444" stroke="var(--ink-near)" stroke-width="1.3" stroke-linecap="round" />
-        <ellipse cx="682" cy="440" rx="5.5" ry="4" fill="var(--ink-near)" />
-        <line x1="693" y1="466" x2="693" y2="442" stroke="var(--ink-near)" stroke-width="1.2" stroke-linecap="round" />
-        <ellipse cx="693" cy="438" rx="5" ry="3.5" fill="var(--ink-near)" />
-        <line x1="703" y1="464" x2="705" y2="444" stroke="var(--ink-near)" stroke-width="1.1" stroke-linecap="round" />
-        <ellipse cx="705" cy="440" rx="5.5" ry="3.8" fill="var(--ink-near)" />
-        <line x1="714" y1="460" x2="716" y2="440" stroke="var(--ink-near)" stroke-width="1" stroke-linecap="round" />
-        <ellipse cx="716" cy="436" rx="5.5" ry="4" fill="var(--ink-near)" />
-        <line x1="725" y1="458" x2="727" y2="442" stroke="var(--ink-near)" stroke-width="0.9" stroke-linecap="round" />
-        <ellipse cx="727" cy="438" rx="5" ry="3.5" fill="var(--ink-near)" />
-      </g>
-      <!-- 淡墨樹林（右） -->
-      <g filter="url(#fTree)" opacity="0.28">
-        <line x1="870" y1="388" x2="868" y2="362" stroke="var(--ink-mid)" stroke-width="1.3" stroke-linecap="round" />
-        <ellipse cx="868" cy="358" rx="6" ry="4" fill="var(--ink-mid)" />
-        <line x1="882" y1="385" x2="882" y2="365" stroke="var(--ink-mid)" stroke-width="1.1" stroke-linecap="round" />
-        <ellipse cx="882" cy="361" rx="5" ry="3.5" fill="var(--ink-mid)" />
-        <line x1="894" y1="382" x2="894" y2="362" stroke="var(--ink-mid)" stroke-width="1" stroke-linecap="round" />
-        <ellipse cx="894" cy="358" rx="4.5" ry="3" fill="var(--ink-mid)" />
-        <line x1="905" y1="378" x2="905" y2="362" stroke="var(--ink-mid)" stroke-width="0.9" stroke-linecap="round" />
-        <ellipse cx="905" cy="359" rx="4.5" ry="3" fill="var(--ink-mid)" />
-        <line x1="916" y1="374" x2="916" y2="358" stroke="var(--ink-mid)" stroke-width="0.8" stroke-linecap="round" />
-        <ellipse cx="916" cy="355" rx="4" ry="2.8" fill="var(--ink-mid)" />
-        <line x1="926" y1="370" x2="926" y2="356" stroke="var(--ink-mid)" stroke-width="0.7" stroke-linecap="round" />
-        <ellipse cx="926" cy="353" rx="3.8" ry="2.5" fill="var(--ink-mid)" />
-      </g>
-
-      <!-- 松樹 -->
-      <g transform="translate(760,380)" filter="url(#fInk)" opacity="0.72">
-        <!-- 主幹 -->
-        <path d="M0,0 C-1,-10 -2,-25 -2,-42 C-3,-50 -2,-58 0,-65" stroke="var(--ink-deep)" stroke-width="2.8"
-          fill="none" stroke-linecap="round" />
-        <!-- 主幹鱗皮紋理 -->
-        <path d="M-1,-8 C1,-10 2,-12 0,-14 M-2,-20 C0,-22 1,-24 -1,-26 M-1,-32 C2,-34 3,-36 0,-38"
-          stroke="var(--ink-deep)" stroke-width="0.5" fill="none" opacity="0.5" />
-        <!-- 第一層枝（最下） -->
-        <path d="M-2,-18 C-16,-22 -26,-20 -32,-16 M-2,-18 C12,-22 22,-20 28,-15" stroke="var(--ink-deep)"
-          stroke-width="2" fill="none" stroke-linecap="round" />
-        <!-- 第二層枝 -->
-        <path d="M-2,-28 C-14,-33 -22,-31 -28,-26 M-2,-28 C10,-33 18,-31 24,-25" stroke="var(--ink-deep)"
-          stroke-width="1.6" fill="none" stroke-linecap="round" />
-        <!-- 第三層枝 -->
-        <path d="M-1,-38 C-10,-43 -16,-41 -20,-36 M-1,-38 C7,-43 13,-41 18,-35" stroke="var(--ink-deep)"
-          stroke-width="1.2" fill="none" stroke-linecap="round" />
-        <!-- 頂枝 -->
-        <path d="M0,-50 C-5,-55 -8,-58 -6,-62 M0,-50 C4,-55 7,-58 5,-62" stroke="var(--ink-deep)" stroke-width="0.9"
-          fill="none" stroke-linecap="round" />
-        <!-- 松針簇 — 左下 -->
-        <ellipse cx="-33" cy="-18" rx="10" ry="5" fill="var(--ink-deep)" opacity="0.6"
-          transform="rotate(-20,-33,-18)" />
-        <ellipse cx="-34" cy="-14" rx="8" ry="4" fill="var(--ink-deep)" opacity="0.5" transform="rotate(-35,-34,-14)" />
-        <!-- 松針簇 — 右下 -->
-        <ellipse cx="29" cy="-17" rx="10" ry="5" fill="var(--ink-deep)" opacity="0.6" transform="rotate(20,29,-17)" />
-        <ellipse cx="30" cy="-13" rx="8" ry="4" fill="var(--ink-deep)" opacity="0.5" transform="rotate(35,30,-13)" />
-        <!-- 松針簇 — 左中 -->
-        <ellipse cx="-29" cy="-28" rx="8" ry="4" fill="var(--ink-deep)" opacity="0.55"
-          transform="rotate(-15,-29,-28)" />
-        <ellipse cx="-30" cy="-24" rx="7" ry="3.5" fill="var(--ink-deep)" opacity="0.45"
-          transform="rotate(-30,-30,-24)" />
-        <!-- 松針簇 — 右中 -->
-        <ellipse cx="25" cy="-27" rx="8" ry="4" fill="var(--ink-deep)" opacity="0.55" transform="rotate(15,25,-27)" />
-        <ellipse cx="26" cy="-23" rx="7" ry="3.5" fill="var(--ink-deep)" opacity="0.45" transform="rotate(30,26,-23)" />
-        <!-- 松針簇 — 左上 -->
-        <ellipse cx="-21" cy="-38" rx="7" ry="3.5" fill="var(--ink-deep)" opacity="0.5"
-          transform="rotate(-10,-21,-38)" />
-        <!-- 松針簇 — 右上 -->
-        <ellipse cx="19" cy="-37" rx="7" ry="3.5" fill="var(--ink-deep)" opacity="0.5" transform="rotate(10,19,-37)" />
-        <!-- 松針簇 — 頂 -->
-        <ellipse cx="-6" cy="-63" rx="6" ry="3" fill="var(--ink-deep)" opacity="0.45" transform="rotate(-5,-6,-63)" />
-        <ellipse cx="6" cy="-61" rx="5" ry="2.8" fill="var(--ink-deep)" opacity="0.4" transform="rotate(8,6,-61)" />
-        <ellipse cx="0" cy="-66" rx="4" ry="2.5" fill="var(--ink-deep)" opacity="0.35" />
-        <!-- 垂藤 -->
-        <path d="M-24,-20 C-26,-15 -22,-8 -24,-4" stroke="var(--ink-deep)" stroke-width="0.5" fill="none" opacity="0.35"
-          stroke-linecap="round" />
-        <path d="M22,-18 C24,-12 20,-6 22,-2" stroke="var(--ink-deep)" stroke-width="0.5" fill="none" opacity="0.3"
-          stroke-linecap="round" />
-      </g>
-
-      <!-- 枯樹（左） -->
-      <g transform="translate(480,488)" filter="url(#fInk)" opacity="0.65">
-        <!-- 主幹 — 蒼勁虬曲 -->
-        <path d="M0,0 C-2,-10 -3,-20 -2,-32 C-1,-45 0,-55 2,-65" stroke="var(--ink-deep)" stroke-width="2.8" fill="none"
-          stroke-linecap="round" />
-        <!-- 樹幹紋理 -->
-        <path d="M-1,-8 C1,-10 2,-14 0,-16 M-2,-24 C1,-26 3,-28 0,-30 M-1,-40 C2,-42 3,-44 1,-46"
-          stroke="var(--ink-deep)" stroke-width="0.5" fill="none" opacity="0.4" />
-        <!-- 右大枝 -->
-        <path d="M-1,-30 C8,-36 18,-38 26,-36 C30,-35 34,-33 36,-30" stroke="var(--ink-deep)" stroke-width="1.8"
-          fill="none" stroke-linecap="round" />
-        <!-- 右枝細梢 -->
-        <path d="M26,-36 C28,-40 30,-44 28,-48 M30,-34 C33,-37 36,-38 38,-40" stroke="var(--ink-deep)"
-          stroke-width="0.7" fill="none" stroke-linecap="round" />
-        <!-- 左大枝 -->
-        <path d="M-2,-48 C-12,-54 -22,-52 -30,-48 C-34,-46 -37,-42 -38,-38" stroke="var(--ink-deep)" stroke-width="1.5"
-          fill="none" stroke-linecap="round" />
-        <!-- 左枝細梢 -->
-        <path d="M-30,-48 C-34,-51 -36,-56 -33,-60 M-28,-47 C-31,-44 -34,-42 -35,-40" stroke="var(--ink-deep)"
-          stroke-width="0.7" fill="none" stroke-linecap="round" />
-        <!-- 頂梢 -->
-        <path d="M1,-58 C4,-64 8,-68 12,-70 M1,-60 C-3,-66 -7,-70 -10,-72" stroke="var(--ink-deep)" stroke-width="0.9"
-          fill="none" stroke-linecap="round" />
-        <!-- 逆枝（鹿角枝） -->
-        <path d="M12,-70 C14,-74 12,-76 10,-78 M12,-70 C16,-72 18,-71 20,-69" stroke="var(--ink-deep)"
-          stroke-width="0.5" fill="none" stroke-linecap="round" />
-        <path d="M-10,-72 C-12,-76 -10,-78 -8,-80 M-10,-72 C-14,-74 -16,-73 -18,-71" stroke="var(--ink-deep)"
-          stroke-width="0.5" fill="none" stroke-linecap="round" />
-      </g>
-      <!-- 枯樹（右） -->
-      <g transform="translate(950,472)" filter="url(#fInk)" opacity="0.55">
-        <!-- 主幹 — 微傾斜 -->
-        <path d="M0,0 C2,-8 4,-18 3,-30 C2,-42 1,-52 0,-60" stroke="var(--ink-deep)" stroke-width="2.2" fill="none"
-          stroke-linecap="round" />
-        <!-- 右伸枝 -->
-        <path d="M3,-22 C12,-28 22,-30 30,-28 C34,-27 38,-24 40,-20" stroke="var(--ink-deep)" stroke-width="1.4"
-          fill="none" stroke-linecap="round" />
-        <!-- 右枝梢 -->
-        <path d="M30,-28 C33,-32 35,-36 32,-40 M34,-26 C38,-28 40,-30 42,-28" stroke="var(--ink-deep)"
-          stroke-width="0.6" fill="none" stroke-linecap="round" />
-        <!-- 左伸枝 -->
-        <path d="M2,-35 C-10,-42 -20,-40 -28,-36 C-32,-33 -35,-28 -36,-24" stroke="var(--ink-deep)" stroke-width="1.2"
-          fill="none" stroke-linecap="round" />
-        <!-- 左枝梢 -->
-        <path d="M-28,-36 C-32,-39 -34,-43 -31,-46 M-26,-35 C-28,-31 -30,-28 -32,-26" stroke="var(--ink-deep)"
-          stroke-width="0.6" fill="none" stroke-linecap="round" />
-        <!-- 頂梢 -->
-        <path d="M0,-53 C3,-57 6,-60 8,-64 M0,-55 C-3,-59 -5,-62 -7,-65" stroke="var(--ink-deep)" stroke-width="0.8"
-          fill="none" stroke-linecap="round" />
-      </g>
-
-      <!-- 蘆葦 -->
-      <g opacity="0.50" filter="url(#fInk)">
-        <!-- 左簇 — 高莖 -->
-        <line x1="486" y1="500" x2="484" y2="458" stroke="var(--ink-near)" stroke-width="0.8" stroke-linecap="round" />
-        <line x1="492" y1="500" x2="489" y2="462" stroke="var(--ink-near)" stroke-width="0.7" stroke-linecap="round" />
-        <line x1="497" y1="498" x2="495" y2="450" stroke="var(--ink-near)" stroke-width="0.9" stroke-linecap="round" />
-        <line x1="502" y1="500" x2="499" y2="468" stroke="var(--ink-near)" stroke-width="0.7" stroke-linecap="round" />
-        <line x1="506" y1="498" x2="504" y2="456" stroke="var(--ink-near)" stroke-width="0.8" stroke-linecap="round" />
-        <!-- 右簇 — 矮莖 -->
-        <line x1="513" y1="500" x2="510" y2="474" stroke="var(--ink-near)" stroke-width="0.7" stroke-linecap="round" />
-        <line x1="518" y1="498" x2="516" y2="466" stroke="var(--ink-near)" stroke-width="0.8" stroke-linecap="round" />
-        <line x1="522" y1="500" x2="520" y2="470" stroke="var(--ink-near)" stroke-width="0.6" stroke-linecap="round" />
-        <!-- 葦穗（花序） -->
-        <ellipse cx="483" cy="456" rx="2.8" ry="5" fill="var(--ink-near)" opacity="0.32"
-          transform="rotate(-10,483,456)" />
-        <ellipse cx="488" cy="460" rx="2.2" ry="4" fill="var(--ink-near)" opacity="0.28"
-          transform="rotate(-6,488,460)" />
-        <ellipse cx="494" cy="448" rx="3" ry="5.5" fill="var(--ink-near)" opacity="0.35"
-          transform="rotate(-3,494,448)" />
-        <ellipse cx="498" cy="466" rx="2.5" ry="4" fill="var(--ink-near)" opacity="0.30"
-          transform="rotate(4,498,466)" />
-        <ellipse cx="503" cy="454" rx="3" ry="5" fill="var(--ink-near)" opacity="0.33" transform="rotate(2,503,454)" />
-        <ellipse cx="509" cy="472" rx="2.5" ry="4" fill="var(--ink-near)" opacity="0.28"
-          transform="rotate(6,509,472)" />
-        <ellipse cx="515" cy="464" rx="2.8" ry="4.5" fill="var(--ink-near)" opacity="0.30"
-          transform="rotate(5,515,464)" />
-        <ellipse cx="519" cy="468" rx="2.2" ry="3.5" fill="var(--ink-near)" opacity="0.26"
-          transform="rotate(8,519,468)" />
-        <!-- 葦葉（細長彎葉） -->
-        <path d="M490,480 C486,474 480,472 476,474" stroke="var(--ink-near)" stroke-width="0.5" fill="none"
-          opacity="0.4" />
-        <path d="M500,478 C504,472 510,470 514,472" stroke="var(--ink-near)" stroke-width="0.5" fill="none"
-          opacity="0.4" />
-        <path d="M510,485 C515,480 520,478 524,480" stroke="var(--ink-near)" stroke-width="0.4" fill="none"
-          opacity="0.35" />
-        <path d="M485,490 C480,485 475,483 472,485" stroke="var(--ink-near)" stroke-width="0.4" fill="none"
-          opacity="0.35" />
-      </g>
-
-      <!-- 小橋 -->
-      <g transform="translate(560,498)" filter="url(#fInk)" opacity="0.65">
-        <!-- 橋身石造陰影 -->
-        <path d="M-40,5 C-30,-14 -20,-22 0,-22 C20,-22 30,-14 40,5 L18,5 A18,18 0 0,0 -18,5 Z" fill="var(--ink-mid)"
-          opacity="0.25" />
-        <!-- 拱券（拱洞邊緣石塊線） -->
-        <path d="M-20,5 A20,20 0 0,1 20,5" fill="none" stroke="var(--ink-near)" stroke-width="1" opacity="0.6" />
-        <path d="M-18,5 A18,18 0 0,1 18,5" fill="none" stroke="var(--ink-deep)" stroke-width="1.2" />
-        <!-- 橋面線 -->
-        <path d="M-40,5 C-30,-14 -20,-22 0,-22 C20,-22 30,-14 40,5" fill="none" stroke="var(--ink-deep)"
-          stroke-width="2.5" stroke-linecap="round" />
-        <!-- 石階紋理 -->
-        <line x1="-32" y1="-3" x2="-28" y2="-5" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
-        <line x1="-24" y1="-9" x2="-20" y2="-11" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
-        <line x1="-14" y1="-15" x2="-10" y2="-17" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
-        <line x1="-5" y1="-21" x2="5" y2="-21" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
-        <line x1="10" y1="-17" x2="14" y2="-15" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
-        <line x1="20" y1="-11" x2="24" y2="-9" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
-        <line x1="28" y1="-5" x2="32" y2="-3" stroke="var(--ink-near)" stroke-width="0.8" opacity="0.7" />
-        <!-- 欄杆/扶手 -->
-        <path d="M-38,0 C-29,-18 -19,-26 0,-26 C19,-26 29,-18 38,0" fill="none" stroke="var(--ink-deep)"
-          stroke-width="1" stroke-linecap="round" />
-        <!-- 欄杆立柱 -->
-        <line x1="-35" y1="2" x2="-35" y2="-4" stroke="var(--ink-deep)" stroke-width="1.2" />
-        <line x1="-25" y1="-9" x2="-25" y2="-14" stroke="var(--ink-deep)" stroke-width="1.2" />
-        <line x1="-13" y1="-17" x2="-13" y2="-22" stroke="var(--ink-deep)" stroke-width="1.2" />
-        <line x1="0" y1="-21" x2="0" y2="-26" stroke="var(--ink-deep)" stroke-width="1.2" />
-        <line x1="13" y1="-17" x2="13" y2="-22" stroke="var(--ink-deep)" stroke-width="1.2" />
-        <line x1="25" y1="-9" x2="25" y2="-14" stroke="var(--ink-deep)" stroke-width="1.2" />
-        <line x1="35" y1="2" x2="35" y2="-4" stroke="var(--ink-deep)" stroke-width="1.2" />
-        <!-- 拱洞倒影（水面下方） -->
-        <path d="M-17,6 C-12,18 12,18 17,6" fill="var(--ink-far)" opacity="0.25" />
-        <path d="M-17,6 C-12,18 12,18 17,6" fill="none" stroke="var(--ink-far)" stroke-width="0.8"
-          stroke-dasharray="2,2" opacity="0.5" />
-      </g>
-
-      <!-- 水面 -->
-      <path
-        d="M0,525 C100,518 200,515 350,510 C500,505 650,500 800,498 C950,496 1100,500 1250,505 C1400,510 1500,515 1600,520 L1600,600 L0,600 Z"
-        fill="url(#gWater)" />
-      <ellipse cx="800" cy="520" rx="600" ry="30" fill="var(--mist-white)" filter="url(#fMist)" opacity="0.45" />
-      <ellipse cx="400" cy="525" rx="350" ry="22" fill="var(--mist-white)" filter="url(#fMist)" opacity="0.35" />
-
-      <!-- 倒影 -->
-      <g opacity="0.10" filter="url(#fSoft)">
-        <path
-          d="M620,520 C660,525 700,535 740,545 C760,548 775,550 785,552 C795,550 810,548 830,545 C870,535 910,525 950,520 L950,560 C910,555 870,555 830,558 C795,562 760,562 740,558 C700,555 660,555 620,560 Z"
-          fill="url(#gReflect)" />
-      </g>
-      <g opacity="0.08" filter="url(#fSoft)">
-        <path
-          d="M50,525 C100,522 150,520 200,518 C250,520 300,524 350,528 L350,555 C300,552 250,550 200,552 C150,550 100,548 50,555 Z"
-          fill="url(#gReflect)" />
-      </g>
-
-      <!-- 水紋 -->
-      <g class="ripple-anim">
-        <path d="M50,520 C200,515 450,512 700,510 C950,508 1200,512 1500,518" stroke="var(--ink-far)" stroke-width="0.6"
-          fill="none" stroke-opacity="0.12" />
-        <path d="M80,532 C250,528 480,525 720,523 C960,521 1200,525 1480,530" stroke="var(--ink-far)" stroke-width="0.5"
-          fill="none" stroke-opacity="0.08" />
-        <path d="M120,544 C300,540 500,538 750,536 C1000,535 1250,538 1450,542" stroke="var(--ink-far)"
-          stroke-width="0.4" fill="none" stroke-opacity="0.06" />
-        <path d="M60,555 C220,552 460,548 730,546 C1000,544 1280,548 1520,554" stroke="var(--ink-far)"
-          stroke-width="0.4" fill="none" stroke-opacity="0.05" />
-      </g>
-      <!-- 水紋二層（中頻） -->
-      <g style="animation: ripple2 9s ease-in-out infinite; animation-delay: 3s;">
-        <path d="M120,528 C280,522 500,519 730,517 C960,515 1250,519 1480,524" stroke="var(--ink-far)"
-          stroke-width="0.5" fill="none" stroke-opacity="0.09" />
-        <path d="M40,548 C200,544 450,540 720,538 C990,537 1240,541 1460,546" stroke="var(--ink-far)"
-          stroke-width="0.35" fill="none" stroke-opacity="0.05" />
-      </g>
-      <!-- 水紋三層（慢頻） -->
-      <g style="animation: ripple3 13s ease-in-out infinite; animation-delay: 6s;">
-        <path d="M80,560 C220,556 480,551 740,549 C1000,547 1260,552 1500,558" stroke="var(--ink-far)"
-          stroke-width="0.4" fill="none" stroke-opacity="0.06" />
-      </g>
-
-      <!-- 孤舟垂釣 -->
-      <g class="fishing-boat" filter="url(#fInk)">
-        <path d="M-55,2 C-48,7 -30,10 0,11 C30,10 48,7 55,2" stroke="var(--ink-deep)" stroke-width="2" fill="none"
-          stroke-linecap="round" />
-        <path d="M-55,2 C-58,-1 -62,-6 -60,-12 C-58,-8 -56,-4 -55,2" fill="var(--ink-deep)" />
-        <path d="M55,2 C58,-1 62,-6 60,-12 C58,-8 56,-4 55,2" fill="var(--ink-deep)" />
-        <path
-          d="M-60,-12 C-56,-12 -46,-10 -30,-8 C-15,-6 -4,-5 0,-5 C4,-5 15,-6 30,-8 C46,-10 56,-12 60,-12 C56,-8 46,-7 30,-6 C15,-4 4,-4 0,-4 C-4,-4 -15,-4 -30,-6 C-46,-7 -56,-8 -60,-12 Z"
-          fill="var(--ink-deep)" opacity="0.8" />
-        <path d="M-48,-10 C-34,-8 -18,-6 0,-5.5 C18,-6 34,-8 48,-10 C48,-4 34,-2 0,-1 C-34,-2 -48,-4 -48,-10 Z"
-          fill="var(--ink-near)" opacity="0.6" />
-        <ellipse cx="24" cy="-11" rx="9" ry="4.5" fill="var(--ink-deep)" opacity="0.8" />
-        <path d="M19,-11 C17,-18 19,-24 22,-26 C25,-28 29,-26 31,-20 C33,-15 31,-12 26,-10" fill="var(--ink-deep)"
-          opacity="0.8" />
-        <circle cx="24" cy="-29" r="4.5" fill="var(--ink-deep)" opacity="0.8" />
-        <ellipse cx="24" cy="-32" rx="11" ry="3.5" fill="var(--ink-deep)" opacity="0.75" />
-        <path d="M15,-32 C19,-39 29,-39 33,-32" fill="var(--ink-deep)" opacity="0.75" />
-        <line x1="18" y1="-19" x2="-48" y2="-40" stroke="var(--ink-deep)" stroke-width="1.5" stroke-linecap="round"
-          opacity="0.75" />
-        <path d="M-48,-40 C-50,-28 -48,-12 -46,6" stroke="var(--ink-deep)" stroke-width="0.7" fill="none"
-          stroke-dasharray="3,2" opacity="0.40" />
-        <circle cx="-46" cy="8" r="1.8" fill="var(--ink-near)" opacity="0.45" />
-      </g>
-
-      <!-- 遠景小船 -->
-      <g transform="translate(850,515)" opacity="0.18" filter="url(#fMid)">
-        <path d="M-22,0 C-18,-5 -10,-7 0,-8 C10,-7 18,-5 22,0 C15,3 8,5 0,5 C-8,5 -15,3 -22,0 Z"
-          fill="var(--ink-mid)" />
-        <path d="M-22,0 C-24,-2 -26,-5 -24,-8 C-23,-5 -22,-2 -22,0 Z" fill="var(--ink-mid)" />
-        <path d="M22,0 C24,-2 26,-5 24,-8 C23,-5 22,-2 22,0 Z" fill="var(--ink-mid)" />
-        <path d="M0,-8 C2,-18 1,-22 0,-22 C-1,-22 -2,-18 0,-8 Z" fill="var(--ink-mid)" opacity="0.4" />
-      </g>
-
-      <!-- 山腰雲海 -->
-      <g filter="url(#fMist)" opacity="0.65" class="mist-drift">
-        <ellipse cx="780" cy="390" rx="180" ry="18" fill="var(--mist-white)" />
-      </g>
-      <g filter="url(#fMist)" opacity="0.50" class="mist-drift" style="animation-delay: -3s;">
-        <ellipse cx="640" cy="420" rx="140" ry="14" fill="var(--mist-white)" />
-      </g>
-      <g filter="url(#fMist)" opacity="0.45" class="mist-drift" style="animation-delay: -6s;">
-        <ellipse cx="960" cy="400" rx="150" ry="15" fill="var(--mist-white)" />
-      </g>
-      <g filter="url(#fMist)" opacity="0.40" class="mist-drift" style="animation-delay: -9s;">
-        <ellipse cx="380" cy="430" rx="120" ry="12" fill="var(--mist-white)" />
-      </g>
-    </svg>
-
-    <!-- 雲霧 CSS 層 -->
-    <div class="cloud cloud-sea-1"></div>
-    <div class="cloud cloud-sea-2"></div>
-    <div class="cloud cloud-sea-3"></div>
-    <div class="cloud cloud-mid-1"></div>
-    <div class="cloud cloud-mid-2"></div>
-    <div class="cloud cloud-mid-3"></div>
-    <div class="cloud cloud-hi-1"></div>
-    <div class="cloud cloud-hi-2"></div>
-    <div class="cloud cloud-mountain-1"></div>
-    <div class="cloud cloud-mountain-2"></div>
-
-    <!-- 飛鳥 -->
-    <div class="birds-group birds-1">
-      <div class="bird" style="top:0;left:0"></div>
-      <div class="bird" style="top:-6px;left:24px;animation-delay:0.08s"></div>
-      <div class="bird bird-sm" style="top:4px;left:44px;animation-delay:0.16s"></div>
-      <div class="bird bird-sm" style="top:-3px;left:62px;animation-delay:0.12s"></div>
-      <div class="bird bird-xs" style="top:2px;left:78px;animation-delay:0.22s"></div>
-      <div class="bird bird-xs" style="top:-2px;left:92px;animation-delay:0.28s"></div>
-      <div class="bird bird-xs" style="top:5px;left:104px;animation-delay:0.32s"></div>
-    </div>
-    <div class="birds-group birds-2">
-      <div class="bird" style="top:0;left:0"></div>
-      <div class="bird bird-sm" style="top:4px;left:-20px;animation-delay:0.10s"></div>
-      <div class="bird bird-sm" style="top:-3px;left:-38px;animation-delay:0.20s"></div>
-      <div class="bird bird-xs" style="top:2px;left:-54px;animation-delay:0.06s"></div>
-      <div class="bird bird-xs" style="top:-5px;left:-68px;animation-delay:0.26s"></div>
-    </div>
-    <div class="birds-group birds-3">
-      <div class="bird bird-sm" style="top:0;left:0;animation-delay:0.14s"></div>
-      <div class="bird bird-xs" style="top:-4px;left:16px;animation-delay:0.24s"></div>
-      <div class="bird bird-xs" style="top:3px;left:30px;animation-delay:0.04s"></div>
-      <div class="bird bird-xs" style="top:-1px;left:42px;animation-delay:0.30s"></div>
+    <!-- 背景层：来自于 index1.html -->
+    <div class="scene" id="scene">
+      <div class="scene-img scene-day" id="sceneDay"></div>
+      <div class="scene-img scene-night" id="sceneNight"></div>
+      <div class="mist mist-1"></div>
+      <div class="mist mist-2"></div>
     </div>
 
-    <div class="water-glow"></div>
     <div class="title-container">
       <h1 class="main-title">花开花落 云卷云舒</h1>
-      <!-- 印章 - 篆刻效果 -->
-      <div class="seal">
-        <div class="seal-text">
-          <span class="seal-char">之</span>
-          <span class="seal-char">奇</span>
-          <span class="seal-char">印</span>
-          <span class="seal-char">楨</span>
-        </div>
-      </div>
+      <!-- 印章 - 圖片效果 -->
+      <img class="seal-img" src="assets/seal_web.png" alt="之奇印楨">
     </div>
+
     <div class="title-bg">
       <div class="card-column">
         <a href="https://cocode.qizhen.xyz/" class="card" target="_blank" rel="noopener" id="card-cocode">
@@ -1943,10 +767,6 @@
           </div>
           <div class="card-desc">浮生雜記·關於技術、閱讀與日常的零墨碎痕</div>
         </a>
-
-
-
-
       </div>
     </div>
 
@@ -2127,6 +947,25 @@
             clearTimeout(hintTimer);
           }, { once: true });
         }
+      })();
+
+      // ===== 背景视差（鼠标轻移，山水微动）=====
+      (function () {
+        const dayImg = document.getElementById('sceneDay');
+        const nightImg = document.getElementById('sceneNight');
+        if (!dayImg || !nightImg) return;
+        let raf = null;
+        window.addEventListener('mousemove', (e) => {
+          if (raf) return;
+          raf = requestAnimationFrame(() => {
+            const dx = (e.clientX / window.innerWidth - 0.5) * -14;
+            const dy = (e.clientY / window.innerHeight - 0.5) * -8;
+            const t = `translate(${dx}px, ${dy}px)`;
+            dayImg.style.transform = t;
+            nightImg.style.transform = t;
+            raf = null;
+          });
+        });
       })();
     </script>
     <script async src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
