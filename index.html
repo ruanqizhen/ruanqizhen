@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
   <title>阮奇桢 | 個人主頁</title>
   <meta name="description" content="阮奇桢的个人主页：墨卷、雅集、拾遗——于山水之间，写代码、读文章、记浮生。">
   <meta name="keywords" content="阮奇桢, LabVIEW, Python, 编程教程, 个人博客, 技术教程, 文学创作">
@@ -95,7 +96,6 @@
       background-size: cover;
       background-position: center 38%;
       transition: opacity var(--transition-dur) ease, transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
-      will-change: transform, opacity;
     }
 
     .scene-day {
@@ -497,11 +497,13 @@
     }
 
     .card:visited {
-      border-left: 3px solid rgba(160, 120, 60, 0.25);
+      border-left-width: 3px;
+      border-left-style: solid;
+      border-left-color: rgba(160, 120, 60, 0.25);
     }
 
     .night-mode .card:visited {
-      border-left: 3px solid rgba(200, 150, 80, 0.30);
+      border-left-color: rgba(200, 150, 80, 0.30);
     }
 
     .card-header {
@@ -833,14 +835,19 @@
     /* 减少动态偏好 */
     @media (prefers-reduced-motion: reduce) {
 
-      .mist-1,
-      .mist-2,
-      .scroll-hint {
-        animation: none;
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
       }
 
-      .card {
-        animation-duration: 0.01s;
+      .scene-img {
+        transform: none !important;
+      }
+
+      .scroll-hint {
+        animation: none;
       }
     }
   </style>
@@ -1162,6 +1169,7 @@
               const cleanup = () => {
                 card.style.transition = '';
                 card.style.transform = '';
+                card.style.animation = '';
                 card.removeEventListener('transitionend', cleanup);
               };
               card.addEventListener('transitionend', cleanup);
@@ -1218,15 +1226,15 @@
         if (hint) {
           let hintTimer = setTimeout(() => hint.classList.add('fading'), 5000);
 
-          column.addEventListener('mousedown', () => {
+          const dismissHint = () => {
             hint.classList.add('fading');
             clearTimeout(hintTimer);
-          }, { once: true });
+          };
 
-          column.addEventListener('touchstart', () => {
-            hint.classList.add('fading');
-            clearTimeout(hintTimer);
-          }, { once: true });
+          column.addEventListener('scroll', dismissHint, { once: true });
+          column.addEventListener('wheel', dismissHint, { once: true });
+          column.addEventListener('mousedown', dismissHint, { once: true });
+          column.addEventListener('touchstart', dismissHint, { once: true });
         }
       })();
 
