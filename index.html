@@ -135,10 +135,13 @@
        漂移雾霭 —— 两条横向雾带增添动感
        ========================================================== */
     @keyframes mistDrift1 {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: translateX(-2%);
         opacity: 0.55;
       }
+
       50% {
         transform: translateX(3%);
         opacity: 0.75;
@@ -146,10 +149,13 @@
     }
 
     @keyframes mistDrift2 {
-      0%, 100% {
+
+      0%,
+      100% {
         transform: translateX(2%);
         opacity: 0.40;
       }
+
       50% {
         transform: translateX(-3%);
         opacity: 0.60;
@@ -192,6 +198,7 @@
         opacity: 0;
         transform: translateY(12px);
       }
+
       100% {
         opacity: 1;
         transform: translateY(0);
@@ -216,22 +223,24 @@
         opacity: 0;
         filter: blur(8px);
       }
+
       40% {
         opacity: 0;
         filter: blur(8px);
       }
+
       100% {
-        opacity: 0.12;
+        opacity: 0.4;
         filter: blur(0);
       }
     }
 
     .title-container {
       position: fixed;
-      top: 60px;
+      top: 8vh;
       left: 40px;
       z-index: 2;
-      opacity: 0.12;
+      opacity: 0.4;
       pointer-events: none;
       display: flex;
       flex-direction: column;
@@ -241,9 +250,9 @@
 
     .main-title {
       font-family: 'Zhi Mang Xing', 'Long Cang', 'Ma Shan Zheng', cursive;
-      font-size: 72px;
+      font-size: 6vh;
       font-weight: 700;
-      letter-spacing: 12px;
+      letter-spacing: 1vh;
       color: var(--text-primary);
       transition: color var(--transition-dur) ease;
       text-shadow: var(--text-shadow);
@@ -252,8 +261,8 @@
 
     /* 印章 */
     .seal-img {
-      margin-top: 20px;
-      width: 58px;
+      margin-top: 2vh;
+      width: 6vh;
       height: auto;
       filter: drop-shadow(1px 2px 4px rgba(80, 20, 15, 0.25));
       opacity: 0.95;
@@ -317,13 +326,33 @@
       animation: cardEnter 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
     }
 
-    .card:nth-child(1) { animation-delay: 0.18s; }
-    .card:nth-child(2) { animation-delay: 0.30s; }
-    .card:nth-child(3) { animation-delay: 0.42s; }
-    .card:nth-child(4) { animation-delay: 0.54s; }
-    .card:nth-child(5) { animation-delay: 0.66s; }
-    .card:nth-child(6) { animation-delay: 0.78s; }
-    .card:nth-child(7) { animation-delay: 0.90s; }
+    .card:nth-child(1) {
+      animation-delay: 0.18s;
+    }
+
+    .card:nth-child(2) {
+      animation-delay: 0.30s;
+    }
+
+    .card:nth-child(3) {
+      animation-delay: 0.42s;
+    }
+
+    .card:nth-child(4) {
+      animation-delay: 0.54s;
+    }
+
+    .card:nth-child(5) {
+      animation-delay: 0.66s;
+    }
+
+    .card:nth-child(6) {
+      animation-delay: 0.78s;
+    }
+
+    .card:nth-child(7) {
+      animation-delay: 0.90s;
+    }
 
     .card:hover {
       background: var(--card-hover-bg);
@@ -482,8 +511,13 @@
     }
 
     @keyframes toggleSpin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     .toggle-btn.spinning {
@@ -551,8 +585,15 @@
     }
 
     @keyframes hintPulse {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(12px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      50% {
+        transform: translateX(12px);
+      }
     }
 
     .scroll-hint-arrow {
@@ -570,13 +611,8 @@
     /* ===== 響應式 ===== */
     @media (max-width: 900px) {
       .title-container {
-        top: 50px;
+        top: 8vh;
         left: 20px;
-      }
-
-      .main-title {
-        font-size: 44px;
-        letter-spacing: 8px;
       }
 
       .card-title {
@@ -612,13 +648,8 @@
 
     @media (max-width: 500px) {
       .title-container {
-        top: 40px;
+        top: 8vh;
         left: 10px;
-      }
-
-      .main-title {
-        font-size: 36px;
-        letter-spacing: 6px;
       }
 
       .card {
@@ -671,11 +702,13 @@
 
     /* 减少动态偏好 */
     @media (prefers-reduced-motion: reduce) {
+
       .mist-1,
       .mist-2,
       .scroll-hint {
         animation: none;
       }
+
       .card {
         animation-duration: 0.01s;
       }
