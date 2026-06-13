@@ -1090,15 +1090,6 @@
 
             column.style.transform = `translate3d(${dragX}px, ${dampY(dy)}px, 0)`;
 
-            // 計算滾動速度以供慣性使用
-            const now = Date.now();
-            const dt = now - lastTime;
-            if (dt > 0) {
-              velX = ((pageX - lastX) / dt) * 16;
-            }
-            lastX = pageX;
-            lastTime = now;
-
           } else {
             // 大屏幕情況下：整體自由拖拽回彈
             const maxDrag = 400;
@@ -1115,6 +1106,15 @@
             const dragY = damp(dy);
             column.style.transform = `translate3d(${dragX}px, ${dragY}px, 0)`;
           }
+
+          // 計算拖拽速度（大小屏幕通用）
+          const now = Date.now();
+          const dt = now - lastTime;
+          if (dt > 0) {
+            velX = ((pageX - lastX) / dt) * 16;
+          }
+          lastX = pageX;
+          lastTime = now;
         }
 
         function onEnd() {
@@ -1129,6 +1129,43 @@
           if (isOverflow && moved) {
             // 小屏幕下啟動慣性滾動
             startMomentum();
+          }
+
+          // ---- 卡片逐張 Q 彈回弹 ----
+          if (moved) {
+            const cards = column.querySelectorAll('.card');
+            const dx = lastX - startX; // 整體拖拽位移
+            // 優先用速度，速度太小則用位移方向
+            let impulse = velX;
+            if (Math.abs(impulse) < 2) {
+              impulse = dx * 0.3;
+            }
+            const clamped = Math.max(-40, Math.min(40, impulse));
+
+            cards.forEach((card, i) => {
+              // 先解除 cardEnter 動畫的 forwards 鎖定，否則 inline transform 無效
+              card.style.animation = 'none';
+              // 每張卡片根據序號獲得遞增的偏移和延遲，形成連鎖波浪
+              const offset = clamped * (1.2 + i * 0.55);
+              const delay = i * 55; // ms 逐張遞增延遲
+
+              card.style.transition = 'none';
+              card.style.transform = `translate3d(${offset}px, 0, 0)`;
+              card.style.opacity = '1';
+
+              setTimeout(() => {
+                card.style.transition = `transform ${0.55 + i * 0.07}s cubic-bezier(0.22, 1.9, 0.36, 1)`;
+                card.style.transform = 'translate3d(0, 0, 0)';
+              }, delay);
+
+              // 動畫結束後清理 inline style，避免影響 hover 等其他 transition
+              const cleanup = () => {
+                card.style.transition = '';
+                card.style.transform = '';
+                card.removeEventListener('transitionend', cleanup);
+              };
+              card.addEventListener('transitionend', cleanup);
+            });
           }
         }
 
