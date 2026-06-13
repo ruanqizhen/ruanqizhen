@@ -854,17 +854,18 @@
         });
       })();
 
-      // 拖拽卡片左右移動（支援滑鼠、觸屏、慣性滾動）
+      // 拖拽與滾動交互（支援小屏幕滾動優先，大屏幕整體拖拽回彈）
       (function () {
-        const slider = document.querySelector('.card-column');
-        if (!slider) return;
+        const column = document.querySelector('.card-column');
+        if (!column) return;
 
         let isDown = false;
-        let startX;
-        let scrollLeft;
+        let startX = 0;
+        let startY = 0;
+        let startScrollLeft = 0;
         let moved = false;
 
-        // ---- 慣性滾動 ----
+        // ---- 慣性滾動（用於小屏幕滾動溢出時） ----
         let velX = 0;
         let lastX = 0;
         let lastTime = 0;
@@ -879,13 +880,13 @@
 
         function startMomentum() {
           if (Math.abs(velX) < 0.5) return;
-
           const friction = 0.94;
           const minVel = 0.3;
 
           function step() {
+            if (isDown) return;
             velX *= friction;
-            slider.scrollLeft -= velX;
+            column.scrollLeft -= velX; // 慣性滾動與拉動方向一致
 
             if (Math.abs(velX) > minVel) {
               momentumId = requestAnimationFrame(step);
@@ -893,57 +894,103 @@
               momentumId = null;
             }
           }
-
           momentumId = requestAnimationFrame(step);
         }
 
         // ---- 統一拖拽邏輯 ----
-        function onStart(pageX) {
+        function onStart(pageX, pageY) {
           stopMomentum();
           isDown = true;
           moved = false;
-          startX = pageX - slider.offsetLeft;
-          scrollLeft = slider.scrollLeft;
+          startX = pageX;
+          startY = pageY;
+          startScrollLeft = column.scrollLeft;
+          
           velX = 0;
           lastX = pageX;
           lastTime = Date.now();
+
+          column.style.transition = 'none'; // 拖拽時取消過渡動畫
         }
 
-        function onMove(pageX) {
+        function onMove(pageX, pageY) {
           if (!isDown) return;
-          const x = pageX - slider.offsetLeft;
-          const walk = (x - startX) * 1.5;
-          if (Math.abs(walk) > 5) {
+          const dx = pageX - startX;
+          const dy = pageY - startY;
+
+          if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
             moved = true;
           }
-          slider.scrollLeft = scrollLeft - walk;
 
-          // 計算瞬時速度
-          const now = Date.now();
-          const dt = now - lastTime;
-          if (dt > 0) {
-            velX = ((pageX - lastX) / dt) * 16; // 歸一化至 ~60fps
+          // 判斷是否溢出（小屏幕）。使用 15px 閾值避免亞像素誤差
+          const isOverflow = column.scrollWidth - column.clientWidth > 15;
+
+          if (isOverflow) {
+            // 1. 小屏幕情況下：優先左右滾動（不回彈）。向右拉（dx > 0）拉出左側溢出卡片，scrollLeft 減小（即 - dx）
+            column.scrollLeft = startScrollLeft - dx * 1.5;
+
+            // 2. 依然可以有縱向彈性拉伸
+            const maxDragY = 150;
+            const dampY = (val) => {
+              const sign = Math.sign(val);
+              const abs = Math.abs(val);
+              if (abs > maxDragY) {
+                return sign * (maxDragY + (abs - maxDragY) * 0.2);
+              }
+              return val;
+            };
+            column.style.transform = `translate3d(0, ${dampY(dy)}px, 0)`;
+
+            // 計算滾動速度以供慣性使用
+            const now = Date.now();
+            const dt = now - lastTime;
+            if (dt > 0) {
+              velX = ((pageX - lastX) / dt) * 16;
+            }
+            lastX = pageX;
+            lastTime = now;
+
+          } else {
+            // 大屏幕情況下：整體自由拖拽回彈
+            const maxDrag = 400;
+            const damp = (val) => {
+              const sign = Math.sign(val);
+              const abs = Math.abs(val);
+              if (abs > maxDrag) {
+                return sign * (maxDrag + (abs - maxDrag) * 0.25);
+              }
+              return val;
+            };
+
+            const dragX = damp(dx);
+            const dragY = damp(dy);
+            column.style.transform = `translate3d(${dragX}px, ${dragY}px, 0)`;
           }
-          lastX = pageX;
-          lastTime = now;
         }
 
         function onEnd() {
           if (!isDown) return;
           isDown = false;
-          if (moved) {
+
+          // 彈性恢復位移至 (0, 0)
+          column.style.transition = 'transform 0.6s cubic-bezier(0.25, 1.6, 0.45, 1)';
+          column.style.transform = 'translate3d(0, 0, 0)';
+
+          const isOverflow = column.scrollWidth - column.clientWidth > 15;
+          if (isOverflow && moved) {
+            // 小屏幕下啟動慣性滾動
             startMomentum();
           }
         }
 
         // ---- 滑鼠事件 ----
-        slider.addEventListener('mousedown', (e) => {
-          e.preventDefault();
-          onStart(e.pageX);
+        column.addEventListener('mousedown', (e) => {
+          // 不再調用 e.preventDefault()，以免影響卡片連結的正常點選。卡片自身的拖拽預防已在 dragstart 中處理
+          onStart(e.clientX, e.clientY);
         });
 
         document.addEventListener('mousemove', (e) => {
-          onMove(e.pageX);
+          onMove(e.clientX, e.clientY);
         });
 
         document.addEventListener('mouseup', () => {
@@ -951,25 +998,27 @@
         });
 
         // ---- 觸屏事件 ----
-        slider.addEventListener('touchstart', (e) => {
-          onStart(e.touches[0].pageX);
+        column.addEventListener('touchstart', (e) => {
+          onStart(e.touches[0].clientX, e.touches[0].clientY);
         }, { passive: true });
 
-        slider.addEventListener('touchmove', (e) => {
-          onMove(e.touches[0].pageX);
-        }, { passive: true });
+        document.addEventListener('touchmove', (e) => {
+          if (isDown) {
+            onMove(e.touches[0].clientX, e.touches[0].clientY);
+            if (e.cancelable) e.preventDefault();
+          }
+        }, { passive: false });
 
-        document.addEventListener('touchend', () => {
+        window.addEventListener('touchend', () => {
           onEnd();
         });
 
-        // 防止拖拽卡片鏈接時觸發 HTML5 默認拖放行為
-        slider.querySelectorAll('.card').forEach(card => {
+        // 防止拖拽鏈接文字/圖片等觸發瀏覽器的默認拖放行為
+        column.querySelectorAll('.card').forEach(card => {
           card.addEventListener('dragstart', (e) => {
             e.preventDefault();
           });
 
-          // 如果發生了滑動拖拽，阻止卡片點擊跳轉事件
           card.addEventListener('click', (e) => {
             if (moved) {
               e.preventDefault();
@@ -983,22 +1032,18 @@
         if (hint) {
           let hintTimer = setTimeout(() => hint.classList.add('fading'), 5000);
 
-          slider.addEventListener('scroll', () => {
+          column.addEventListener('mousedown', () => {
             hint.classList.add('fading');
             clearTimeout(hintTimer);
           }, { once: true });
 
-          slider.addEventListener('mousedown', () => {
-            hint.classList.add('fading');
-            clearTimeout(hintTimer);
-          }, { once: true });
-
-          slider.addEventListener('touchstart', () => {
+          column.addEventListener('touchstart', () => {
             hint.classList.add('fading');
             clearTimeout(hintTimer);
           }, { once: true });
         }
       })();
+
 
       // ===== 背景视差（鼠标轻移，山水微动）=====
       (function () {
