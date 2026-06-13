@@ -926,8 +926,33 @@
           const isOverflow = column.scrollWidth - column.clientWidth > 15;
 
           if (isOverflow) {
-            // 1. 小屏幕情況下：優先左右滾動（不回彈）。向右拉（dx > 0）拉出左側溢出卡片，scrollLeft 減小（即 - dx）
-            column.scrollLeft = startScrollLeft - dx * 1.5;
+            // 1. 小屏幕情況下：左右滾動。在 vertical-rl 下，向右拉（dx > 0）是向左滾動（scrollLeft 減少，即 - dx）
+            const targetScroll = startScrollLeft - dx * 1.5;
+            const maxScrollLeft = column.clientWidth - column.scrollWidth; // vertical-rl 下最左側極限是負值
+
+            let overscrollX = 0;
+            if (targetScroll > 0) {
+              overscrollX = targetScroll;
+              column.scrollLeft = 0;
+            } else if (targetScroll < maxScrollLeft) {
+              overscrollX = targetScroll - maxScrollLeft;
+              column.scrollLeft = maxScrollLeft;
+            } else {
+              column.scrollLeft = targetScroll;
+            }
+
+            // 左右越界阻尼拉伸
+            const dampX = (val) => {
+              const sign = Math.sign(val);
+              const abs = Math.abs(val);
+              const limit = 150;
+              if (abs > limit) {
+                return sign * (limit + (abs - limit) * 0.15);
+              }
+              return val * 0.45; // 彈性系數
+            };
+
+            const dragX = -dampX(overscrollX);
 
             // 2. 依然可以有縱向彈性拉伸
             const maxDragY = 150;
@@ -939,7 +964,8 @@
               }
               return val;
             };
-            column.style.transform = `translate3d(0, ${dampY(dy)}px, 0)`;
+
+            column.style.transform = `translate3d(${dragX}px, ${dampY(dy)}px, 0)`;
 
             // 計算滾動速度以供慣性使用
             const now = Date.now();
