@@ -14,8 +14,7 @@
   <meta property="og:url" content="https://qizhen.xyz">
   <meta property="og:image" content="https://qizhen.xyz/og-image.png">
   <link rel="icon" href="assets/seal_web.png">
-  <link rel="preload" as="image" href="assets/bg-day.jpg">
-  <link rel="preload" as="image" href="assets/bg-night.jpg">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -562,11 +561,16 @@
       border-left-color: rgba(200, 150, 80, 0.30);
     }
 
-    /* 鍵盤焦點環 */
     .card:focus-visible {
       outline: 2px solid var(--seal-red);
       outline-offset: 4px;
       border-radius: 5px;
+    }
+
+    .card-column:focus-visible {
+      outline: 2px solid var(--seal-red);
+      outline-offset: -2px;
+      border-radius: 6px;
     }
 
     .toggle-btn:focus-visible {
@@ -1005,10 +1009,18 @@
     (function () {
       const savedTheme = localStorage.getItem('theme');
       const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (savedTheme === 'dark' || (!savedTheme && systemDark)) {
+      const isDark = savedTheme === 'dark' || (!savedTheme && systemDark);
+      if (isDark) {
         document.documentElement.dataset.nightMode = 'true';
         document.documentElement.classList.add('night-mode');
       }
+
+      // 動態按需預加載背景圖片以節省流量、加速首屏 LCP 渲染
+      const preloadLink = document.createElement('link');
+      preloadLink.rel = 'preload';
+      preloadLink.as = 'image';
+      preloadLink.href = isDark ? 'assets/bg-night.jpg' : 'assets/bg-day.jpg';
+      document.head.appendChild(preloadLink);
     })();
   </script>
   <script type="text/javascript">
@@ -1061,7 +1073,7 @@
     </div>
 
     <div class="title-bg">
-      <div class="card-column">
+      <div class="card-column" tabindex="0" role="region" aria-label="項目列表">
         <a href="https://cocode.qizhen.xyz/" class="card" target="_blank" rel="noopener" id="card-cocode">
           <span class="card-corner tl"></span><span class="card-corner tr"></span><span
             class="card-corner bl"></span><span class="card-corner br"></span>
@@ -1343,52 +1355,67 @@
 
           // ---- 卡片逐張 Q 彈回弹 ----
           if (moved) {
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             const cards = column.querySelectorAll('.card');
-            const dx = lastX - startX; // 整體拖拽位移
-            // 優先用速度，速度太小則用位移方向
-            let impulse = velX;
-            if (Math.abs(impulse) < 2) {
-              impulse = dx * 0.3;
-            }
-            const clamped = Math.max(-40, Math.min(40, impulse));
 
-            cards.forEach((card, i) => {
-              // 先清除之前的任何 pending 彈出定時器和監聽器
-              if (card._bounceTimeout1) clearTimeout(card._bounceTimeout1);
-              if (card._bounceTimeout2) clearTimeout(card._bounceTimeout2);
-              if (card._bounceCleanup) {
-                card.removeEventListener('transitionend', card._bounceCleanup);
-              }
-
-              // 先解除 cardEnter 動畫的 forwards 鎖定，否則 inline transform 無效
-              card.style.animation = 'none';
-              // 每張卡片根據序號獲得遞增的偏移和延遲，形成連鎖波浪
-              const offset = clamped * (1.2 + i * 0.55);
-              const delay = i * 55; // ms 逐張遞增延遲
-
-              card.style.transition = 'none';
-              card.style.transform = `translate3d(${offset}px, 0, 0)`;
-              card.style.opacity = '1';
-
-              card._bounceTimeout1 = setTimeout(() => {
-                card.style.transition = `transform ${0.55 + i * 0.07}s cubic-bezier(0.22, 1.9, 0.36, 1)`;
+            if (prefersReducedMotion) {
+              cards.forEach(card => {
+                card.style.transition = 'none';
                 card.style.transform = 'translate3d(0, 0, 0)';
-              }, delay);
+                card.style.opacity = '1';
+                setTimeout(() => {
+                  card.style.transition = '';
+                  card.style.transform = '';
+                  card.style.animation = '';
+                }, 0);
+              });
+            } else {
+              const dx = lastX - startX; // 整體拖拽位移
+              // 優先用速度，速度太小則用位移方向
+              let impulse = velX;
+              if (Math.abs(impulse) < 2) {
+                impulse = dx * 0.3;
+              }
+              const clamped = Math.max(-40, Math.min(40, impulse));
 
-              // 動畫結束後清理 inline style，避免影響 hover 等其他 transition
-              const cleanup = () => {
-                card.style.transition = '';
-                card.style.transform = '';
-                card.style.animation = '';
-                card.removeEventListener('transitionend', cleanup);
-                card._bounceCleanup = null;
-              };
-              card._bounceCleanup = cleanup;
-              card.addEventListener('transitionend', cleanup);
+              cards.forEach((card, i) => {
+                // 先清除之前的任何 pending 彈出定時器和監聽器
+                if (card._bounceTimeout1) clearTimeout(card._bounceTimeout1);
+                if (card._bounceTimeout2) clearTimeout(card._bounceTimeout2);
+                if (card._bounceCleanup) {
+                  card.removeEventListener('transitionend', card._bounceCleanup);
+                }
 
-              // 作為備用，如果 transition 沒觸發（例如 offset 為 0），在延遲後也進行清理
-              card._bounceTimeout2 = setTimeout(cleanup, delay + (0.55 + i * 0.07) * 1000 + 100);
-            });
+                // 先解除 cardEnter 動畫的 forwards 鎖定，否則 inline transform 無效
+                card.style.animation = 'none';
+                // 每張卡片根據序號獲得遞增的偏移和延遲，形成連鎖波浪
+                const offset = clamped * (1.2 + i * 0.55);
+                const delay = i * 55; // ms 逐張遞增延遲
+
+                card.style.transition = 'none';
+                card.style.transform = `translate3d(${offset}px, 0, 0)`;
+                card.style.opacity = '1';
+
+                card._bounceTimeout1 = setTimeout(() => {
+                  card.style.transition = `transform ${0.55 + i * 0.07}s cubic-bezier(0.22, 1.9, 0.36, 1)`;
+                  card.style.transform = 'translate3d(0, 0, 0)';
+                }, delay);
+
+                // 動畫結束後清理 inline style，避免影響 hover 等其他 transition
+                const cleanup = () => {
+                  card.style.transition = '';
+                  card.style.transform = '';
+                  card.style.animation = '';
+                  card.removeEventListener('transitionend', cleanup);
+                  card._bounceCleanup = null;
+                };
+                card._bounceCleanup = cleanup;
+                card.addEventListener('transitionend', cleanup);
+
+                // 作為備用，如果 transition 沒觸發（例如 offset 為 0），在延遲後也進行清理
+                card._bounceTimeout2 = setTimeout(cleanup, delay + (0.55 + i * 0.07) * 1000 + 100);
+              });
+            }
           }
         }
 
