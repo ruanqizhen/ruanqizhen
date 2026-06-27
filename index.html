@@ -82,7 +82,7 @@
        背景层 —— AI 水墨长卷 双图交叉淡入
        ========================================================== */
     .scene {
-      position: absolute;
+      position: fixed;
       inset: 0;
       z-index: 0;
       overflow: hidden;
@@ -683,24 +683,6 @@
       color: #a0c8a8;
     }
 
-    /* 卷軸連線：卡片之間淡墨虛線 */
-    .card:not(:last-child) {
-      margin-bottom: 4px;
-    }
-
-    .card:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 2px;
-      height: 6px;
-      background: var(--card-border);
-      opacity: 0.4;
-      border-radius: 1px;
-      z-index: 3;
-    }
 
     .card-desc {
       font-family: 'LiSu', '隶书', 'SimLi', 'Baoli SC', '华文宝丽', 'Libian SC', '隶变-简', 'STLiti', '华文隶书', 'LXGW WenKai TC', cursive, serif;
@@ -1057,15 +1039,15 @@
 
   <div class="opening-mist"></div>
   <div class="ink-cursor" id="inkCursor"></div>
-  <div class="canvas" id="canvas">
-    <!-- 背景层：来自于 index1.html -->
-    <div class="scene" id="scene">
-      <div class="scene-img scene-day" id="sceneDay"></div>
-      <div class="scene-img scene-night" id="sceneNight"></div>
-      <div class="mist mist-1"></div>
-      <div class="mist mist-2"></div>
-    </div>
+  <!-- 背景层 -->
+  <div class="scene" id="scene">
+    <div class="scene-img scene-day" id="sceneDay"></div>
+    <div class="scene-img scene-night" id="sceneNight"></div>
+    <div class="mist mist-1"></div>
+    <div class="mist mist-2"></div>
+  </div>
 
+  <div class="canvas" id="canvas">
     <div class="title-container">
       <h1 class="main-title">花开花落 云卷云舒</h1>
       <!-- 印章 - 圖片效果 -->
@@ -1166,8 +1148,9 @@
         </svg>
       </span>
     </button>
+  </div><!-- /.canvas -->
 
-    <script>
+  <script>
       // 晝夜切換
       (function () {
         const btn = document.getElementById('toggleBtn');
@@ -1517,9 +1500,8 @@
           });
         }
       })();
-    </script>
-    <script async src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
-  </div><!-- /.canvas -->
+  </script>
+  <script async src="https://hm.baidu.com/hm.js?b3f6e7ec9302021671173e3fad14f4cd"></script>
 </body>
 
 </html>
