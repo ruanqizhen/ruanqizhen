@@ -269,7 +269,8 @@
       opacity: 0.95;
     }
 
-    /* 卡片列 */
+    /* 卡片列（父級 .title-bg 設置了 writing-mode: vertical-rl，
+       因此 flex-direction: column 實際呈現為橫向佈局，overflow-x 控制橫向滾動） */
     .card-column {
       display: flex;
       flex-direction: column;
@@ -553,13 +554,7 @@
     }
 
     .card:visited {
-      border-left-width: 3px;
-      border-left-style: solid;
       border-left-color: rgba(160, 120, 60, 0.25);
-    }
-
-    .night-mode .card:visited {
-      border-left-color: rgba(200, 150, 80, 0.30);
     }
 
     .card:focus-visible {
@@ -641,10 +636,6 @@
       color: #588068;
     }
 
-    .night-mode .card-tag.game {
-      background: rgba(200, 160, 80, 0.18);
-      color: #d4b878;
-    }
 
     /* ===== 開場霧散 ===== */
     @keyframes mistLift {
@@ -677,11 +668,6 @@
 
     .night-mode .opening-mist {
       background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(40, 28, 15, 0.97) 0%, rgba(35, 24, 12, 0.92) 50%, rgba(30, 20, 10, 0.85) 100%);
-    }
-
-    .night-mode .card-tag.blog {
-      background: rgba(140, 170, 150, 0.18);
-      color: #a0c8a8;
     }
 
 
@@ -776,25 +762,7 @@
       animation: toggleSpin 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* 夜間文字可讀性提升 */
-    .night-mode .card-desc {
-      opacity: 0.88;
-    }
 
-    .night-mode .card:hover {
-      box-shadow:
-        0 6px 24px rgba(20, 10, 0, 0.20),
-        0 0 40px rgba(200, 150, 80, 0.12),
-        0 0 80px rgba(220, 170, 100, 0.08);
-    }
-
-    .night-mode .card-tag.book {
-      background: rgba(200, 150, 80, 0.18);
-    }
-
-    .night-mode .card-tag.web {
-      background: rgba(160, 175, 195, 0.18);
-    }
 
     .title-bg {
       position: absolute;
@@ -969,6 +937,42 @@
       background: radial-gradient(circle, rgba(220, 190, 130, 0.14) 0%, rgba(220, 190, 130, 0.05) 45%, transparent 70%);
     }
 
+    /* ==========================================================
+       夜間模式覆寫（集中管理）
+       ========================================================== */
+    .night-mode .card:visited {
+      border-left-color: rgba(200, 150, 80, 0.30);
+    }
+
+    .night-mode .card-tag.game {
+      background: rgba(200, 160, 80, 0.18);
+      color: #d4b878;
+    }
+
+    .night-mode .card-tag.blog {
+      background: rgba(140, 170, 150, 0.18);
+      color: #a0c8a8;
+    }
+
+    .night-mode .card-tag.book {
+      background: rgba(200, 150, 80, 0.18);
+    }
+
+    .night-mode .card-tag.web {
+      background: rgba(160, 175, 195, 0.18);
+    }
+
+    .night-mode .card-desc {
+      opacity: 0.88;
+    }
+
+    .night-mode .card:hover {
+      box-shadow:
+        0 6px 24px rgba(20, 10, 0, 0.20),
+        0 0 40px rgba(200, 150, 80, 0.12),
+        0 0 80px rgba(220, 170, 100, 0.08);
+    }
+
     /* 减少动态偏好 */
     @media (prefers-reduced-motion: reduce) {
 
@@ -1004,6 +1008,15 @@
       preloadLink.as = 'image';
       preloadLink.href = isDark ? 'assets/bg-night.jpg' : 'assets/bg-day.jpg';
       document.head.appendChild(preloadLink);
+
+      // 空閒時預加載另一張背景圖，避免切換主題時閃白
+      const altHref = isDark ? 'assets/bg-day.jpg' : 'assets/bg-night.jpg';
+      const preloadAlt = () => { const img = new Image(); img.src = altHref; };
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(preloadAlt);
+      } else {
+        setTimeout(preloadAlt, 2000);
+      }
     })();
   </script>
   <script type="text/javascript">
@@ -1036,10 +1049,10 @@
   </script>
 </head>
 
-<body>
+<body id="top">
 
   <div class="opening-mist" aria-hidden="true"></div>
-  <div class="ink-cursor" id="inkCursor"></div>
+  <div class="ink-cursor" id="inkCursor" aria-hidden="true"></div>
   <!-- 背景层 -->
   <div class="scene" id="scene">
     <div class="scene-img scene-day" id="sceneDay"></div>
